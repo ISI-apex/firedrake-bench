@@ -1,0 +1,7 @@
+*.dat
+*.log
+*.msh
+*.pdf
+*.pyc
+*.xml
+*.xml.gz
