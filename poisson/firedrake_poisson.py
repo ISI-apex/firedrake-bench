@@ -1,16 +1,11 @@
-from pybench import Benchmark
+from poisson import Poisson
 from firedrake import *
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
 
 
-class FiredrakePoisson(Benchmark):
-
-    params = {'degree': range(1, 4),
-              'size': [2**x for x in range(4, 7)],
-              'dim': [3]}
-    method = 'poisson'
+class FiredrakePoisson(Poisson):
 
     def poisson(self, size, degree=1, dim=2):
         with self.timed_region('mesh'):

@@ -1,16 +1,11 @@
-from pybench import Benchmark
+from poisson import Poisson
 from dolfin import *
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
 
 
-class DolfinPoisson(Benchmark):
-
-    params = {'degree': range(1, 4),
-              'size': [2**x for x in range(4, 7)],
-              'dim': [3]}
-    method = 'poisson'
+class DolfinPoisson(Poisson):
 
     def poisson(self, size, degree=1, dim=2):
         with self.timed_region('mesh'):
