@@ -28,7 +28,7 @@ class DolfinPoisson(Poisson):
                            'marker': 'D',
                            'linestyle': '--'}}
 
-    def poisson(self, size, degree=1, dim=2):
+    def poisson(self, size=32, degree=1, dim=2):
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
             mesh.init()
