@@ -11,6 +11,6 @@ class Poisson(Benchmark):
                     'node_threshold': 2.0}
 
 if __name__ == '__main__':
-    b = Poisson()
-    b.combine({'FiredrakePoisson': 'Firedrake', 'DolfinPoisson': 'DOLFIN'})
-    b.plot(xaxis='size')
+    Poisson().main(combine={'FiredrakePoisson': 'Firedrake',
+                            'DolfinPoisson': 'DOLFIN'},
+                   plot=['size'])

@@ -59,6 +59,4 @@ class FiredrakePoisson(Poisson):
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
-    b = FiredrakePoisson()
-    b.run()
-    b.plot(xaxis='size')
+    FiredrakePoisson().main(run=True)

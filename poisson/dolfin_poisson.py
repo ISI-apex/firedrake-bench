@@ -64,6 +64,4 @@ class DolfinPoisson(Poisson):
 
 if __name__ == '__main__':
     set_log_active(False)
-    b = DolfinPoisson()
-    b.run()
-    b.plot(xaxis='size')
+    DolfinPoisson().main(run=True)
