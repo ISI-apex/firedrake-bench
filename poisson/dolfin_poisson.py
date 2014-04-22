@@ -7,6 +7,25 @@ make_mesh = {2: lambda x: UnitSquareMesh(x, x),
 
 class DolfinPoisson(Poisson):
 
+    plotstyle = {'total': {'color': 'black',
+                           'marker': '*',
+                           'linestyle': '--'},
+                 'mesh': {'color': 'blue',
+                          'marker': '+',
+                          'linestyle': '--'},
+                 'setup': {'color': 'green',
+                           'marker': 'x',
+                           'linestyle': '--'},
+                 'matrix assembly': {'color': 'cyan',
+                                     'marker': '>',
+                                     'linestyle': '--'},
+                 'rhs assembly': {'color': 'magenta',
+                                  'marker': '<',
+                                  'linestyle': '--'},
+                 'solve': {'color': 'red',
+                           'marker': 'D',
+                           'linestyle': '--'}}
+
     def poisson(self, size, degree=1, dim=2):
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
