@@ -9,6 +9,8 @@ class Poisson(Benchmark):
     params = [('dim', [dim]),
               ('degree', range(1, 4)),
               ('size', sizes)]
+    meta = {'cells': [6*x**dim for x in sizes],
+            'dofs': [(x+1)**dim for x in sizes]}
     method = 'poisson'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
