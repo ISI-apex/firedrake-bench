@@ -1,72 +1,109 @@
-from time import clock
+from advection_diffusion import AdvectionDiffusion
 from dolfin import *
 
+parameters["reorder_dofs_serial"] = False
 
-def adv_diff(size, advection=True, diffusion=True):
-    dt = 0.0001
-    T = 0.01
+make_mesh = {2: lambda x: UnitSquareMesh(x, x),
+             3: lambda x: UnitCubeMesh(x, x, x)}
 
-    t_ = clock()
-    mesh = UnitSquareMesh(size, size)
-    mesh.init()
-    print size, 'mesh:', clock() - t_
-    t_ = clock()
 
-    V = FunctionSpace(mesh, "CG", 1)
-    U = VectorFunctionSpace(mesh, "CG", 1)
+class DolfinAdvectionDiffusion(AdvectionDiffusion):
 
-    p = TrialFunction(V)
-    q = TestFunction(V)
-    t = Function(V)
-    u = Function(U)
+    series = {'np': MPI.size(mpi_comm_world())}
+    plotstyle = {'total': {'color': 'black',
+                           'marker': '*',
+                           'linestyle': '--'},
+                 'mesh': {'color': 'blue',
+                          'marker': '+',
+                          'linestyle': '--'},
+                 'setup': {'color': 'green',
+                           'marker': 'x',
+                           'linestyle': '--'},
+                 'advection matrix': {'color': 'cyan',
+                                      'marker': '>',
+                                      'linestyle': '--'},
+                 'diffusion matrix': {'color': 'cyan',
+                                      'marker': '<',
+                                      'linestyle': '--'},
+                 'timestepping': {'color': 'yellow',
+                                  'marker': 'o',
+                                  'linestyle': '--'},
+                 'advection RHS': {'color': 'magenta',
+                                   'marker': '^',
+                                   'linestyle': '--'},
+                 'diffusion RHS': {'color': 'magenta',
+                                   'marker': 'v',
+                                   'linestyle': '--'},
+                 'advection solve': {'color': 'red',
+                                     'marker': 's',
+                                     'linestyle': '--'},
+                 'diffusion solve': {'color': 'red',
+                                     'marker': 'D',
+                                     'linestyle': '--'}}
 
-    diffusivity = 0.1
+    def advection_diffusion(self, size=32, degree=1, dim=2, dt=0.0001, T=0.01,
+                            diffusivity=0.1, advection=True, diffusion=True):
+        with self.timed_region('mesh'):
+            mesh = make_mesh[dim](size)
+            mesh.init()
 
-    adv = p * q * dx
-    adv_rhs = (q * t + dt * dot(grad(q), u) * t) * dx
+        with self.timed_region('setup'):
+            V = FunctionSpace(mesh, "CG", degree)
+            U = VectorFunctionSpace(mesh, "CG", degree)
 
-    d = -dt * diffusivity * dot(grad(q), grad(p)) * dx
+            p = TrialFunction(V)
+            q = TestFunction(V)
+            t = Function(V)
+            u = Function(U)
 
-    diff = adv - 0.5 * d
-    diff_rhs = action(adv + 0.5 * d, t)
+            adv = p * q * dx
+            adv_rhs = (q * t + dt * dot(grad(q), u) * t) * dx
 
-    if advection:
-        A = assemble(adv)
-    if diffusion:
-        D = assemble(diff)
+            d = -dt * diffusivity * dot(grad(q), grad(p)) * dx
 
-    # Set initial condition:
-    # A*(e^(-r^2/(4*D*T)) / (4*pi*D*T))
-    # with normalisation A = 0.1, diffusivity D = 0.1
-    r2 = "(pow(x[0]-(0.45+%(T)f), 2.0) + pow(x[1]-0.5, 2.0))"
-    fexpr = "0.1 * (exp(-" + r2 + "/(0.4*%(T)f)) / (0.4*pi*%(T)f))"
-    t.interpolate(Expression(fexpr % {'T': T}))
-    u.interpolate(Expression(('1.0', '0.0')))
+            diff = adv - 0.5 * d
+            diff_rhs = action(adv + 0.5 * d, t)
 
-    print size, 'setup:', clock() - t_
-    t_ = clock()
+            # Set initial condition:
+            # A*(e^(-r^2/(4*D*T)) / (4*pi*D*T))
+            # with normalisation A = 0.1, diffusivity D = 0.1
+            r2 = "(pow(x[0]-(0.45+%(T)f), 2.0) + pow(x[1]-0.5, 2.0))"
+            fexpr = "0.1 * (exp(-" + r2 + "/(0.4*%(T)f)) / (0.4*pi*%(T)f))"
+            t.interpolate(Expression(fexpr % {'T': T}))
+            u.interpolate(Expression(('1.0', '0.0')))
 
-    while T < 0.02:
-
-        # Advection
         if advection:
-            b = assemble(adv_rhs)
-            solve(A, t.vector(), b, "gmres", "ilu")
-
-        # Diffusion
+            with self.timed_region('advection matrix'):
+                A = assemble(adv)
         if diffusion:
-            b = assemble(diff_rhs)
-            solve(D, t.vector(), b, "gmres", "ilu")
+            with self.timed_region('diffusion matrix'):
+                D = assemble(diff)
 
-        T = T + dt
+        with self.timed_region('timestepping'):
+            while T < 0.02:
 
-    # Analytical solution
-    a = Function(V)
-    a.interpolate(Expression(fexpr % {'T': T}))
-    sqrt(assemble(dot(t - a, t - a) * dx))
-    print size, 'time stepping:', clock() - t_
+                # Advection
+                if advection:
+                    with self.timed_region('advection RHS'):
+                        b = assemble(adv_rhs)
+                    with self.timed_region('advection solve'):
+                        solve(A, t.vector(), b, "gmres", "ilu")
+
+                # Diffusion
+                if diffusion:
+                    with self.timed_region('diffusion RHS'):
+                        b = assemble(diff_rhs)
+                    with self.timed_region('diffusion solve'):
+                        solve(D, t.vector(), b, "gmres", "ilu")
+
+                T = T + dt
+
+        # Analytical solution
+        a = Function(V)
+        a.interpolate(Expression(fexpr % {'T': T}))
+        sqrt(assemble(dot(t - a, t - a) * dx))
 
 if __name__ == '__main__':
     set_log_active(False)
-    for size in range(5, 9):
-        adv_diff(2**size)
+    rank = MPI.rank(mpi_comm_world())
+    DolfinAdvectionDiffusion().main(benchmark=True, save=(rank == 0 and None))
