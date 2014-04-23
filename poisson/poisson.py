@@ -16,6 +16,8 @@ class Poisson(Benchmark):
                     'node_threshold': 2.0}
 
 if __name__ == '__main__':
+    regions = ['Firedrake matrix assembly', 'Firedrake rhs assembly', 'Firedrake solve',
+               'DOLFIN matrix assembly', 'DOLFIN rhs assembly', 'DOLFIN solve']
     b = Poisson(name='DolfinPoissonParallel')
     b.combine_series([('np', [1, 2, 4, 6])], filename='DolfinPoisson')
     b.save()
@@ -24,7 +26,7 @@ if __name__ == '__main__':
     b.save()
     b = Poisson()
     b.combine({'FiredrakePoisson_np1': 'Firedrake', 'DolfinPoisson_np1': 'DOLFIN'})
-    b.plot(xaxis='size')
+    b.plot(xaxis='size', regions=regions)
     b = Poisson(name='PoissonParallel')
     b.combine({'FiredrakePoissonParallel': 'Firedrake', 'DolfinPoissonParallel': 'DOLFIN'})
-    b.plot(xaxis='np')
+    b.plot(xaxis='np', regions=regions)
