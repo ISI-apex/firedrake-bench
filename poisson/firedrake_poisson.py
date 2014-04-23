@@ -59,4 +59,5 @@ class FiredrakePoisson(Poisson):
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
-    FiredrakePoisson().main(run=True)
+    rank = op2.MPI.comm.rank
+    FiredrakePoisson().main(benchmark=True, save=(rank == 0 and None))

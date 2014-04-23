@@ -64,4 +64,5 @@ class DolfinPoisson(Poisson):
 
 if __name__ == '__main__':
     set_log_active(False)
-    DolfinPoisson().main(run=True)
+    rank = MPI.rank(mpi_comm_world())
+    DolfinPoisson().main(benchmark=True, save=(rank == 0 and None))
