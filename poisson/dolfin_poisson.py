@@ -60,7 +60,7 @@ class DolfinPoisson(Poisson):
             b = assemble(L)
             bc.apply(b)
         with self.timed_region('solve'):
-            solve(A, u.vector(), b, 'cg', 'ilu')
+            solve(A, u.vector(), b, 'cg', 'jacobi')
 
 if __name__ == '__main__':
     set_log_active(False)

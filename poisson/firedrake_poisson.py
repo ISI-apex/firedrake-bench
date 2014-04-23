@@ -52,7 +52,7 @@ class FiredrakePoisson(Poisson):
             bc.apply(b)
         with self.timed_region('solve'):
             solve(A, u, b, solver_parameters={'ksp_type': 'cg',
-                                              'pc_type': 'ilu',
+                                              'pc_type': 'jacobi',
                                               'ksp_rtol': 1e-6,
                                               'ksp_atol': 1e-15})
             u.dat.data
