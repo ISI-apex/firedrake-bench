@@ -8,6 +8,7 @@ make_mesh = {2: lambda x: UnitSquareMesh(x, x),
 
 
 class DolfinPoisson(Poisson):
+    series = {'np': MPI.size(mpi_comm_world())}
 
     plotstyle = {'total': {'color': 'black',
                            'marker': '*',

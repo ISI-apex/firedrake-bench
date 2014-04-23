@@ -6,6 +6,7 @@ make_mesh = {2: lambda x: UnitSquareMesh(x, x),
 
 
 class FiredrakePoisson(Poisson):
+    series = {'np': op2.MPI.comm.size}
 
     plotstyle = {'total': {'color': 'black',
                            'marker': '*',
