@@ -102,7 +102,9 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
 
         # Analytical solution
         a = Function(V).interpolate(Expression(fexpr % {'T': T}))
-        sqrt(assemble(dot(t - a, t - a) * dx))
+        l2 = sqrt(assemble(dot(t - a, t - a) * dx))
+        if op2.MPI.comm.rank == 0:
+            print 'L2 error norm:', l2
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')

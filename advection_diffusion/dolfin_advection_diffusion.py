@@ -101,7 +101,9 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         # Analytical solution
         a = Function(V)
         a.interpolate(Expression(fexpr % {'T': T}))
-        sqrt(assemble(dot(t - a, t - a) * dx))
+        l2 = sqrt(assemble(dot(t - a, t - a) * dx))
+        if MPI.rank(mpi_comm_world()) == 0:
+            print 'L2 error norm:', l2
 
 if __name__ == '__main__':
     set_log_active(False)
