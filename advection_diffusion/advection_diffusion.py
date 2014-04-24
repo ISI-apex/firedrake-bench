@@ -15,3 +15,22 @@ class AdvectionDiffusion(Benchmark):
     method = 'advection_diffusion'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
+
+if __name__ == '__main__':
+    regions = ['Firedrake advection RHS', 'Firedrake advection solve',
+               'Firedrake diffusion RHS', 'Firedrake diffusion solve',
+               'DOLFIN advection RHS', 'DOLFIN advection solve',
+               'DOLFIN diffusion RHS', 'DOLFIN diffusion solve',
+               'Firedrake timestepping', 'DOLFIN timestepping']
+    b = AdvectionDiffusion(name='DolfinAdvectionDiffusionParallel')
+    b.combine_series([('np', [1, 2, 4])], filename='DolfinAdvectionDiffusion')
+    b.save()
+    b = AdvectionDiffusion(name='FiredrakeAdvectionDiffusionParallel')
+    b.combine_series([('np', [1, 2, 4])], filename='FiredrakeAdvectionDiffusion')
+    b.save()
+    b = AdvectionDiffusion()
+    b.combine({'FiredrakeAdvectionDiffusion_np1': 'Firedrake', 'DolfinAdvectionDiffusion_np1': 'DOLFIN'})
+    b.plot(xaxis='size', regions=regions)
+    b = AdvectionDiffusion(name='AdvectionDiffusionParallel')
+    b.combine({'FiredrakeAdvectionDiffusionParallel': 'Firedrake', 'DolfinAdvectionDiffusionParallel': 'DOLFIN'})
+    b.plot(xaxis='np', regions=regions)
