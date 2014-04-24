@@ -77,9 +77,11 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
         if advection:
             with self.timed_region('advection matrix'):
                 A = assemble(adv)
+                A.M
         if diffusion:
             with self.timed_region('diffusion matrix'):
                 D = assemble(diff)
+                D.M
 
         with self.timed_region('timestepping'):
             while T < 0.02:
@@ -88,6 +90,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                 if advection:
                     with self.timed_region('advection RHS'):
                         b = assemble(adv_rhs)
+                        b.dat.data
                     with self.timed_region('advection solve'):
                         solve(A, t, b, solver_parameters=solver_parameters)
 
@@ -95,6 +98,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                 if diffusion:
                     with self.timed_region('diffusion RHS'):
                         b = assemble(diff_rhs)
+                        b.dat.data
                     with self.timed_region('diffusion solve'):
                         solve(D, t, b, solver_parameters=solver_parameters)
 
