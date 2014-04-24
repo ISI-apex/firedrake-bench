@@ -105,5 +105,4 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
 
 if __name__ == '__main__':
     set_log_active(False)
-    rank = MPI.rank(mpi_comm_world())
-    DolfinAdvectionDiffusion().main(benchmark=True, save=(rank == 0 and None))
+    DolfinAdvectionDiffusion().main(benchmark=True, save=None)
