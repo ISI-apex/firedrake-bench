@@ -3,7 +3,10 @@ from firedrake import *
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
-
+solver_parameters = {'ksp_type': 'cg',
+                     'pc_type': 'jacobi',
+                     'ksp_rtol': 1e-6,
+                     'ksp_atol': 1e-15}
 
 class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
 
@@ -86,16 +89,14 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                     with self.timed_region('advection RHS'):
                         b = assemble(adv_rhs)
                     with self.timed_region('advection solve'):
-                        solve(A, t, b, solver_parameters={"ksp_type": "gmres",
-                                                          "pc_type": "ilu"})
+                        solve(A, t, b, solver_parameters=solver_parameters)
 
                 # Diffusion
                 if diffusion:
                     with self.timed_region('diffusion RHS'):
                         b = assemble(diff_rhs)
                     with self.timed_region('diffusion solve'):
-                        solve(D, t, b, solver_parameters={"ksp_type": "gmres",
-                                                          "pc_type": "ilu"})
+                        solve(D, t, b, solver_parameters=solver_parameters)
 
                 T = T + dt
 

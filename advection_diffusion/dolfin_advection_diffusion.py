@@ -87,14 +87,14 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                     with self.timed_region('advection RHS'):
                         b = assemble(adv_rhs)
                     with self.timed_region('advection solve'):
-                        solve(A, t.vector(), b, "gmres", "ilu")
+                        solve(A, t.vector(), b, "cg", "jacobi")
 
                 # Diffusion
                 if diffusion:
                     with self.timed_region('diffusion RHS'):
                         b = assemble(diff_rhs)
                     with self.timed_region('diffusion solve'):
-                        solve(D, t.vector(), b, "gmres", "ilu")
+                        solve(D, t.vector(), b, "cg", "jacobi")
 
                 T = T + dt
 
