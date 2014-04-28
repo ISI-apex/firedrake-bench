@@ -34,7 +34,7 @@ class DolfinPoisson(Poisson):
             mesh = make_mesh[dim](size)
             mesh.init()
         with self.timed_region('setup'):
-            V = FunctionSpace(mesh, "Lagrange", 1)
+            V = FunctionSpace(mesh, "Lagrange", degree)
 
             # Define Dirichlet boundary (x = 0 or x = 1)
             def boundary(x):

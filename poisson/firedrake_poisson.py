@@ -31,7 +31,7 @@ class FiredrakePoisson(Poisson):
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
         with self.timed_region('setup'):
-            V = FunctionSpace(mesh, "Lagrange", 1)
+            V = FunctionSpace(mesh, "Lagrange", degree)
 
             # Define boundary condition
             bc = DirichletBC(V, 0.0, [3, 4])

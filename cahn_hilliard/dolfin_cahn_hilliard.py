@@ -1,4 +1,4 @@
-from time import clock
+from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 import random
 from dolfin import *
 
@@ -32,87 +32,91 @@ class CahnHilliardEquation(NonlinearProblem):
     def J(self, A, x):
         assemble(self.a, tensor=A)
 
-# Model parameters
-lmbda = 1.0e-02  # surface parameter
-dt = 5.0e-06     # time step
-theta = 0.5      # time stepping family, e.g. theta=1 -> backward Euler, theta=0.5 -> Crank-Nicolson
-
 # Form compiler options
 parameters["form_compiler"]["optimize"] = True
 parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
-parameters["reorder_dofs_serial"] = False
 
 
-def cahn_hilliard(x, steps, save=False):
-    # Create mesh and define function spaces
-    t_ = clock()
-    mesh = UnitSquareMesh(x, x)
-    mesh.init()
-    print x, 'mesh:', clock() - t_
-    t_ = clock()
-    V = FunctionSpace(mesh, "Lagrange", 1)
-    ME = V*V
+class DolfinCahnHilliard(CahnHilliard):
+    series = {'np': MPI.size(mpi_comm_world())}
 
-    # Define trial and test functions
-    du = TrialFunction(ME)
-    q, v = TestFunctions(ME)
+    def cahn_hilliard(self, size=96, steps=50, degree=1, save=False):
+        with self.timed_region('mesh'):
+            # Create mesh and define function spaces
+            mesh = UnitSquareMesh(size, size)
+            mesh.init()
 
-    # Define functions
-    u = Function(ME)  # current solution
-    u0 = Function(ME)  # solution from previous converged step
+        with self.timed_region('setup'):
+            V = FunctionSpace(mesh, "Lagrange", degree)
+            ME = V*V
 
-    # Split mixed functions
-    dc, dmu = split(du)
-    c, mu = split(u)
-    c0, mu0 = split(u0)
+            # Define trial and test functions
+            du = TrialFunction(ME)
+            q, v = TestFunctions(ME)
 
-    # Create intial conditions and interpolate
-    u_init = InitialConditions()
-    u.interpolate(u_init)
-    u0.interpolate(u_init)
+            # Define functions
+            u = Function(ME)   # current solution
+            u0 = Function(ME)  # solution from previous converged step
 
-    # Compute the chemical potential df/dc
-    c = variable(c)
-    f = 100*c**2*(1-c)**2
-    dfdc = diff(f, c)
+            # Split mixed functions
+            dc, dmu = split(du)
+            c, mu = split(u)
+            c0, mu0 = split(u0)
 
-    # mu_(n+theta)
-    mu_mid = (1.0-theta)*mu0 + theta*mu
+            # Create intial conditions and interpolate
+            u_init = InitialConditions()
+            u.interpolate(u_init)
+            u0.interpolate(u_init)
 
-    # Weak statement of the equations
-    L0 = c*q*dx - c0*q*dx + dt*dot(grad(mu_mid), grad(q))*dx
-    L1 = mu*v*dx - dfdc*v*dx - lmbda*dot(grad(c), grad(v))*dx
-    L = L0 + L1
+            # Compute the chemical potential df/dc
+            c = variable(c)
+            f = 100*c**2*(1-c)**2
+            dfdc = diff(f, c)
 
-    # Compute directional derivative about u in the direction of du (Jacobian)
-    a = derivative(L, u, du)
+            # mu_(n+theta)
+            mu_mid = (1.0-theta)*mu0 + theta*mu
 
-    # Create nonlinear problem and PETSc SNES solver
-    problem = CahnHilliardEquation(a, L)
-    solver = PETScSNESSolver()
-    solver.parameters["linear_solver"] = "gmres"
-    solver.parameters["preconditioner"] = "jacobi"
-    solver.parameters["report"] = False
-    solver.parameters["krylov_solver"]["report"] = False
+            # Weak statement of the equations
+            L0 = c*q*dx - c0*q*dx + dt*dot(grad(mu_mid), grad(q))*dx
+            L1 = mu*v*dx - dfdc*v*dx - lmbda*dot(grad(c), grad(v))*dx
+            L = L0 + L1
 
-    # Output file
-    if save:
-        file = File("dolfin_cahn_hilliard.pvd")
+            # Compute directional derivative about u in the direction of du (Jacobian)
+            a = derivative(L, u, du)
 
-    print x, 'setup:', clock() - t_
-    t_ = clock()
-    # Step in time
-    t = 0.0
-    T = steps*dt
-    while (t < T):
-        t += dt
-        u0.vector()[:] = u.vector()
-        solver.solve(problem, u.vector())
-        file << (u.split()[0], t)
+            # Create nonlinear problem and PETSc SNES solver
+            problem = CahnHilliardEquation(a, L)
+            solver = PETScSNESSolver()
+            solver.parameters["linear_solver"] = "gmres"
+            solver.parameters["preconditioner"] = "jacobi"
+            solver.parameters["report"] = False
+            solver.parameters["krylov_solver"]["report"] = False
 
-    print x, 'time stepping for', steps, 'steps:', clock() - t_
+            # Output file
+            if save:
+                file = File("vtk/dolfin_cahn_hilliard_%d.pvd" % size)
+
+        with self.timed_region('timestepping'):
+            # Step in time
+            t = 0.0
+            T = steps*dt
+            while (t < T):
+                t += dt
+                u0.vector()[:] = u.vector()
+                solver.solve(problem, u.vector())
+                if save:
+                    file << (u.split()[0], t)
 
 if __name__ == '__main__':
     set_log_active(False)
-    cahn_hilliard(96, 50)
+
+    # Benchmark
+    DolfinCahnHilliard().main(benchmark=True, save=None)
+
+    # Output VTU files
+    # DolfinCahnHilliard().cahn_hilliard(save=True)
+
+    # Profile
+    # regions = ['mesh', 'setup', 'timestepping']
+    # DolfinCahnHilliard().profile(regions=regions)
