@@ -10,3 +10,22 @@ class NavierStokes(Benchmark):
     method = 'navier_stokes'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
+
+if __name__ == '__main__':
+    from itertools import product
+    r0 = ['DOLFIN', 'Firedrake']
+    r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
+    r2 = ['RHS', 'solve']
+    regions = map(' '.join, product(r0, r1, r2))
+    b = NavierStokes(name='DolfinNavierStokesParallel')
+    b.combine_series([('np', [1, 2, 3])], filename='DolfinNavierStokes')
+    b.save()
+    b = NavierStokes(name='FiredrakeNavierStokesParallel')
+    b.combine_series([('np', [1, 2, 3])], filename='FiredrakeNavierStokes')
+    b.save()
+    b = NavierStokes()
+    b.combine({'FiredrakeNavierStokes_np1': 'Firedrake', 'DolfinNavierStokes_np1': 'DOLFIN'})
+    b.plot(xaxis='scale', regions=regions)
+    b = NavierStokes(name='NavierStokesParallel')
+    b.combine({'FiredrakeNavierStokesParallel': 'Firedrake', 'DolfinNavierStokesParallel': 'DOLFIN'})
+    b.plot(xaxis='np', regions=regions)
