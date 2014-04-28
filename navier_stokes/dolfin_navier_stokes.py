@@ -1,6 +1,8 @@
 from navier_stokes import NavierStokes
 from dolfin import *
 
+PETScOptions.set("sub_pc_type", "ilu")
+
 
 class DolfinNavierStokes(NavierStokes):
 
@@ -109,6 +111,11 @@ class DolfinNavierStokes(NavierStokes):
             ufile = File("vtk/dolfin_velocity.pvd")
             pfile = File("vtk/dolfin_pressure.pvd")
 
+        vparams = {'linear_solver': 'gmres',
+                   'preconditioner': 'bjacobi'}
+        pparams = {'linear_solver': 'gmres',
+                   'preconditioner': 'bjacobi'}
+
         with self.timed_region('timestepping'):
             # Time-stepping
             t = dt
@@ -123,12 +130,10 @@ class DolfinNavierStokes(NavierStokes):
                         b1 = assemble(L1)
                         [bc.apply(A1, b1) for bc in bcu]
                     with self.timed_region('tentative velocity solve'):
-                        solve(A1, u1.vector(), b1, "gmres", "ilu")
+                        solve(A1, u1.vector(), b1, "gmres", "bjacobi")
                 else:
                     with self.timed_region('tentative velocity solve'):
-                        solve(a1 == L1, u1, bcs=bcu,
-                              solver_parameters={"linear_solver": "gmres",
-                                                 "preconditioner": "ilu"})
+                        solve(a1 == L1, u1, bcs=bcu, solver_parameters=vparams)
                 end()
 
                 # Pressure correction
@@ -138,12 +143,10 @@ class DolfinNavierStokes(NavierStokes):
                         b2 = assemble(L2)
                         [bc.apply(A2, b2) for bc in bcp]
                     with self.timed_region('pressure correction solve'):
-                        solve(A2, p1.vector(), b2, "cg", "ilu")
+                        solve(A2, p1.vector(), b2, "gmres", "bjacobi")
                 else:
                     with self.timed_region('pressure correction solve'):
-                        solve(a2 == L2, p1, bcs=bcp,
-                              solver_parameters={"linear_solver": "cg",
-                                                 "preconditioner": "ilu"})
+                        solve(a2 == L2, p1, bcs=bcp, solver_parameters=pparams)
                 end()
 
                 # Velocity correction
@@ -153,12 +156,10 @@ class DolfinNavierStokes(NavierStokes):
                         b3 = assemble(L3)
                         [bc.apply(A3, b3) for bc in bcu]
                     with self.timed_region('velocity correction solve'):
-                        solve(A3, u1.vector(), b3, "gmres", "ilu")
+                        solve(A3, u1.vector(), b3, "gmres", "bjacobi")
                 else:
                     with self.timed_region('velocity correction solve'):
-                        solve(a3 == L3, u1, bcs=bcu,
-                              solver_parameters={"linear_solver": "gmres",
-                                                 "preconditioner": "ilu"})
+                        solve(a3 == L3, u1, bcs=bcu, solver_parameters=vparams)
                 end()
 
                 if save:

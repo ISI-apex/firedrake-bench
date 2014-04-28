@@ -106,11 +106,13 @@ class FiredrakeNavierStokes(NavierStokes):
             pfile = File("vtk/firedrake_pressure.pvd")
 
         vparams = {'ksp_type': 'gmres',
-                   'pc_type': 'ilu',
+                   'pc_type': 'bjacobi',
+                   'sub_pc_type': 'ilu',
                    'ksp_rtol': 1e-6,
                    'ksp_atol': 1e-15}
         pparams = {'ksp_type': 'cg',
-                   'pc_type': 'ilu',
+                   'pc_type': 'bjacobi',
+                   'sub_pc_type': 'ilu',
                    'ksp_rtol': 1e-6,
                    'ksp_atol': 1e-15}
 
