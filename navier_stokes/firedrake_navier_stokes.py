@@ -39,7 +39,8 @@ class FiredrakeNavierStokes(NavierStokes):
                                                'marker': '<',
                                                'linestyle': '-'}}
 
-    def navier_stokes(self, scale=1, T=1, preassemble=True, save=False):
+    def navier_stokes(self, scale=1, T=1, preassemble=True, save=False,
+                      compute_norms=False):
         with self.timed_region('mesh'):
             # Load mesh from file
             mesh = Mesh("lshape_%s.msh" % scale)
@@ -163,6 +164,11 @@ class FiredrakeNavierStokes(NavierStokes):
                     # Save to file
                     ufile << u1
                     pfile << p1
+
+                if compute_norms:
+                    nu1, np1 = norm(u1), norm(p1)
+                    if op2.MPI.comm.rank == 0:
+                        print t, 'u1:', nu1, 'p1:', np1
 
                 # Move to next time step
                 u0.assign(u1)
