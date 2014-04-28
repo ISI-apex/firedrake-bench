@@ -1,9 +1,6 @@
 from navier_stokes import NavierStokes
 from dolfin import *
 
-# Don't reorder the mesh
-parameters["reorder_dofs_serial"] = False
-
 
 class DolfinNavierStokes(NavierStokes):
 
