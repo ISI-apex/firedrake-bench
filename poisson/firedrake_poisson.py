@@ -48,9 +48,11 @@ class FiredrakePoisson(Poisson):
             u = Function(V)
         with self.timed_region('matrix assembly'):
             A = assemble(a, bcs=bc)
+            A.M
         with self.timed_region('rhs assembly'):
             b = assemble(L)
             bc.apply(b)
+            b.dat.data
         with self.timed_region('solve'):
             solve(A, u, b, solver_parameters={'ksp_type': 'cg',
                                               'pc_type': 'jacobi',
