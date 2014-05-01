@@ -3,10 +3,6 @@ from firedrake import *
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
-params = {'ksp_type': 'cg',
-          'pc_type': 'jacobi',
-          'ksp_rtol': 1e-6,
-          'ksp_atol': 1e-15}
 
 
 class FiredrakePoisson(Poisson):
@@ -31,7 +27,11 @@ class FiredrakePoisson(Poisson):
                            'marker': 'D',
                            'linestyle': '-'}}
 
-    def poisson(self, size=32, degree=1, dim=2, preassemble=True):
+    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='jacobi'):
+        params = {'ksp_type': 'cg',
+                  'pc_type': pc,
+                  'ksp_rtol': 1e-6,
+                  'ksp_atol': 1e-15}
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
         with self.timed_region('setup'):
@@ -68,4 +68,6 @@ class FiredrakePoisson(Poisson):
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
+
+    # Benchmark
     FiredrakePoisson().main(benchmark=True, save=None)

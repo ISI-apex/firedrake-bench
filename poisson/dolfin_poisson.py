@@ -3,8 +3,6 @@ from dolfin import *
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
-params = {'linear_solver': 'cg',
-          'preconditioner': 'jacobi'}
 
 
 class DolfinPoisson(Poisson):
@@ -29,7 +27,9 @@ class DolfinPoisson(Poisson):
                            'marker': 'D',
                            'linestyle': '--'}}
 
-    def poisson(self, size=32, degree=1, dim=2, preassemble=True):
+    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='jacobi'):
+        params = {'linear_solver': 'cg',
+                  'preconditioner': pc}
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
             mesh.init()
@@ -62,11 +62,13 @@ class DolfinPoisson(Poisson):
                 b = assemble(L)
                 bc.apply(b)
             with self.timed_region('solve'):
-                solve(A, u.vector(), b, 'cg', 'jacobi')
+                solve(A, u.vector(), b, 'cg', pc)
         else:
             with self.timed_region('solve'):
                 solve(a == L, u, bcs=bc, solver_parameters=params)
 
 if __name__ == '__main__':
     set_log_active(False)
+
+    # Benchmark
     DolfinPoisson().main(benchmark=True, save=None)
