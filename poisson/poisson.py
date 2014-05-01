@@ -19,10 +19,10 @@ if __name__ == '__main__':
     regions = ['Firedrake matrix assembly', 'Firedrake rhs assembly', 'Firedrake solve',
                'DOLFIN matrix assembly', 'DOLFIN rhs assembly', 'DOLFIN solve']
     b = Poisson(name='DolfinPoissonParallel')
-    b.combine_series([('np', [1, 2, 4, 6])], filename='DolfinPoisson')
+    b.combine_series([('np', [1, 2, 3, 6])], filename='DolfinPoisson')
     b.save()
     b = Poisson(name='FiredrakePoissonParallel')
-    b.combine_series([('np', [1, 2, 4, 6])], filename='FiredrakePoisson')
+    b.combine_series([('np', [1, 2, 3, 6])], filename='FiredrakePoisson')
     b.save()
     b = Poisson()
     b.combine({'FiredrakePoisson_np1': 'Firedrake', 'DolfinPoisson_np1': 'DOLFIN'})
