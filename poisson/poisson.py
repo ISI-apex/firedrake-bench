@@ -30,3 +30,4 @@ if __name__ == '__main__':
     b = Poisson(name='PoissonParallel')
     b.combine({'FiredrakePoissonParallel': 'Firedrake', 'DolfinPoissonParallel': 'DOLFIN'})
     b.plot(xaxis='np', regions=regions)
+    b.archive()
