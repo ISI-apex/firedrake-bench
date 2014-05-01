@@ -72,3 +72,7 @@ if __name__ == '__main__':
 
     # Benchmark
     DolfinPoisson().main(benchmark=True, save=None)
+
+    # Profile
+    regions = ['matrix assembly', 'rhs assembly', 'solve']
+    DolfinPoisson().profile(regions=regions)
