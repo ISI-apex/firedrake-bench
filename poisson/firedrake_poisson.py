@@ -8,24 +8,12 @@ make_mesh = {2: lambda x: UnitSquareMesh(x, x),
 class FiredrakePoisson(Poisson):
     series = {'np': op2.MPI.comm.size}
 
-    plotstyle = {'total': {'color': 'black',
-                           'marker': '*',
-                           'linestyle': '-'},
-                 'mesh': {'color': 'blue',
-                          'marker': '+',
-                          'linestyle': '-'},
-                 'setup': {'color': 'green',
-                           'marker': 'x',
-                           'linestyle': '-'},
-                 'matrix assembly': {'color': 'cyan',
-                                     'marker': '>',
-                                     'linestyle': '-'},
-                 'rhs assembly': {'color': 'magenta',
-                                  'marker': '<',
-                                  'linestyle': '-'},
-                 'solve': {'color': 'red',
-                           'marker': 'D',
-                           'linestyle': '-'}}
+    plotstyle = {'total': {'marker': '*', 'linestyle': '-'},
+                 'mesh': {'marker': '+', 'linestyle': '-'},
+                 'setup': {'marker': 'x', 'linestyle': '-'},
+                 'matrix assembly': {'marker': '>', 'linestyle': '-'},
+                 'rhs assembly': {'marker': '<', 'linestyle': '-'},
+                 'solve': {'marker': 'D', 'linestyle': '-'}}
 
     def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='jacobi'):
         params = {'ksp_type': 'cg',
