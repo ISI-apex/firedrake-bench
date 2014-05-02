@@ -23,10 +23,10 @@ if __name__ == '__main__':
                'DOLFIN diffusion RHS', 'DOLFIN diffusion solve',
                'Firedrake timestepping', 'DOLFIN timestepping']
     b = AdvectionDiffusion(name='DolfinAdvectionDiffusionParallel')
-    b.combine_series([('np', [1, 2, 4])], filename='DolfinAdvectionDiffusion')
+    b.combine_series([('np', [1, 2, 3, 6])], filename='DolfinAdvectionDiffusion')
     b.save()
     b = AdvectionDiffusion(name='FiredrakeAdvectionDiffusionParallel')
-    b.combine_series([('np', [1, 2, 4])], filename='FiredrakeAdvectionDiffusion')
+    b.combine_series([('np', [1, 2, 3, 6])], filename='FiredrakeAdvectionDiffusion')
     b.save()
     b = AdvectionDiffusion()
     b.combine({'FiredrakeAdvectionDiffusion_np1': 'Firedrake', 'DolfinAdvectionDiffusion_np1': 'DOLFIN'})
