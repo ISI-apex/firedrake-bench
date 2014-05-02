@@ -106,6 +106,10 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
 
 if __name__ == '__main__':
     set_log_active(False)
+
+    # Benchmark
     DolfinAdvectionDiffusion().main(benchmark=True, save=None)
+
     # Profile
-    # DolfinAdvectionDiffusion().profile(regions=['advection RHS', 'advection solve', 'diffusion RHS', 'diffusion solve'])
+    regions = ['advection RHS', 'advection solve', 'diffusion RHS', 'diffusion solve']
+    DolfinAdvectionDiffusion().profile(regions=regions)

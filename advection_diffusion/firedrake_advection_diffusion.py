@@ -113,6 +113,10 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
+
+    # Benchmark
     FiredrakeAdvectionDiffusion().main(benchmark=True, save=None)
+
     # Profile
-    # FiredrakeAdvectionDiffusion().profile(regions=['advection RHS', 'advection solve', 'diffusion RHS', 'diffusion solve'])
+    regions = ['advection RHS', 'advection solve', 'diffusion RHS', 'diffusion solve']
+    FiredrakeAdvectionDiffusion().profile(regions=regions)
