@@ -29,8 +29,12 @@ if __name__ == '__main__':
     b.combine_series([('np', [1, 2, 3, 6])], filename='FiredrakeAdvectionDiffusion')
     b.save()
     b = AdvectionDiffusion()
-    b.combine({'FiredrakeAdvectionDiffusion_np1': 'Firedrake', 'DolfinAdvectionDiffusion_np1': 'DOLFIN'})
-    b.plot(xaxis='size', regions=regions)
+    b.combine({'FiredrakeAdvectionDiffusion_np1': 'Firedrake',
+               'DolfinAdvectionDiffusion_np1': 'DOLFIN'})
+    b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
+           xvalues=b.meta['cells'])
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
     b = AdvectionDiffusion(name='AdvectionDiffusionParallel')
-    b.combine({'FiredrakeAdvectionDiffusionParallel': 'Firedrake', 'DolfinAdvectionDiffusionParallel': 'DOLFIN'})
+    b.combine({'FiredrakeAdvectionDiffusionParallel': 'Firedrake',
+               'DolfinAdvectionDiffusionParallel': 'DOLFIN'})
     b.plot(xaxis='np', regions=regions)
