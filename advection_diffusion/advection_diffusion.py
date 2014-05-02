@@ -20,8 +20,7 @@ if __name__ == '__main__':
     regions = ['Firedrake advection RHS', 'Firedrake advection solve',
                'Firedrake diffusion RHS', 'Firedrake diffusion solve',
                'DOLFIN advection RHS', 'DOLFIN advection solve',
-               'DOLFIN diffusion RHS', 'DOLFIN diffusion solve',
-               'Firedrake timestepping', 'DOLFIN timestepping']
+               'DOLFIN diffusion RHS', 'DOLFIN diffusion solve']
     b = AdvectionDiffusion(name='DolfinAdvectionDiffusionParallel')
     b.combine_series([('np', [1, 2, 3, 6])], filename='DolfinAdvectionDiffusion')
     b.save()
