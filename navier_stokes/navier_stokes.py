@@ -24,8 +24,12 @@ if __name__ == '__main__':
     b.combine_series([('np', [1, 2, 3])], filename='FiredrakeNavierStokes')
     b.save()
     b = NavierStokes()
-    b.combine({'FiredrakeNavierStokes_np1': 'Firedrake', 'DolfinNavierStokes_np1': 'DOLFIN'})
-    b.plot(xaxis='scale', regions=regions)
+    b.combine({'FiredrakeNavierStokes_np1': 'Firedrake',
+               'DolfinNavierStokes_np1': 'DOLFIN'})
+    b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
+           xvalues=b.meta['cells'])
+    b.plot(xaxis='preassemble', regions=regions, xlabel='preassembled')
     b = NavierStokes(name='NavierStokesParallel')
-    b.combine({'FiredrakeNavierStokesParallel': 'Firedrake', 'DolfinNavierStokesParallel': 'DOLFIN'})
+    b.combine({'FiredrakeNavierStokesParallel': 'Firedrake',
+               'DolfinNavierStokesParallel': 'DOLFIN'})
     b.plot(xaxis='np', regions=regions)
