@@ -40,7 +40,8 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                                      'linestyle': '--'}}
 
     def advection_diffusion(self, size=32, degree=1, dim=2, dt=0.0001, T=0.01,
-                            diffusivity=0.1, advection=True, diffusion=True):
+                            diffusivity=0.1, advection=True, diffusion=True,
+                            print_norm=False):
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
             mesh.init()
@@ -100,7 +101,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         a = Function(V)
         a.interpolate(Expression(fexpr % {'T': T}))
         l2 = sqrt(assemble(dot(t - a, t - a) * dx))
-        if MPI.rank(mpi_comm_world()) == 0:
+        if print_norm and MPI.rank(mpi_comm_world()) == 0:
             print 'L2 error norm:', l2
 
 if __name__ == '__main__':
