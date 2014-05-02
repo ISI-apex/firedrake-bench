@@ -2,7 +2,7 @@ from pybench import Benchmark
 
 dim = 2
 # Create a series of meshes that roughly double in number of DOFs
-sizes = [64, 125, 250, 500]
+sizes = [64, 88, 125, 176, 250]
 
 
 class AdvectionDiffusion(Benchmark):
