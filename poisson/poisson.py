@@ -25,9 +25,13 @@ if __name__ == '__main__':
     b.combine_series([('np', [1, 2, 3, 6])], filename='FiredrakePoisson')
     b.save()
     b = Poisson()
-    b.combine({'FiredrakePoisson_np1': 'Firedrake', 'DolfinPoisson_np1': 'DOLFIN'})
-    b.plot(xaxis='size', regions=regions)
+    b.combine({'FiredrakePoisson_np1': 'Firedrake',
+               'DolfinPoisson_np1': 'DOLFIN'})
+    b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
+           xvalues=b.meta['cells'])
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
     b = Poisson(name='PoissonParallel')
-    b.combine({'FiredrakePoissonParallel': 'Firedrake', 'DolfinPoissonParallel': 'DOLFIN'})
+    b.combine({'FiredrakePoissonParallel': 'Firedrake',
+               'DolfinPoissonParallel': 'DOLFIN'})
     b.plot(xaxis='np', regions=regions)
     b.archive()
