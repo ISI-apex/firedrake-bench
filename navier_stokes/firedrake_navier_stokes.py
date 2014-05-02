@@ -43,7 +43,7 @@ class FiredrakeNavierStokes(NavierStokes):
                       compute_norms=False):
         with self.timed_region('mesh'):
             # Load mesh from file
-            mesh = Mesh("lshape_%s.msh" % scale)
+            mesh = Mesh("meshes/lshape_%s.msh" % scale)
 
         with self.timed_region('setup'):
             # Define function spaces (P2-P1)

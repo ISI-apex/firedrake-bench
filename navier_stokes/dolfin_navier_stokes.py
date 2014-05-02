@@ -45,7 +45,7 @@ class DolfinNavierStokes(NavierStokes):
                       compute_norms=False):
         with self.timed_region('mesh'):
             # Load mesh from file
-            mesh = Mesh("lshape_%s.xml.gz" % scale)
+            mesh = Mesh("meshes/lshape_%s.xml.gz" % scale)
             mesh.init()
 
         with self.timed_region('setup'):
