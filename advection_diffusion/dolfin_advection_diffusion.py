@@ -1,8 +1,6 @@
 from advection_diffusion import AdvectionDiffusion
 from dolfin import *
 
-parameters["reorder_dofs_serial"] = False
-
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
 
