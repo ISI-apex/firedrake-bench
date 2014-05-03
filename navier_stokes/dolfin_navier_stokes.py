@@ -20,7 +20,7 @@ class DolfinNavierStokes(NavierStokes):
                  'velocity correction solve': {'marker': '<', 'linestyle': '--'}}
 
     def navier_stokes(self, scale=1, T=1, preassemble=True, save=False,
-                      compute_norms=False):
+                      compute_norms=False, symmetric=True):
         with self.timed_region('mesh'):
             # Load mesh from file
             mesh = Mesh("meshes/lshape_%s.xml.gz" % scale)
@@ -77,7 +77,22 @@ class DolfinNavierStokes(NavierStokes):
             a3 = inner(u, v)*dx
             L3 = inner(u1, v)*dx - k*inner(grad(p1), v)*dx
 
-        if preassemble:
+        if preassemble and symmetric:
+            with self.timed_region('matrix assembly'):
+                # Assemble matrices
+                A1 = PETScMatrix()
+                A2 = PETScMatrix()
+                A3 = PETScMatrix()
+                assembler1 = SystemAssembler(a1, L1, bcu)
+                assembler2 = SystemAssembler(a2, L2, bcp)
+                assembler3 = SystemAssembler(a3, L3, bcu)
+                assembler1.assemble(A1)
+                assembler2.assemble(A2)
+                assembler3.assemble(A3)
+                b1 = PETScVector()
+                b2 = PETScVector()
+                b3 = PETScVector()
+        if preassemble and not symmetric:
             with self.timed_region('matrix assembly'):
                 # Assemble matrices
                 A1 = assemble(a1)
@@ -105,8 +120,11 @@ class DolfinNavierStokes(NavierStokes):
                 begin("Computing tentative velocity")
                 if preassemble:
                     with self.timed_region('tentative velocity RHS'):
-                        b1 = assemble(L1)
-                        [bc.apply(A1, b1) for bc in bcu]
+                        if symmetric:
+                            assembler1.assemble(b1)
+                        else:
+                            b1 = assemble(L1)
+                            [bc.apply(A1, b1) for bc in bcu]
                     with self.timed_region('tentative velocity solve'):
                         solve(A1, u1.vector(), b1, "gmres", "bjacobi")
                 else:
@@ -118,10 +136,15 @@ class DolfinNavierStokes(NavierStokes):
                 begin("Computing pressure correction")
                 if preassemble:
                     with self.timed_region('pressure correction RHS'):
-                        b2 = assemble(L2)
-                        [bc.apply(A2, b2) for bc in bcp]
+                        if symmetric:
+                            assembler2.assemble(b2)
+                            psolver = "cg"
+                        else:
+                            b2 = assemble(L2)
+                            [bc.apply(A2, b2) for bc in bcp]
+                            psolver = "gmres"
                     with self.timed_region('pressure correction solve'):
-                        solve(A2, p1.vector(), b2, "gmres", "bjacobi")
+                        solve(A2, p1.vector(), b2, psolver, "bjacobi")
                 else:
                     with self.timed_region('pressure correction solve'):
                         solve(a2 == L2, p1, bcs=bcp, solver_parameters=pparams)
@@ -131,8 +154,11 @@ class DolfinNavierStokes(NavierStokes):
                 begin("Computing velocity correction")
                 if preassemble:
                     with self.timed_region('velocity correction RHS'):
-                        b3 = assemble(L3)
-                        [bc.apply(A3, b3) for bc in bcu]
+                        if symmetric:
+                            assembler3.assemble(b3)
+                        else:
+                            b3 = assemble(L3)
+                            [bc.apply(A3, b3) for bc in bcu]
                     with self.timed_region('velocity correction solve'):
                         solve(A3, u1.vector(), b3, "gmres", "bjacobi")
                 else:
