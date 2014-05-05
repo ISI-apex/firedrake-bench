@@ -74,9 +74,12 @@ class FiredrakeNavierStokes(NavierStokes):
         if preassemble:
             with self.timed_region('matrix assembly'):
                 # Assemble matrices
-                A1 = assemble(a1)
-                A2 = assemble(a2)
-                A3 = assemble(a3)
+                A1 = assemble(a1, bcs=bcu)
+                A2 = assemble(a2, bcs=bcp)
+                A3 = assemble(a3, bcs=bcu)
+                A1.M
+                A2.M
+                A3.M
 
         if save:
             # Create files for storing solution
