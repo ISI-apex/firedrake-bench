@@ -33,6 +33,8 @@ class FiredrakePoisson(Poisson):
             v = TestFunction(V)
             f = Function(V).interpolate(Expression("10*exp(-(pow(x[0] - 0.5, 2) + pow(x[1] - 0.5, 2)) / 0.02)"))
             g = Function(V).interpolate(Expression("sin(5*x[0])"))
+            f.dat._force_evaluation()
+            g.dat._force_evaluation()
             a = inner(grad(u), grad(v))*dx
             L = f*v*dx + g*v*ds
 
@@ -45,14 +47,14 @@ class FiredrakePoisson(Poisson):
             with self.timed_region('rhs assembly'):
                 b = assemble(L)
                 bc.apply(b)
-                b.dat.data
+                b.dat._force_evaluation()
             with self.timed_region('solve'):
                 solve(A, u, b, solver_parameters=params)
-                u.dat.data
+                u.dat._force_evaluation()
         else:
             with self.timed_region('solve'):
                 solve(a == L, u, bcs=[bc], solver_parameters=params)
-                u.dat.data
+                u.dat._force_evaluation()
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
