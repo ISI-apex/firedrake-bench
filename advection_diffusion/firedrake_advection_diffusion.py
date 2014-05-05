@@ -8,6 +8,7 @@ solver_parameters = {'ksp_type': 'cg',
                      'ksp_rtol': 1e-6,
                      'ksp_atol': 1e-15}
 
+
 class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
 
     series = {'np': op2.MPI.comm.size}
@@ -54,6 +55,8 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
             fexpr = "0.1 * (exp(-" + r2 + "/(0.4*%(T)f)) / (0.4*pi*%(T)f))"
             t.interpolate(Expression(fexpr % {'T': T}))
             u.interpolate(Expression((1.0, 0.0)))
+            t.dat._force_evaluation()
+            u.dat._force_evaluation()
 
         if advection:
             with self.timed_region('advection matrix'):
@@ -71,7 +74,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                 if advection:
                     with self.timed_region('advection RHS'):
                         b = assemble(adv_rhs)
-                        b.dat.data
+                        b.dat._force_evaluation()
                     with self.timed_region('advection solve'):
                         solve(A, t, b, solver_parameters=solver_parameters)
 
@@ -79,7 +82,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                 if diffusion:
                     with self.timed_region('diffusion RHS'):
                         b = assemble(diff_rhs)
-                        b.dat.data
+                        b.dat._force_evaluation()
                     with self.timed_region('diffusion solve'):
                         solve(D, t, b, solver_parameters=solver_parameters)
 
