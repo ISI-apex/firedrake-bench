@@ -27,7 +27,6 @@ if __name__ == '__main__':
                'DolfinNavierStokes_np1': 'DOLFIN'})
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'])
-    b.plot(xaxis='preassemble', regions=regions, xlabel='preassembled')
     b = NavierStokes(name='NavierStokesParallel')
     b.combine({'FiredrakeNavierStokesParallel': 'Firedrake',
                'DolfinNavierStokesParallel': 'DOLFIN'})
