@@ -3,6 +3,8 @@ from pybench import Benchmark
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [int((1e4*2**x)**(1./dim)) + 1 for x in range(5)]
+np = [1, 2, 3, 6]
+
 
 class Poisson(Benchmark):
 
@@ -19,10 +21,10 @@ if __name__ == '__main__':
     regions = ['Firedrake matrix assembly', 'Firedrake rhs assembly', 'Firedrake solve',
                'DOLFIN matrix assembly', 'DOLFIN rhs assembly', 'DOLFIN solve']
     b = Poisson(name='DolfinPoissonParallel')
-    b.combine_series([('np', [1, 2, 3, 6])], filename='DolfinPoisson')
+    b.combine_series([('np', np)], filename='DolfinPoisson')
     b.save()
     b = Poisson(name='FiredrakePoissonParallel')
-    b.combine_series([('np', [1, 2, 3, 6])], filename='FiredrakePoisson')
+    b.combine_series([('np', np)], filename='FiredrakePoisson')
     b.save()
     b = Poisson()
     b.combine({'FiredrakePoisson_np1': 'Firedrake',
@@ -34,4 +36,3 @@ if __name__ == '__main__':
     b.combine({'FiredrakePoissonParallel': 'Firedrake',
                'DolfinPoissonParallel': 'DOLFIN'})
     b.plot(xaxis='np', regions=regions)
-    b.archive()
