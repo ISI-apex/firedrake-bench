@@ -15,7 +15,7 @@ class DolfinPoisson(Poisson):
                  'rhs assembly': {'marker': '<', 'linestyle': '--'},
                  'solve': {'marker': 'D', 'linestyle': '--'}}
 
-    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='jacobi'):
+    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='amg'):
         params = {'linear_solver': 'cg',
                   'preconditioner': pc}
         with self.timed_region('mesh'):

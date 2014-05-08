@@ -15,9 +15,10 @@ class FiredrakePoisson(Poisson):
                  'rhs assembly': {'marker': '<', 'linestyle': '-'},
                  'solve': {'marker': 'D', 'linestyle': '-'}}
 
-    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='jacobi'):
+    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='hypre'):
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
+                  'pc_hpyre_type': 'boomeramg',
                   'ksp_rtol': 1e-6,
                   'ksp_atol': 1e-15}
         with self.timed_region('mesh'):
