@@ -1,6 +1,7 @@
 from poisson import Poisson
 from firedrake import *
 from pyop2.ir.ast_plan import V_OP_UAJ
+from pyop2.profiling import get_timers
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
@@ -61,6 +62,8 @@ class FiredrakePoisson(Poisson):
             with self.timed_region('solve'):
                 solve(a == L, u, bcs=[bc], solver_parameters=params)
                 u.dat._force_evaluation()
+        for task, timer in get_timers(reset=True).items():
+            self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')

@@ -54,6 +54,10 @@ class DolfinPoisson(Poisson):
         else:
             with self.timed_region('solve'):
                 solve(a == L, u, bcs=bc, solver_parameters=params)
+        t = timings(True)
+        for task in ['Assemble cells', 'Assemble exterior facets',
+                     'Build sparsity', 'DirichletBC apply', 'PETSc Krylov solver']:
+            self.register_timing(task, float(t.get(task, 'Total time')))
 
 if __name__ == '__main__':
     set_log_active(False)
