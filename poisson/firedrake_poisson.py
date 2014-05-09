@@ -1,8 +1,13 @@
 from poisson import Poisson
 from firedrake import *
+from pyop2.ir.ast_plan import V_OP_UAJ
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
+
+parameters["coffee"]["licm"] = True
+parameters["coffee"]["ap"] = True
+parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 
 class FiredrakePoisson(Poisson):
