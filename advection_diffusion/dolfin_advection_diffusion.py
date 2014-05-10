@@ -83,6 +83,9 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         l2 = sqrt(assemble(dot(t - a, t - a) * dx))
         if print_norm and MPI.rank(mpi_comm_world()) == 0:
             print 'L2 error norm:', l2
+        t = timings(True)
+        for task in ['Assemble cells', 'Build sparsity', 'PETSc Krylov solver']:
+            self.register_timing(task, float(t.get(task, 'Total time')))
 
 if __name__ == '__main__':
     set_log_active(False)
