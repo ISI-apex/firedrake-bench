@@ -6,11 +6,6 @@ from pyop2.profiling import get_timers
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
 
-solver_parameters = {'ksp_type': 'cg',
-                     'pc_type': 'jacobi',
-                     'ksp_rtol': 1e-6,
-                     'ksp_atol': 1e-15}
-
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
 parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
@@ -32,7 +27,12 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
 
     def advection_diffusion(self, size=32, degree=1, dim=2, dt=0.0001, T=0.01,
                             diffusivity=0.1, advection=True, diffusion=True,
-                            print_norm=False):
+                            print_norm=False, pc='hypre'):
+        solver_parameters = {'ksp_type': 'cg',
+                             'pc_type': pc,
+                             'pc_hypre_type': 'boomeramg',
+                             'ksp_rtol': 1e-6,
+                             'ksp_atol': 1e-15}
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
 
