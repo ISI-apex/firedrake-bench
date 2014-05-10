@@ -42,8 +42,6 @@ class DolfinMatrixAssembly(MatrixAssembly):
             v = TestFunction(V)
             a = inner(grad(u), grad(v))*dx
 
-            # Compute solution
-            u = Function(V)
         with self.timed_region('assembly'):
             A = assemble(a)
         with self.timed_region('reassembly'):
@@ -54,6 +52,9 @@ class DolfinMatrixAssembly(MatrixAssembly):
         with self.timed_region('reassembly bcs'):
             A = assemble(a, tensor=A)
             bc.apply(A)
+        t = timings(True)
+        for task in ['Assemble cells', 'Build sparsity', 'DirichletBC apply']:
+            self.register_timing(task, float(t.get(task, 'Total time')))
 
 if __name__ == '__main__':
     set_log_active(False)
