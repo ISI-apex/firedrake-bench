@@ -26,7 +26,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
 
     def advection_diffusion(self, size=32, degree=1, dim=2, dt=0.0001, T=0.01,
                             diffusivity=0.1, advection=True, diffusion=True,
-                            print_norm=False):
+                            print_norm=False, pc='amg'):
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
             mesh.init()
@@ -71,14 +71,14 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                     with self.timed_region('advection RHS'):
                         b = assemble(adv_rhs)
                     with self.timed_region('advection solve'):
-                        solve(A, t.vector(), b, "cg", "jacobi")
+                        solve(A, t.vector(), b, "cg", pc)
 
                 # Diffusion
                 if diffusion:
                     with self.timed_region('diffusion RHS'):
                         b = assemble(diff_rhs)
                     with self.timed_region('diffusion solve'):
-                        solve(D, t.vector(), b, "cg", "jacobi")
+                        solve(D, t.vector(), b, "cg", pc)
 
                 T = T + dt
 
