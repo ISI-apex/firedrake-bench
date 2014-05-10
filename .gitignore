@@ -5,3 +5,8 @@
 *.pyc
 *.xml
 *.xml.gz
+*~
+plots
+results
+profiles
+vtk
