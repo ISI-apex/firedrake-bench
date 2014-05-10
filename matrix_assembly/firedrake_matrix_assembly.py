@@ -1,6 +1,7 @@
 from matrix_assembly import MatrixAssembly
 from firedrake import *
 from pyop2.ir.ast_plan import V_OP_UAJ
+from pyop2.profiling import get_timers
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
@@ -37,8 +38,6 @@ class FiredrakeMatrixAssembly(MatrixAssembly):
             v = TestFunction(V)
             a = inner(grad(u), grad(v))*dx
 
-            # Compute solution
-            u = Function(V)
         with self.timed_region('assembly'):
             A = assemble(a)
             A.M
@@ -53,6 +52,8 @@ class FiredrakeMatrixAssembly(MatrixAssembly):
         with self.timed_region('reassembly bcs'):
             A = assemble(a, tensor=A, bcs=bc)
             A.M
+        for task, timer in get_timers(reset=True).items():
+            self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
