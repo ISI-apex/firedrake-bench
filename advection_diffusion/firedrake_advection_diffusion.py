@@ -1,12 +1,18 @@
 from advection_diffusion import AdvectionDiffusion
 from firedrake import *
+from pyop2.ir.ast_plan import V_OP_UAJ
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
+
 solver_parameters = {'ksp_type': 'cg',
                      'pc_type': 'jacobi',
                      'ksp_rtol': 1e-6,
                      'ksp_atol': 1e-15}
+
+parameters["coffee"]["licm"] = True
+parameters["coffee"]["ap"] = True
+parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 
 class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
