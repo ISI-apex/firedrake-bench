@@ -1,6 +1,7 @@
 from advection_diffusion import AdvectionDiffusion
 from firedrake import *
 from pyop2.ir.ast_plan import V_OP_UAJ
+from pyop2.profiling import get_timers
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
@@ -99,6 +100,8 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
         l2 = sqrt(assemble(dot(t - a, t - a) * dx))
         if print_norm and op2.MPI.comm.rank == 0:
             print 'L2 error norm:', l2
+        for task, timer in get_timers(reset=True).items():
+            self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
