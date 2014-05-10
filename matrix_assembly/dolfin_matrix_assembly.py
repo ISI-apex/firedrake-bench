@@ -4,6 +4,11 @@ from dolfin import *
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
 
+# Form compiler options
+parameters["form_compiler"]["optimize"] = True
+parameters["form_compiler"]["cpp_optimize"] = True
+parameters["form_compiler"]["representation"] = "quadrature"
+
 
 class DolfinMatrixAssembly(MatrixAssembly):
 
