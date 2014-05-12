@@ -22,21 +22,24 @@ if __name__ == '__main__':
     from itertools import product
     r0 = ['DOLFIN', 'Firedrake']
     r1 = ['mass', 'laplace', 'helmholtz']
-    r2 = ['assembly', 'assembly premult 1', 'assembly premult 2', 'assembly premult 3']
-    regions = map(' '.join, product(r0, r1, r2))
-    b = Assembly(name='DolfinAssemblyParallel')
-    b.combine_series([('np', np)], filename='DolfinAssembly')
-    b.save()
-    b = Assembly(name='FiredrakeAssemblyParallel')
-    b.combine_series([('np', np)], filename='FiredrakeAssembly')
-    b.save()
+    r2 = ['0', '1', '2', '3']
     b = Assembly()
     b.combine({'FiredrakeAssembly_np1': 'Firedrake',
                'DolfinAssembly_np1': 'DOLFIN'})
-    b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'])
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
-    b = Assembly(name='AssemblyParallel')
-    b.combine({'FiredrakeAssemblyParallel': 'Firedrake',
-               'DolfinAssemblyParallel': 'DOLFIN'})
-    b.plot(xaxis='np', regions=regions)
+    # Create separate plots for mass, laplace, helmholtz
+    for r in r1:
+        regions = map(' '.join, product(r0, [r], ['premult'], r2))
+        b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
+               xvalues=b.meta['cells'], figname=b.name + '_' + r, wscale=0.7)
+        b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+               figname=b.name + '_' + r, wscale=0.7)
+    # b = Assembly(name='DolfinAssemblyParallel')
+    # b.combine_series([('np', np)], filename='DolfinAssembly')
+    # b.save()
+    # b = Assembly(name='FiredrakeAssemblyParallel')
+    # b.combine_series([('np', np)], filename='FiredrakeAssembly')
+    # b.save()
+    # b = Assembly(name='AssemblyParallel')
+    # b.combine({'FiredrakeAssemblyParallel': 'Firedrake',
+    #            'DolfinAssemblyParallel': 'DOLFIN'})
+    # b.plot(xaxis='np', regions=regions)
