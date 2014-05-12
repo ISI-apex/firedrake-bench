@@ -16,18 +16,18 @@ class DolfinAssembly(Assembly):
     plotstyle = {'total': {'marker': '*', 'linestyle': '--'},
                  'mesh': {'marker': '+', 'linestyle': '--'},
                  'setup': {'marker': 'x', 'linestyle': '--'},
-                 'mass assembly': {'marker': '>', 'linestyle': '--'},
-                 'mass assembly premult 1': {'marker': '<', 'linestyle': '--'},
-                 'mass assembly premult 2': {'marker': '^', 'linestyle': '--'},
-                 'mass assembly premult 3': {'marker': 'v', 'linestyle': '--'},
-                 'laplace assembly': {'marker': '1', 'linestyle': '--'},
-                 'laplace assembly premult 1': {'marker': '2', 'linestyle': '--'},
-                 'laplace assembly premult 2': {'marker': '3', 'linestyle': '--'},
-                 'laplace assembly premult 3': {'marker': '4', 'linestyle': '--'},
-                 'helmholtz assembly': {'marker': 's', 'linestyle': '--'},
-                 'helmholtz assembly premult 1': {'marker': 'p', 'linestyle': '--'},
-                 'helmholtz assembly premult 2': {'marker': 'h', 'linestyle': '--'},
-                 'helmholtz assembly premult 3': {'marker': 'D', 'linestyle': '--'}}
+                 'mass premult 0': {'marker': '>', 'linestyle': '--'},
+                 'mass premult 1': {'marker': '<', 'linestyle': '--'},
+                 'mass premult 2': {'marker': '^', 'linestyle': '--'},
+                 'mass premult 3': {'marker': 'v', 'linestyle': '--'},
+                 'laplace premult 0': {'marker': '>', 'linestyle': '--'},
+                 'laplace premult 1': {'marker': '<', 'linestyle': '--'},
+                 'laplace premult 2': {'marker': '^', 'linestyle': '--'},
+                 'laplace premult 3': {'marker': 'v', 'linestyle': '--'},
+                 'helmholtz premult 0': {'marker': '>', 'linestyle': '--'},
+                 'helmholtz premult 1': {'marker': '<', 'linestyle': '--'},
+                 'helmholtz premult 2': {'marker': '^', 'linestyle': '--'},
+                 'helmholtz premult 3': {'marker': 'v', 'linestyle': '--'}}
 
     def assembly(self, size=32, degree=1, dim=2, fs='scalar'):
         with self.timed_region('mesh'):
@@ -48,29 +48,29 @@ class DolfinAssembly(Assembly):
             h = Function(Q)
             A = assemble(mass*dx)
 
-        with self.timed_region('mass assembly'):
+        with self.timed_region('mass premult 0'):
             assemble(mass*dx, tensor=A)
-        with self.timed_region('mass assembly premult 1'):
+        with self.timed_region('mass premult 1'):
             assemble(f*mass*dx, tensor=A)
-        with self.timed_region('mass assembly premult 2'):
+        with self.timed_region('mass premult 2'):
             assemble(g*f*mass*dx, tensor=A)
-        with self.timed_region('mass assembly premult 3'):
+        with self.timed_region('mass premult 3'):
             assemble(h*g*f*mass*dx, tensor=A)
-        with self.timed_region('laplace assembly'):
+        with self.timed_region('laplace premult 0'):
             assemble(laplace*dx, tensor=A)
-        with self.timed_region('laplace assembly premult 1'):
+        with self.timed_region('laplace premult 1'):
             assemble(f*laplace*dx, tensor=A)
-        with self.timed_region('laplace assembly premult 2'):
+        with self.timed_region('laplace premult 2'):
             assemble(g*f*laplace*dx, tensor=A)
-        with self.timed_region('laplace assembly premult 3'):
+        with self.timed_region('laplace premult 3'):
             assemble(h*g*f*laplace*dx, tensor=A)
-        with self.timed_region('helmholtz assembly'):
+        with self.timed_region('helmholtz premult 0'):
             assemble((mass+laplace)*dx, tensor=A)
-        with self.timed_region('helmholtz assembly premult 1'):
+        with self.timed_region('helmholtz premult 1'):
             assemble(f*(mass+laplace)*dx, tensor=A)
-        with self.timed_region('helmholtz assembly premult 2'):
+        with self.timed_region('helmholtz premult 2'):
             assemble(g*f*(mass+laplace)*dx, tensor=A)
-        with self.timed_region('helmholtz assembly premult 3'):
+        with self.timed_region('helmholtz premult 3'):
             assemble(h*g*f*(mass+laplace)*dx, tensor=A)
         t = timings(True)
         for task in ['Assemble cells', 'Build sparsity']:
