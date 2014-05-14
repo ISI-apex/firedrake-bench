@@ -19,8 +19,8 @@ def run(benchmark, np, socket=0, core=0):
 
 if __name__ == '__main__':
     p = ArgumentParser(description="Run a benchmark")
-    p.add_argument('--socket', type=int, default=0, help="socket to pin to")
-    p.add_argument('--core', type=int, default=0, help="inital core to pin to")
+    p.add_argument('--socket', '-s', type=int, default=0, help="socket to pin to")
+    p.add_argument('--core', '-c', type=int, default=0, help="inital core to pin to")
     p.add_argument('benchmark', help="benchmark to run")
     p.add_argument('np', type=int, nargs='+',
                    help="number of processes to run")
