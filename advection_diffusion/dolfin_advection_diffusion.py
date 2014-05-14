@@ -61,7 +61,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                 D = assemble(diff)
 
         with self.timed_region('timestepping'):
-            while T < 0.02:
+            while T < 0.011:
 
                 # Advection
                 if advection:
