@@ -1,17 +1,12 @@
 from pybench import Benchmark
 
-dim = 2
-# Create a series of meshes that roughly double in number of DOFs
-sizes = [64, 88, 125, 176, 250]
-
 
 class AdvectionDiffusion(Benchmark):
 
-    params = [('dim', [dim]),
-              ('degree', range(1, 4)),
-              ('size', sizes)]
-    meta = {'cells': [2*x**dim for x in sizes],
-            'dofs': [(x+1)**dim for x in sizes]}
+    params = [('degree', range(1, 4)),
+              ('scale', [1.0, 0.71, 0.5, 0.35, 0.25])]
+    meta = {'cells': [26386, 52166, 105418, 216162, 422660],
+            'dofs': [13192, 26082, 52708, 108080, 211327]}
     method = 'advection_diffusion'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
