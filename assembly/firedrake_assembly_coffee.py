@@ -108,3 +108,11 @@ if __name__ == '__main__':
     r1 = ['0', '1', '2', '3']
     regions = map(' '.join, product(r0, ['premult'], r1))
     FiredrakeAssemblyCoffee().profile(regions=regions)
+
+    b = FiredrakeAssemblyCoffee()
+    b.load()
+    # Create separate plots for mass, laplace, helmholtz
+    for r in r0:
+        regions = map(' '.join, product([r], ['premult'], r1))
+        b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+               figname=b.name + '_' + r, wscale=0.7)
