@@ -24,7 +24,8 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
     def advection_diffusion(self, scale=1.0, mesh='square', degree=1, dim=2,
                             dt=0.0001, T=0.01, diffusivity=0.1,
                             advection=True, diffusion=True,
-                            print_norm=False, pc='amg'):
+                            print_norm=False, preassemble=True, pc='amg'):
+        solver_parameters = {'linear_solver': 'cg', 'preconditioner': pc}
         with self.timed_region('mesh'):
             mesh = Mesh("meshes/%s_%s.xml.gz" % (mesh, scale))
 
@@ -53,29 +54,36 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
             t.interpolate(Expression(fexpr % {'T': T}))
             u.interpolate(Expression(('1.0', '0.0')))
 
-        if advection:
-            with self.timed_region('advection matrix'):
-                A = assemble(adv)
-        if diffusion:
-            with self.timed_region('diffusion matrix'):
-                D = assemble(diff)
+        if preassemble:
+            if advection:
+                with self.timed_region('advection matrix'):
+                    A = assemble(adv)
+            if diffusion:
+                with self.timed_region('diffusion matrix'):
+                    D = assemble(diff)
 
         with self.timed_region('timestepping'):
             while T < 0.011:
 
                 # Advection
                 if advection:
-                    with self.timed_region('advection RHS'):
-                        b = assemble(adv_rhs)
-                    with self.timed_region('advection solve'):
-                        solve(A, t.vector(), b, "cg", pc)
+                    if preassemble:
+                        with self.timed_region('advection RHS'):
+                            b = assemble(adv_rhs)
+                        with self.timed_region('advection solve'):
+                            solve(A, t.vector(), b, "cg", pc)
+                    else:
+                        solve(adv == adv_rhs, t, solver_parameters=solver_parameters)
 
                 # Diffusion
                 if diffusion:
-                    with self.timed_region('diffusion RHS'):
-                        b = assemble(diff_rhs)
-                    with self.timed_region('diffusion solve'):
-                        solve(D, t.vector(), b, "cg", pc)
+                    if preassemble:
+                        with self.timed_region('diffusion RHS'):
+                            b = assemble(diff_rhs)
+                        with self.timed_region('diffusion solve'):
+                            solve(D, t.vector(), b, "cg", pc)
+                    else:
+                        solve(diff == diff_rhs, t, solver_parameters=solver_parameters)
 
                 T = T + dt
 

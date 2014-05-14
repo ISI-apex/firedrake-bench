@@ -25,7 +25,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
     def advection_diffusion(self, scale=1.0, mesh='square', degree=1, dim=2,
                             dt=0.0001, T=0.01, diffusivity=0.1,
                             advection=True, diffusion=True,
-                            print_norm=False, pc='hypre'):
+                            print_norm=False, preassemble=True, pc='hypre'):
         solver_parameters = {'ksp_type': 'cg',
                              'pc_type': pc,
                              'pc_hypre_type': 'boomeramg',
@@ -61,33 +61,40 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
             t.dat._force_evaluation()
             u.dat._force_evaluation()
 
-        if advection:
-            with self.timed_region('advection matrix'):
-                A = assemble(adv)
-                A.M
-        if diffusion:
-            with self.timed_region('diffusion matrix'):
-                D = assemble(diff)
-                D.M
+        if preassemble:
+            if advection:
+                with self.timed_region('advection matrix'):
+                    A = assemble(adv)
+                    A.M
+            if diffusion:
+                with self.timed_region('diffusion matrix'):
+                    D = assemble(diff)
+                    D.M
 
         with self.timed_region('timestepping'):
             while T < 0.011:
 
                 # Advection
                 if advection:
-                    with self.timed_region('advection RHS'):
-                        b = assemble(adv_rhs)
-                        b.dat._force_evaluation()
-                    with self.timed_region('advection solve'):
-                        solve(A, t, b, solver_parameters=solver_parameters)
+                    if preassemble:
+                        with self.timed_region('advection RHS'):
+                            b = assemble(adv_rhs)
+                            b.dat._force_evaluation()
+                        with self.timed_region('advection solve'):
+                            solve(A, t, b, solver_parameters=solver_parameters)
+                    else:
+                        solve(adv == adv_rhs, t, solver_parameters=solver_parameters)
 
                 # Diffusion
                 if diffusion:
-                    with self.timed_region('diffusion RHS'):
-                        b = assemble(diff_rhs)
-                        b.dat._force_evaluation()
-                    with self.timed_region('diffusion solve'):
-                        solve(D, t, b, solver_parameters=solver_parameters)
+                    if preassemble:
+                        with self.timed_region('diffusion RHS'):
+                            b = assemble(diff_rhs)
+                            b.dat._force_evaluation()
+                        with self.timed_region('diffusion solve'):
+                            solve(D, t, b, solver_parameters=solver_parameters)
+                    else:
+                        solve(diff == diff_rhs, t, solver_parameters=solver_parameters)
 
                 T = T + dt
 
