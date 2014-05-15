@@ -100,6 +100,6 @@ if __name__ == '__main__':
     # Profile
     from itertools import product
     r0 = ['mass', 'laplace', 'helmholtz']
-    r1 = ['assembly', 'assembly premult 1', 'assembly premult 2', 'assembly premult 3']
-    regions = map(' '.join, product(r0, r1))
+    r1 = ['0', '1', '2', '3']
+    regions = map(' '.join, product(r0, ['premult'], r1))
     FiredrakeAssembly().profile(regions=regions)
