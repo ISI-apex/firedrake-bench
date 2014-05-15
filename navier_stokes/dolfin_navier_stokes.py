@@ -184,6 +184,9 @@ class DolfinNavierStokes(NavierStokes):
                 # Move to next time step
                 u0.assign(u1)
                 t += dt
+        t = timings(True)
+        for task in ['Assemble system', 'Build sparsity', 'PETSc Krylov solver']:
+            self.register_timing(task, float(t.get(task, 'Total time')))
 
 if __name__ == '__main__':
     set_log_active(False)

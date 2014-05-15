@@ -1,6 +1,7 @@
 from navier_stokes import NavierStokes
 from firedrake import *
 # from pyop2.ir.ast_plan import V_OP_UAJ
+from pyop2.profiling import get_timers
 
 parameters["coffee"]["licm"] = True
 # Vectorization appears to degrade performance for p2
@@ -168,6 +169,8 @@ class FiredrakeNavierStokes(NavierStokes):
                 # Move to next time step
                 u0.assign(u1)
                 t += dt
+        for task, timer in get_timers(reset=True).items():
+            self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
