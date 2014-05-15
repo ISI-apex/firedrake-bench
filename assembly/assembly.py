@@ -1,4 +1,9 @@
 from pybench import Benchmark
+from itertools import product
+
+r0 = ['DOLFIN', 'Firedrake']
+r1 = ['mass', 'laplace', 'helmholtz']
+r2 = ['0', '1', '2', '3']
 
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
@@ -17,12 +22,9 @@ class Assembly(Benchmark):
     method = 'assembly'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
+    profileregions = map(' '.join, product(r1, ['premult'], r2))
 
 if __name__ == '__main__':
-    from itertools import product
-    r0 = ['DOLFIN', 'Firedrake']
-    r1 = ['mass', 'laplace', 'helmholtz']
-    r2 = ['0', '1', '2', '3']
     b = Assembly()
     b.combine({'FiredrakeAssembly_np1': 'Firedrake',
                'DolfinAssembly_np1': 'DOLFIN'})

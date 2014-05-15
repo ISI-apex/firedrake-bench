@@ -95,11 +95,4 @@ if __name__ == '__main__':
     set_level('ERROR')
 
     # Benchmark
-    FiredrakeAssembly().main(benchmark=True, save=None)
-
-    # Profile
-    from itertools import product
-    r0 = ['mass', 'laplace', 'helmholtz']
-    r1 = ['0', '1', '2', '3']
-    regions = map(' '.join, product(r0, ['premult'], r1))
-    FiredrakeAssembly().profile(regions=regions)
+    FiredrakeAssembly().main()
