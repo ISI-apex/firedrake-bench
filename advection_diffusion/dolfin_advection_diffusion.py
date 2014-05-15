@@ -102,9 +102,4 @@ if __name__ == '__main__':
     from ffc.log import set_level
     set_level('ERROR')
 
-    # Benchmark
-    DolfinAdvectionDiffusion().main(benchmark=True, save=None)
-
-    # Profile
-    regions = ['advection RHS', 'advection solve', 'diffusion RHS', 'diffusion solve']
-    DolfinAdvectionDiffusion().profile(regions=regions)
+    DolfinAdvectionDiffusion().main()

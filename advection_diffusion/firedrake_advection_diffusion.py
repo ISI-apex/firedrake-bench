@@ -112,9 +112,4 @@ if __name__ == '__main__':
     from ffc.log import set_level
     set_level('ERROR')
 
-    # Benchmark
-    FiredrakeAdvectionDiffusion().main(benchmark=True, save=None)
-
-    # Profile
-    regions = ['advection RHS', 'advection solve', 'diffusion RHS', 'diffusion solve']
-    FiredrakeAdvectionDiffusion().profile(regions=regions)
+    FiredrakeAdvectionDiffusion().main()
