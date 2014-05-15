@@ -1,5 +1,11 @@
 from navier_stokes import NavierStokes
 from firedrake import *
+# from pyop2.ir.ast_plan import V_OP_UAJ
+
+parameters["coffee"]["licm"] = True
+# Vectorization appears to degrade performance for p2
+# parameters["coffee"]["ap"] = True
+# parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 
 class FiredrakeNavierStokes(NavierStokes):
