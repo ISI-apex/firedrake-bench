@@ -46,6 +46,9 @@ class DolfinAssembly(Assembly):
             f = Function(Q)
             g = Function(Q)
             h = Function(Q)
+            f.interpolate(Expression('1.0'))
+            g.interpolate(Expression('1.0'))
+            h.interpolate(Expression('1.0'))
             A = assemble(mass*dx)
 
         with self.timed_region('mass premult 0'):

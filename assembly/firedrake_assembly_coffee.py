@@ -50,9 +50,9 @@ class FiredrakeAssemblyCoffee(Assembly):
             v = TestFunction(V)
             mass = inner(u, v)
             laplace = inner(grad(u), grad(v))
-            f = Function(Q)
-            g = Function(Q)
-            h = Function(Q)
+            f = Function(Q).assign(1.0)
+            g = Function(Q).assign(1.0)
+            h = Function(Q).assign(1.0)
             A = assemble(mass*dx)
 
         with self.timed_region('mass premult 0'):
