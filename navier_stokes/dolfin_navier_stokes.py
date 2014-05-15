@@ -1,6 +1,11 @@
 from navier_stokes import NavierStokes
 from dolfin import *
 
+# Form compiler options
+parameters["form_compiler"]["optimize"] = True
+parameters["form_compiler"]["cpp_optimize"] = True
+parameters["form_compiler"]["representation"] = "quadrature"
+
 PETScOptions.set("sub_pc_type", "ilu")
 
 
