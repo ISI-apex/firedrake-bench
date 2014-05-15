@@ -167,14 +167,7 @@ if __name__ == '__main__':
     op2.init(log_level='WARNING')
 
     # Benchmark
-    FiredrakeNavierStokes().main(benchmark=True, save=None)
+    FiredrakeNavierStokes().main()
 
     # Output VTU files
     # FiredrakeNavierStokes().navier_stokes(save=True)
-
-    # Profile
-    # from itertools import product
-    # r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
-    # r2 = ['RHS', 'solve']
-    # regions = ['matrix assembly'] + map(' '.join, product(r1, r2))
-    # FiredrakeNavierStokes().profile(regions=regions)

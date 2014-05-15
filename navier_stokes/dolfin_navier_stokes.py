@@ -184,14 +184,7 @@ if __name__ == '__main__':
     set_log_active(False)
 
     # Benchmark
-    DolfinNavierStokes().main(benchmark=True, save=None)
+    DolfinNavierStokes().main()
 
     # Output VTU files
     # DolfinNavierStokes().navier_stokes(save=True)
-
-    # Profile
-    # from itertools import product
-    # r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
-    # r2 = ['RHS', 'solve']
-    # regions = ['matrix assembly'] + map(' '.join, product(r1, r2))
-    # DolfinNavierStokes().profile(regions=regions)

@@ -1,4 +1,9 @@
 from pybench import Benchmark
+from itertools import product
+
+r0 = ['DOLFIN', 'Firedrake']
+r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
+r2 = ['RHS', 'solve']
 
 
 class NavierStokes(Benchmark):
@@ -9,12 +14,9 @@ class NavierStokes(Benchmark):
     method = 'navier_stokes'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
+    profileregions = ['matrix assembly'] + map(' '.join, product(r1, r2))
 
 if __name__ == '__main__':
-    from itertools import product
-    r0 = ['DOLFIN', 'Firedrake']
-    r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
-    r2 = ['RHS', 'solve']
     regions = map(' '.join, product(r0, r1, r2))
     b = NavierStokes(name='DolfinNavierStokesParallel')
     b.combine_series([('np', [1, 2, 3])], filename='DolfinNavierStokes')
