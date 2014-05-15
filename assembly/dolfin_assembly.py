@@ -81,6 +81,8 @@ class DolfinAssembly(Assembly):
 
 if __name__ == '__main__':
     set_log_active(False)
+    from ffc.log import set_level
+    set_level('ERROR')
 
     # Benchmark
     DolfinAssembly().main(benchmark=True, save=None)
