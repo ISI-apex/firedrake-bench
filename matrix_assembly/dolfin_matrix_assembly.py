@@ -59,9 +59,4 @@ class DolfinMatrixAssembly(MatrixAssembly):
 if __name__ == '__main__':
     set_log_active(False)
 
-    # Benchmark
-    DolfinMatrixAssembly().main(benchmark=True, save=None)
-
-    # Profile
-    regions = ['assembly', 'reassembly', 'assembly bcs', 'reassembly bcs']
-    DolfinMatrixAssembly().profile(regions=regions)
+    DolfinMatrixAssembly().main()

@@ -3,6 +3,7 @@ from pybench import Benchmark
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [int((1e4*2**x)**(1./dim)) + 1 for x in range(4)]
+r1 = ['assembly', 'reassembly', 'assembly bcs', 'reassembly bcs']
 np = [1, 2, 3]
 
 
@@ -17,11 +18,11 @@ class MatrixAssembly(Benchmark):
     method = 'matrix_assembly'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
+    profileregions = r1
 
 if __name__ == '__main__':
     from itertools import product
     r0 = ['DOLFIN', 'Firedrake']
-    r1 = ['assembly', 'reassembly', 'assembly bcs', 'reassembly bcs']
     regions = map(' '.join, product(r0, r1))
     b = MatrixAssembly(name='DolfinMatrixAssemblyParallel')
     b.combine_series([('np', np)], filename='DolfinMatrixAssembly')

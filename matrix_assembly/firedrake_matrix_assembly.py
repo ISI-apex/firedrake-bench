@@ -58,9 +58,4 @@ class FiredrakeMatrixAssembly(MatrixAssembly):
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
 
-    # Benchmark
-    FiredrakeMatrixAssembly().main(benchmark=True, save=None)
-
-    # Profile
-    regions = ['assembly', 'reassembly', 'assembly bcs', 'reassembly bcs']
-    FiredrakeMatrixAssembly().profile(regions=regions)
+    FiredrakeMatrixAssembly().main()
