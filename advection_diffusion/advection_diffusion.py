@@ -37,4 +37,5 @@ if __name__ == '__main__':
         b = AdvectionDiffusion(name='AdvectionDiffusionParallel')
         b.combine({'FiredrakeAdvectionDiffusionParallel': 'Firedrake',
                    'DolfinAdvectionDiffusionParallel': 'DOLFIN'})
-        b.plot(xaxis='np', regions=regions)
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot,loglog')
