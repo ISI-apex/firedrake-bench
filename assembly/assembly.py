@@ -46,4 +46,5 @@ if __name__ == '__main__':
         b = Assembly(name='AssemblyParallel')
         b.combine({'FiredrakeAssemblyParallel': 'Firedrake',
                    'DolfinAssemblyParallel': 'DOLFIN'})
-        b.plot(xaxis='np', regions=regions)
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot,loglog')
