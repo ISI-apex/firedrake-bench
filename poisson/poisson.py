@@ -1,4 +1,5 @@
 from pybench import Benchmark
+from itertools import product
 
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
@@ -21,8 +22,7 @@ class Poisson(Benchmark):
 
 if __name__ == '__main__':
     import sys
-    regions = ['Firedrake matrix assembly', 'Firedrake rhs assembly', 'Firedrake solve',
-               'DOLFIN matrix assembly', 'DOLFIN rhs assembly', 'DOLFIN solve']
+    regions = map(' '.join, product(r0, r1))
     b = Poisson()
     b.combine({'FiredrakePoisson_np1': 'Firedrake',
                'DolfinPoisson_np1': 'DOLFIN'})
