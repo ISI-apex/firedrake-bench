@@ -24,7 +24,7 @@ class FiredrakeNavierStokes(NavierStokes):
                  'velocity correction RHS': {'marker': '>', 'linestyle': '-'},
                  'velocity correction solve': {'marker': '<', 'linestyle': '-'}}
 
-    def navier_stokes(self, scale=1, T=1, preassemble=True, save=False,
+    def navier_stokes(self, scale=1, T=0.1, preassemble=True, save=False,
                       compute_norms=False):
         with self.timed_region('mesh'):
             # Load mesh from file
