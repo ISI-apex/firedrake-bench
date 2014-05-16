@@ -3,7 +3,6 @@ from pybench import Benchmark
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [int((1e4*2**x)**(1./dim)) + 1 for x in range(5)]
-np = [1, 2, 3, 6]
 
 
 class Poisson(Benchmark):
@@ -18,21 +17,24 @@ class Poisson(Benchmark):
                     'node_threshold': 2.0}
 
 if __name__ == '__main__':
+    import sys
     regions = ['Firedrake matrix assembly', 'Firedrake rhs assembly', 'Firedrake solve',
                'DOLFIN matrix assembly', 'DOLFIN rhs assembly', 'DOLFIN solve']
-    b = Poisson(name='DolfinPoissonParallel')
-    b.combine_series([('np', np)], filename='DolfinPoisson')
-    b.save()
-    b = Poisson(name='FiredrakePoissonParallel')
-    b.combine_series([('np', np)], filename='FiredrakePoisson')
-    b.save()
     b = Poisson()
     b.combine({'FiredrakePoisson_np1': 'Firedrake',
                'DolfinPoisson_np1': 'DOLFIN'})
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'])
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
-    b = Poisson(name='PoissonParallel')
-    b.combine({'FiredrakePoissonParallel': 'Firedrake',
-               'DolfinPoissonParallel': 'DOLFIN'})
-    b.plot(xaxis='np', regions=regions)
+    if len(sys.argv) > 1:
+        np = map(int, sys.argv[1:])
+        b = Poisson(name='DolfinPoissonParallel')
+        b.combine_series([('np', np)], filename='DolfinPoisson')
+        b.save()
+        b = Poisson(name='FiredrakePoissonParallel')
+        b.combine_series([('np', np)], filename='FiredrakePoisson')
+        b.save()
+        b = Poisson(name='PoissonParallel')
+        b.combine({'FiredrakePoissonParallel': 'Firedrake',
+                   'DolfinPoissonParallel': 'DOLFIN'})
+        b.plot(xaxis='np', regions=regions)
