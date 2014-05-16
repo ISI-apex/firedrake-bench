@@ -35,4 +35,5 @@ if __name__ == '__main__':
         b = NavierStokes(name='NavierStokesParallel')
         b.combine({'FiredrakeNavierStokesParallel': 'Firedrake',
                    'DolfinNavierStokesParallel': 'DOLFIN'})
-        b.plot(xaxis='np', regions=regions)
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot,loglog')
