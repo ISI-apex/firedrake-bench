@@ -68,9 +68,4 @@ class FiredrakePoisson(Poisson):
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
 
-    # Benchmark
-    FiredrakePoisson().main(benchmark=True, save=None)
-
-    # Profile
-    regions = ['matrix assembly', 'rhs assembly', 'solve']
-    FiredrakePoisson().profile(regions=regions)
+    FiredrakePoisson().main()
