@@ -8,7 +8,6 @@ r2 = ['0', '1', '2', '3']
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [int((1e4*2**x)**(1./dim)) + 1 for x in range(3)]
-np = [1, 2, 3]
 
 
 class Assembly(Benchmark):
@@ -25,6 +24,7 @@ class Assembly(Benchmark):
     profileregions = map(' '.join, product(r1, ['premult'], r2))
 
 if __name__ == '__main__':
+    import sys
     b = Assembly()
     b.combine({'FiredrakeAssembly_np1': 'Firedrake',
                'DolfinAssembly_np1': 'DOLFIN'})
@@ -35,13 +35,15 @@ if __name__ == '__main__':
                xvalues=b.meta['cells'], figname=b.name + '_' + r, wscale=0.7)
         b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
                figname=b.name + '_' + r, wscale=0.7)
-    # b = Assembly(name='DolfinAssemblyParallel')
-    # b.combine_series([('np', np)], filename='DolfinAssembly')
-    # b.save()
-    # b = Assembly(name='FiredrakeAssemblyParallel')
-    # b.combine_series([('np', np)], filename='FiredrakeAssembly')
-    # b.save()
-    # b = Assembly(name='AssemblyParallel')
-    # b.combine({'FiredrakeAssemblyParallel': 'Firedrake',
-    #            'DolfinAssemblyParallel': 'DOLFIN'})
-    # b.plot(xaxis='np', regions=regions)
+    if len(sys.argv) > 1:
+        np = map(int, sys.argv[1:])
+        b = Assembly(name='DolfinAssemblyParallel')
+        b.combine_series([('np', np)], filename='DolfinAssembly')
+        b.save()
+        b = Assembly(name='FiredrakeAssemblyParallel')
+        b.combine_series([('np', np)], filename='FiredrakeAssembly')
+        b.save()
+        b = Assembly(name='AssemblyParallel')
+        b.combine({'FiredrakeAssemblyParallel': 'Firedrake',
+                   'DolfinAssemblyParallel': 'DOLFIN'})
+        b.plot(xaxis='np', regions=regions)
