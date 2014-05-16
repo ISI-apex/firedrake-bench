@@ -4,7 +4,6 @@ from itertools import product
 r0 = ['DOLFIN', 'Firedrake']
 r1 = ['advection', 'diffusion']
 r2 = ['RHS', 'solve']
-np = [1, 2, 3, 6]
 
 
 class AdvectionDiffusion(Benchmark):
@@ -19,6 +18,7 @@ class AdvectionDiffusion(Benchmark):
     profileregions = map(' '.join, product(r1, r2))
 
 if __name__ == '__main__':
+    import sys
     regions = map(' '.join, product(r0, r1, r2))
     b = AdvectionDiffusion()
     b.combine({'FiredrakeAdvectionDiffusion_np1': 'Firedrake',
@@ -26,13 +26,15 @@ if __name__ == '__main__':
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'])
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
-    b = AdvectionDiffusion(name='DolfinAdvectionDiffusionParallel')
-    b.combine_series([('np', np)], filename='DolfinAdvectionDiffusion')
-    b.save()
-    b = AdvectionDiffusion(name='FiredrakeAdvectionDiffusionParallel')
-    b.combine_series([('np', np)], filename='FiredrakeAdvectionDiffusion')
-    b.save()
-    b = AdvectionDiffusion(name='AdvectionDiffusionParallel')
-    b.combine({'FiredrakeAdvectionDiffusionParallel': 'Firedrake',
-               'DolfinAdvectionDiffusionParallel': 'DOLFIN'})
-    b.plot(xaxis='np', regions=regions)
+    if len(sys.argv) > 1:
+        np = map(int, sys.argv[1:])
+        b = AdvectionDiffusion(name='DolfinAdvectionDiffusionParallel')
+        b.combine_series([('np', np)], filename='DolfinAdvectionDiffusion')
+        b.save()
+        b = AdvectionDiffusion(name='FiredrakeAdvectionDiffusionParallel')
+        b.combine_series([('np', np)], filename='FiredrakeAdvectionDiffusion')
+        b.save()
+        b = AdvectionDiffusion(name='AdvectionDiffusionParallel')
+        b.combine({'FiredrakeAdvectionDiffusionParallel': 'Firedrake',
+                   'DolfinAdvectionDiffusionParallel': 'DOLFIN'})
+        b.plot(xaxis='np', regions=regions)
