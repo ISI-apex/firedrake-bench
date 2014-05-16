@@ -4,7 +4,6 @@ from itertools import product
 r0 = ['DOLFIN', 'Firedrake']
 r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
 r2 = ['RHS', 'solve']
-np = [1, 2, 3, 6]
 
 
 class NavierStokes(Benchmark):
@@ -18,19 +17,22 @@ class NavierStokes(Benchmark):
     profileregions = ['matrix assembly'] + map(' '.join, product(r1, r2))
 
 if __name__ == '__main__':
+    import sys
     regions = map(' '.join, product(r0, r1, r2))
     b = NavierStokes()
     b.combine({'FiredrakeNavierStokes_np1': 'Firedrake',
                'DolfinNavierStokes_np1': 'DOLFIN'})
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'])
-    b = NavierStokes(name='DolfinNavierStokesParallel')
-    b.combine_series([('np', np)], filename='DolfinNavierStokes')
-    b.save()
-    b = NavierStokes(name='FiredrakeNavierStokesParallel')
-    b.combine_series([('np', np)], filename='FiredrakeNavierStokes')
-    b.save()
-    b = NavierStokes(name='NavierStokesParallel')
-    b.combine({'FiredrakeNavierStokesParallel': 'Firedrake',
-               'DolfinNavierStokesParallel': 'DOLFIN'})
-    b.plot(xaxis='np', regions=regions)
+    if len(sys.argv) > 1:
+        np = map(int, sys.argv[1:])
+        b = NavierStokes(name='DolfinNavierStokesParallel')
+        b.combine_series([('np', np)], filename='DolfinNavierStokes')
+        b.save()
+        b = NavierStokes(name='FiredrakeNavierStokesParallel')
+        b.combine_series([('np', np)], filename='FiredrakeNavierStokes')
+        b.save()
+        b = NavierStokes(name='NavierStokesParallel')
+        b.combine({'FiredrakeNavierStokesParallel': 'Firedrake',
+                   'DolfinNavierStokesParallel': 'DOLFIN'})
+        b.plot(xaxis='np', regions=regions)
