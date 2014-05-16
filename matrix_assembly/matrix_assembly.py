@@ -41,4 +41,5 @@ if __name__ == '__main__':
         b = MatrixAssembly(name='MatrixAssemblyParallel')
         b.combine({'FiredrakeMatrixAssemblyParallel': 'Firedrake',
                    'DolfinMatrixAssemblyParallel': 'DOLFIN'})
-        b.plot(xaxis='np', regions=regions)
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot,loglog')
