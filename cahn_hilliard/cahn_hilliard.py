@@ -12,7 +12,7 @@ sizes = [64, 88, 125, 176, 250]
 
 class CahnHilliard(Benchmark):
 
-    params = [('degree', [1]),
+    params = [('degree', [1, 2]),
               ('size', sizes),
               ('steps', [10])]
     meta = {'cells': [2*x**dim for x in sizes],
