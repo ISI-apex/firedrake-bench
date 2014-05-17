@@ -5,11 +5,12 @@ from datetime import datetime
 from subprocess import check_call
 
 
-def run(benchmark, np, socket=0, core=0):
+def run(benchmark, np, socket=None, core=0):
     for n in np:
         cmd = ['mpirun']
         for p in range(core, n + core):
-            cmd += ['-np', '1', 'likwid-pin', '-c', 'S%d:%d' % (socket, p)]
+            pin = 'N:%d' % p if socket is None else 'S%d:%d' % (socket, p)
+            cmd += ['-np', '1', 'likwid-pin', '-c', pin]
             cmd += ['python', benchmark, ':']
         print datetime.now(), benchmark, 'started'
         print ' '.join(cmd)
@@ -19,7 +20,7 @@ def run(benchmark, np, socket=0, core=0):
 
 if __name__ == '__main__':
     p = ArgumentParser(description="Run a benchmark")
-    p.add_argument('--socket', '-s', type=int, default=0, help="socket to pin to")
+    p.add_argument('--socket', '-s', type=int, help="socket to pin to")
     p.add_argument('--core', '-c', type=int, default=0, help="inital core to pin to")
     p.add_argument('benchmark', help="benchmark to run")
     p.add_argument('np', type=int, nargs='+',
