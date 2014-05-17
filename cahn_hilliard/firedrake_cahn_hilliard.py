@@ -90,11 +90,7 @@ if __name__ == '__main__':
     op2.init(log_level='WARNING')
 
     # Benchmark
-    FiredrakeCahnHilliard().main(benchmark=True, save=None)
+    FiredrakeCahnHilliard().main()
 
     # Output VTU files
     # FiredrakeCahnHilliard().cahn_hilliard(save=True)
-
-    # Profile
-    # regions = ['mesh', 'setup', 'timestepping']
-    # FiredrakeCahnHilliard().profile(regions=regions)

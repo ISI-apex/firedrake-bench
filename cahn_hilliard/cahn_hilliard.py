@@ -20,3 +20,4 @@ class CahnHilliard(Benchmark):
     method = 'cahn_hilliard'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
+    profileregions = ['mesh', 'setup', 'timestepping']

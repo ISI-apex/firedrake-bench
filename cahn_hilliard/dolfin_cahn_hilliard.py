@@ -112,11 +112,7 @@ if __name__ == '__main__':
     set_log_active(False)
 
     # Benchmark
-    DolfinCahnHilliard().main(benchmark=True, save=None)
+    DolfinCahnHilliard().main()
 
     # Output VTU files
     # DolfinCahnHilliard().cahn_hilliard(save=True)
-
-    # Profile
-    # regions = ['mesh', 'setup', 'timestepping']
-    # DolfinCahnHilliard().profile(regions=regions)
