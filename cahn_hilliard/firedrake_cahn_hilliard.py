@@ -5,7 +5,7 @@ from firedrake import *
 class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size}
 
-    def cahn_hilliard(self, size=96, steps=50, degree=1, save=False):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False):
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
             mesh = UnitSquareMesh(size, size)
@@ -39,7 +39,7 @@ class FiredrakeCahnHilliard(CahnHilliard):
                                 user_code=user_code)
             op2.par_loop(u_init, u.function_space().node_set[0],
                          u.dat[0](op2.WRITE))
-            u.dat.data
+            u.dat._force_evaluation()
 
             # Compute the chemical potential df/dc
             c = variable(c)

@@ -41,7 +41,7 @@ parameters["form_compiler"]["representation"] = "quadrature"
 class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world())}
 
-    def cahn_hilliard(self, size=96, steps=50, degree=1, save=False):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False):
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
             mesh = UnitSquareMesh(size, size)
