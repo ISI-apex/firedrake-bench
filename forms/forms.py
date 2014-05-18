@@ -22,8 +22,8 @@ if __name__ == '__main__':
                'DolfinForms_np1': 'DOLFIN'})
     regions = map(' '.join, product(['DOLFIN', 'Firedrake'], regions))
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
-           kinds='bar')
-    b.plot(xaxis='qdegree', regions=regions, kinds='bar',
+           kinds='bar', legend='best')
+    b.plot(xaxis='qdegree', regions=regions, kinds='bar', legend='best',
            xlabel='Polynomial degree (premultiplying functions)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
