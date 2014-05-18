@@ -15,7 +15,7 @@ class CahnHilliard(Benchmark):
 
     params = [('degree', [1, 2]),
               ('size', sizes),
-              ('steps', [10])]
+              ('steps', [1])]
     meta = {'cells': [2*x**dim for x in sizes],
             'dofs': [(x+1)**dim for x in sizes]}
     method = 'cahn_hilliard'
