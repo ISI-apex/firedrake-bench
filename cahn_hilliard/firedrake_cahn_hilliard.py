@@ -1,5 +1,6 @@
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 from firedrake import *
+from pyop2.profiling import get_timers
 
 
 class FiredrakeCahnHilliard(CahnHilliard):
@@ -85,6 +86,8 @@ class FiredrakeCahnHilliard(CahnHilliard):
                 solver.solve()
                 if save:
                     file << (u.split()[0], t)
+        for task, timer in get_timers(reset=True).items():
+            self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')

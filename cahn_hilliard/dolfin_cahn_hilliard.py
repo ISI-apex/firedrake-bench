@@ -107,6 +107,9 @@ class DolfinCahnHilliard(CahnHilliard):
                 solver.solve(problem, u.vector())
                 if save:
                     file << (u.split()[0], t)
+        t = timings(True)
+        for task in ['Assemble cells', 'Build sparsity', 'SNES solver execution']:
+            self.register_timing(task, float(t.get(task, 'Total time')))
 
 if __name__ == '__main__':
     set_log_active(False)
