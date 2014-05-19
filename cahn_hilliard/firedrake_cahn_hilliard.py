@@ -32,7 +32,7 @@ class FiredrakeCahnHilliard(CahnHilliard):
               A[0] = 0.63 + 0.02*(0.5 - (double)random()/RAND_MAX);
             }"""
             user_code = """int __rank;
-            MPI_Comm_rank(MPI_COMM_WORLD, __rank);
+            MPI_Comm_rank(MPI_COMM_WORLD, &__rank);
             srandom(2 + __rank);"""
             u_init = op2.Kernel(init_code, "u_init",
                                 headers=["#include <stdlib.h>"],
