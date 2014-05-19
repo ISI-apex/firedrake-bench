@@ -41,6 +41,18 @@ def poisson(degree, qdegree, dim, mesh):
     return it, f, div
 
 
+def mixed_poisson(degree, qdegree, dim, mesh):
+    BDM = FunctionSpace(mesh, "BDM", degree)
+    DG = FunctionSpace(mesh, "DG", degree - 1)
+    Q = FunctionSpace(mesh, 'CG', qdegree)
+    W = BDM * DG
+    sigma, u = TrialFunctions(W)
+    tau, v = TestFunctions(W)
+    it = dot(sigma, tau) + div(tau)*u + div(sigma)*v
+    f = [Function(Q).assign(1.0) for _ in range(3)]
+    return it, f, lambda x: x
+
+
 class FiredrakeForms(Forms):
 
     series = {'np': op2.MPI.comm.size}

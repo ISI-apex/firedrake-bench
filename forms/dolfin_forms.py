@@ -44,6 +44,20 @@ def poisson(degree, qdegree, dim, mesh):
     return it, f, div
 
 
+def mixed_poisson(degree, qdegree, dim, mesh):
+    BDM = FunctionSpace(mesh, "BDM", degree)
+    DG = FunctionSpace(mesh, "DG", degree - 1)
+    Q = FunctionSpace(mesh, 'CG', qdegree)
+    W = BDM * DG
+    sigma, u = TrialFunctions(W)
+    tau, v = TestFunctions(W)
+    it = dot(sigma, tau) + div(tau)*u + div(sigma)*v
+    f = [Function(Q) for _ in range(3)]
+    for f_ in f:
+        f_.interpolate(Expression('1.0'))
+    return it, f, lambda x: x
+
+
 class DolfinForms(Forms):
 
     series = {'np': MPI.size(mpi_comm_world())}

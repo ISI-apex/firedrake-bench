@@ -8,7 +8,7 @@ class Forms(Benchmark):
     params = [('dim', [2, 3]),
               ('degree', [1, 2, 3, 4]),
               ('qdegree', [1, 2, 3, 4]),
-              ('form', ['mass', 'elasticity', 'poisson'])]
+              ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson'])]
     method = 'forms'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
