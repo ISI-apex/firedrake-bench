@@ -28,6 +28,7 @@ if __name__ == '__main__':
 
     # Plot
     regions = ['nf %d' % i for i in range(4)]
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
-    b.plot(xaxis='qdegree', regions=regions,
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+           kinds='bar', legend='best')
+    b.plot(xaxis='qdegree', regions=regions, kinds='bar', legend='best',
            xlabel='Polynomial degree (premultiplying functions)')
