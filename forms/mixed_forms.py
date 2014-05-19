@@ -21,8 +21,9 @@ if __name__ == '__main__':
     b.combine({'FiredrakeMixedForms_np1': 'Firedrake',
                'DolfinMixedForms_np1': 'DOLFIN'})
     regions = map(' '.join, product(['DOLFIN', 'Firedrake'], regions))
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
-    b.plot(xaxis='qdegree', regions=regions,
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+           kinds='bar', legend='best')
+    b.plot(xaxis='qdegree', regions=regions, kinds='bar', legend='best',
            xlabel='Polynomial degree (premultiplying functions)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
