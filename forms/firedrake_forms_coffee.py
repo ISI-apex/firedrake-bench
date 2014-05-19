@@ -7,7 +7,7 @@ class FiredrakeFormsCoffee(FiredrakeForms):
 
     params = [('degree', [1, 2, 3, 4]),
               ('qdegree', [1, 2, 3, 4]),
-              ('form', ['mass', 'elasticity']),
+              ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson']),
               ('licm', [False, True]),
               ('vect', [(False, None), (True, (V_OP_UAJ, 1))])]
 
