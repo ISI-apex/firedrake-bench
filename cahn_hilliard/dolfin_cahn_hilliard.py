@@ -41,7 +41,7 @@ parameters["form_compiler"]["representation"] = "quadrature"
 class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world())}
 
-    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='jacobi'):
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
             mesh = UnitSquareMesh(size, size)
@@ -89,7 +89,7 @@ class DolfinCahnHilliard(CahnHilliard):
             problem = CahnHilliardEquation(a, L)
             solver = PETScSNESSolver()
             solver.parameters["linear_solver"] = "gmres"
-            solver.parameters["preconditioner"] = "jacobi"
+            solver.parameters["preconditioner"] = pc
             solver.parameters["report"] = False
             solver.parameters["krylov_solver"]["report"] = False
 

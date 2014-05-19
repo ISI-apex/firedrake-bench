@@ -6,7 +6,7 @@ from pyop2.profiling import get_timers
 class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size}
 
-    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='jacobi'):
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
             mesh = UnitSquareMesh(size, size)
@@ -60,7 +60,7 @@ class FiredrakeCahnHilliard(CahnHilliard):
             problem = NonlinearVariationalProblem(F, u, J=J)
             solver = NonlinearVariationalSolver(problem,
                                                 parameters={'ksp_type': 'gmres',
-                                                            'pc_type': 'jacobi',
+                                                            'pc_type': pc,
                                                             'pc_fieldsplit_type': 'schur',
                                                             'pc_fieldsplit_schur_fact_type': 'full',
                                                             'fieldsplit_0_ksp_type': 'cg',
