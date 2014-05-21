@@ -6,8 +6,26 @@ from pyop2.profiling import get_timers
 class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size}
 
-    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='jacobi',
-                      compute_norms=False):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
+                      inner_ksp='preonly', ksp='gmres', maxit=1,
+                      save=False, compute_norms=False):
+        params = {'pc_type': pc,
+                  'ksp_type': ksp,
+                  'snes_rtol': 1e-9,
+                  'snes_atol': 1e-10,
+                  'snes_stol': 1e-16,
+                  'ksp_rtol': 1e-6,
+                  'ksp_atol': 1e-15,
+                  'pc_fieldsplit_type': 'schur',
+                  'pc_fieldsplit_schur_factorization_type': 'lower',
+                  'pc_fieldsplit_schur_precondition': 'user',
+                  'fieldsplit_0_ksp_type': inner_ksp,
+                  'fieldsplit_0_ksp_max_it': maxit,
+                  'fieldsplit_0_pc_type': 'hypre',
+                  'fieldsplit_1_ksp_type': inner_ksp,
+                  'fieldsplit_1_ksp_max_it': maxit,
+                  'fieldsplit_1_pc_type': 'mat'}
+
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
             mesh = UnitSquareMesh(size, size)
@@ -59,19 +77,42 @@ class FiredrakeCahnHilliard(CahnHilliard):
             J = derivative(F, u, du)
 
             problem = NonlinearVariationalProblem(F, u, J=J)
-            solver = NonlinearVariationalSolver(problem,
-                                                parameters={'ksp_type': 'gmres',
-                                                            'pc_type': pc,
-                                                            'pc_fieldsplit_type': 'schur',
-                                                            'pc_fieldsplit_schur_fact_type': 'full',
-                                                            'fieldsplit_0_ksp_type': 'cg',
-                                                            'fieldsplit_1_ksp_type': 'cg',
-                                                            'snes_rtol': 1e-9,
-                                                            'snes_atol': 1e-10,
-                                                            'snes_stol': 1e-16,
-                                                            'ksp_rtol': 1e-6,
-                                                            'ksp_atol': 1e-15,
-                                                            'snes_linesearch_type': 'basic'})
+            solver = NonlinearVariationalSolver(problem, solver_parameters=params)
+
+            if pc in ['fieldsplit', 'ilu']:
+                sigma = 100
+                # PC for the Schur complement solve
+                trial = TrialFunction(V)
+                test = TestFunction(V)
+                mass = assemble(inner(trial, test)*dx).M.handle
+                a = 1
+                c = (dt * lmbda)/(1+dt * sigma)
+                hats = assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c)*inner(grad(trial), grad(test))*dx).M.handle
+
+                from firedrake.petsc import PETSc
+                ksp_hats = PETSc.KSP()
+                ksp_hats.create()
+                ksp_hats.setOperators(hats)
+                opts = PETSc.Options()
+
+                opts['ksp_type'] = inner_ksp
+                opts['ksp_max_it'] = maxit
+                opts['pc_type'] = 'hypre'
+                ksp_hats.setFromOptions()
+
+                class SchurInv(object):
+                    def mult(self, mat, x, y):
+                        tmp1 = y.duplicate()
+                        tmp2 = y.duplicate()
+                        ksp_hats.solve(x, tmp1)
+                        mass.mult(tmp1, tmp2)
+                        ksp_hats.solve(tmp2, y)
+
+                pc_schur = PETSc.Mat()
+                pc_schur.createPython(mass.getSizes(), SchurInv())
+                pc_schur.setUp()
+                pc = solver.snes.ksp.pc
+                pc.setFieldSplitSchurPrecondition(PETSc.PC.SchurPreType.USER, pc_schur)
 
             # Output file
             if save:
