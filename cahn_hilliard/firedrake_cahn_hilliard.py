@@ -6,7 +6,8 @@ from pyop2.profiling import get_timers
 class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size}
 
-    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='jacobi'):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='jacobi',
+                      compute_norms=False):
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
             mesh = UnitSquareMesh(size, size)
@@ -86,6 +87,10 @@ class FiredrakeCahnHilliard(CahnHilliard):
                 solver.solve()
                 if save:
                     file << (u.split()[0], t)
+                if compute_norms:
+                    nu = norm(u)
+                    if op2.MPI.comm.rank == 0:
+                        print t, 'L2(u):', nu
         for task, timer in get_timers(reset=True).items():
             self.register_timing(task, timer.total)
 

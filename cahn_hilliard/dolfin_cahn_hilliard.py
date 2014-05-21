@@ -41,7 +41,8 @@ parameters["form_compiler"]["representation"] = "quadrature"
 class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world())}
 
-    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='jacobi'):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='jacobi',
+                      compute_norms=False):
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
             mesh = UnitSquareMesh(size, size)
@@ -107,6 +108,10 @@ class DolfinCahnHilliard(CahnHilliard):
                 solver.solve(problem, u.vector())
                 if save:
                     file << (u.split()[0], t)
+                if compute_norms:
+                    nu = norm(u)
+                    if MPI.rank(mpi_comm_world()) == 0:
+                        print t, 'L2(u):', nu
         t = timings(True)
         for task in ['Assemble cells', 'Build sparsity', 'SNES solver execution']:
             self.register_timing(task, float(t.get(task, 'Total time')))
