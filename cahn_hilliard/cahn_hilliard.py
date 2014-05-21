@@ -7,13 +7,13 @@ theta = 0.5      # time stepping family, e.g. theta=1 -> backward Euler, theta=0
 
 dim = 2
 # Create a series of meshes that roughly double in number of DOFs
-sizes = [64, 88, 125, 176, 250]
+sizes = [125, 176, 250, 354, 500, 707, 1000]
 profileregions = ['mesh', 'setup', 'timestepping']
 
 
 class CahnHilliard(Benchmark):
 
-    params = [('degree', [1, 2]),
+    params = [('degree', [1]),
               ('size', sizes),
               ('steps', [1])]
     meta = {'cells': [2*x**dim for x in sizes],
