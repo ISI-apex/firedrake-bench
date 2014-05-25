@@ -1,6 +1,47 @@
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 import random
+import sys
+import numpy as np
+from petsc4py import PETSc
 from dolfin import *
+
+fs_petsc_args = [sys.argv[0]] + """
+                             --petsc.ok_snes_monitor
+                             --petsc.ok_ksp_converged_reason
+                             --petsc.ok_ksp_type tfqmr
+                             --petsc.ok_ksp_monitor
+                             --petsc.ok_ksp_rtol 1.0e-10
+
+                             --petsc.ok_pc_type fieldsplit
+                             --petsc.ok_pc_fieldsplit_type schur
+                             --petsc.ok_pc_fieldsplit_schur_factorization_type lower
+                             --petsc.ok_pc_fieldsplit_schur_precondition self
+
+                             --petsc.ok_fieldsplit_0_ksp_type preonly
+                             --petsc.ok_fieldsplit_0_ksp_max_it 1
+                             --petsc.ok_fieldsplit_0_pc_type ml
+
+                             --petsc.ok_fieldsplit_1_ksp_type richardson
+                             --petsc.ok_fieldsplit_1_ksp_max_it 1
+                             --petsc.ok_fieldsplit_1_pc_type mat
+                             --petsc.ok_fieldsplit_1_hats_pc_type ml
+                             --petsc.ok_fieldsplit_1_hats_pc_mg_log
+                             --petsc.ok_fieldsplit_1_hats_pc_mg_monitor
+                             --petsc.ok_fieldsplit_1_hats_ksp_type preonly
+                             --petsc.ok_fieldsplit_1_hats_ksp_max_it 1
+
+                             --petsc.ok_fieldsplit_0_pc_ml_maxCoarseSize 1024
+                             --petsc.ok_fieldsplit_1_hats_pc_ml_maxCoarseSize 1024
+
+                             --petsc.ok_fieldsplit_0_pc_ml_DampingFactor 1.5
+                             --petsc.ok_fieldsplit_1_hats_pc_ml_DampingFactor 1.5
+
+                             --petsc.ok_fieldsplit_0_pc_hypre_boomeramg_agg_nl 3
+                             --petsc.ok_fieldsplit_1_hats_pc_hypre_boomeramg_agg_nl 3
+
+                             --petsc.ok_fieldsplit_1_hats_pc_hypre_boomeramg_strong_threshold 1.0
+                             --petsc.ok_fieldsplit_0_pc_hypre_boomeramg_strong_threshold 1.0
+                             """.split()
 
 
 # Class representing the intial conditions
@@ -36,6 +77,7 @@ class CahnHilliardEquation(NonlinearProblem):
 parameters["form_compiler"]["optimize"] = True
 parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
+parameters["form_compiler"]["cpp_optimize_flags"] = "-O3 -ffast-math -march=native"
 
 
 class DolfinCahnHilliard(CahnHilliard):
@@ -43,6 +85,8 @@ class DolfinCahnHilliard(CahnHilliard):
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='ilu',
                       compute_norms=False):
+        if pc == 'fieldsplit':
+            parameters.parse(fs_petsc_args)
         PETScOptions.set("sub_pc_type", pc)
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
@@ -94,6 +138,69 @@ class DolfinCahnHilliard(CahnHilliard):
             solver.parameters["preconditioner"] = "bjacobi"
             solver.parameters["report"] = False
             solver.parameters["krylov_solver"]["report"] = False
+            solver.parameters["options_prefix"] = "ok"
+
+            solver.init(problem, u.vector())
+            snes = solver.snes()
+            snes.setFromOptions()
+
+            # Configure the FIELDSPLIT stuff.
+            if pc == 'fieldsplit':
+                pc = snes.ksp.pc
+
+                fields = []
+                for i in range(2):
+                    subspace = SubSpace(ME, i)
+                    subdofs = subspace.dofmap().dofs()
+                    IS = PETSc.IS()
+                    IS.createGeneral(subdofs.astype(np.int32))
+                    name = str(i)
+                    fields.append((name, IS))
+
+                pc.setFieldSplitIS(*fields)
+
+                def extract_sub_matrix(schur_prec):
+                    Zmat = as_backend_type(schur_prec).mat()
+                    Pdofs = SubSpace(ME, 1).dofmap().dofs()
+                    Pis = PETSc.IS()
+                    Pis.createGeneral(Pdofs.astype(np.int32))
+                    Pmat = Zmat.getSubMatrix(Pis, Pis)
+                    return Pmat
+
+                trial = TrialFunction(ME)
+                test = TestFunction(ME)
+                mass = extract_sub_matrix(assemble(inner(trial, test)*dx))
+
+                a = 1
+                c = (dt * lmbda)/(1 + dt * sigma)
+                hats = extract_sub_matrix(assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c) * inner(grad(trial), grad(test))*dx))
+                ksp_hats = PETSc.KSP()
+                ksp_hats.create()
+                ksp_hats.setType("richardson")
+                ksp_hats.pc.setType("ml")
+                ksp_hats.setOperators(hats)
+                ksp_hats.setOptionsPrefix("ok_fieldsplit_1_hats_")
+                ksp_hats.setFromOptions()
+                ksp_hats.setUp()
+
+                class SchurInv(object):
+                    def mult(self, mat, x, y):
+                        tmp1 = y.duplicate()
+                        tmp2 = y.duplicate()
+
+                        ksp_hats.solve(x, tmp1)
+                        mass.mult(tmp1, tmp2)
+                        ksp_hats.solve(tmp2, y)
+
+                pc_schur = PETSc.Mat()
+                pc_schur.createPython(mass.getSizes(), SchurInv())
+                pc_schur.setUp()
+
+                def monitor(snes, its, norm):
+                    pc = snes.ksp.pc
+                    pc.setFieldSplitSchurPrecondition(PETSc.PC.SchurPreType.USER, pc_schur)
+
+                snes.setMonitor(monitor)
 
             # Output file
             if save:
