@@ -14,6 +14,8 @@ class FiredrakeCahnHilliard(CahnHilliard):
                   'snes_rtol': 1e-9,
                   'snes_atol': 1e-10,
                   'snes_stol': 1e-16,
+                  'snes_linesearch_type': 'basic',
+                  'snes_linesearch_max_it': 1,
                   'ksp_rtol': 1e-6,
                   'ksp_atol': 1e-15,
                   'pc_fieldsplit_type': 'schur',
