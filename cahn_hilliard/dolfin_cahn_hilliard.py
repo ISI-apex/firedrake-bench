@@ -5,44 +5,6 @@ import numpy as np
 from petsc4py import PETSc
 from dolfin import *
 
-fs_petsc_args = [sys.argv[0]] + """
-                             --petsc.ok_snes_monitor
-                             --petsc.ok_ksp_converged_reason
-                             --petsc.ok_ksp_type tfqmr
-                             --petsc.ok_ksp_monitor
-                             --petsc.ok_ksp_rtol 1.0e-10
-
-                             --petsc.ok_pc_type fieldsplit
-                             --petsc.ok_pc_fieldsplit_type schur
-                             --petsc.ok_pc_fieldsplit_schur_factorization_type lower
-                             --petsc.ok_pc_fieldsplit_schur_precondition self
-
-                             --petsc.ok_fieldsplit_0_ksp_type preonly
-                             --petsc.ok_fieldsplit_0_ksp_max_it 1
-                             --petsc.ok_fieldsplit_0_pc_type ml
-
-                             --petsc.ok_fieldsplit_1_ksp_type richardson
-                             --petsc.ok_fieldsplit_1_ksp_max_it 1
-                             --petsc.ok_fieldsplit_1_pc_type mat
-                             --petsc.ok_fieldsplit_1_hats_pc_type ml
-                             --petsc.ok_fieldsplit_1_hats_pc_mg_log
-                             --petsc.ok_fieldsplit_1_hats_pc_mg_monitor
-                             --petsc.ok_fieldsplit_1_hats_ksp_type preonly
-                             --petsc.ok_fieldsplit_1_hats_ksp_max_it 1
-
-                             --petsc.ok_fieldsplit_0_pc_ml_maxCoarseSize 1024
-                             --petsc.ok_fieldsplit_1_hats_pc_ml_maxCoarseSize 1024
-
-                             --petsc.ok_fieldsplit_0_pc_ml_DampingFactor 1.5
-                             --petsc.ok_fieldsplit_1_hats_pc_ml_DampingFactor 1.5
-
-                             --petsc.ok_fieldsplit_0_pc_hypre_boomeramg_agg_nl 3
-                             --petsc.ok_fieldsplit_1_hats_pc_hypre_boomeramg_agg_nl 3
-
-                             --petsc.ok_fieldsplit_1_hats_pc_hypre_boomeramg_strong_threshold 1.0
-                             --petsc.ok_fieldsplit_0_pc_hypre_boomeramg_strong_threshold 1.0
-                             """.split()
-
 
 # Class representing the intial conditions
 class InitialConditions(Expression):
@@ -83,9 +45,35 @@ parameters["form_compiler"]["cpp_optimize_flags"] = "-O3 -ffast-math -march=nati
 class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world())}
 
-    def cahn_hilliard(self, size=96, steps=10, degree=1, save=False, pc='ilu',
-                      compute_norms=False):
+    def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
+                      inner_ksp='preonly', ksp='gmres', maxit=1,
+                      save=False, compute_norms=False):
         if pc == 'fieldsplit':
+            fs_petsc_args = [sys.argv[0]] + ("""
+             --petsc.ok_ksp_type %(ksp)s
+             --petsc.ok_snes_rtol 1e-9
+             --petsc.ok_snes_atol 1e-10
+             --petsc.ok_snes_stol 1e-16
+             --petsc.ok_ksp_rtol 1e-6
+             --petsc.ok_ksp_atol 1e-15
+
+             --petsc.ok_pc_type fieldsplit
+             --petsc.ok_pc_fieldsplit_type schur
+             --petsc.ok_pc_fieldsplit_schur_factorization_type lower
+             --petsc.ok_pc_fieldsplit_schur_precondition user
+
+             --petsc.ok_fieldsplit_0_ksp_type %(inner_ksp)s
+             --petsc.ok_fieldsplit_0_ksp_max_it %(maxit)d
+             --petsc.ok_fieldsplit_0_pc_type hypre
+
+             --petsc.ok_fieldsplit_1_ksp_type %(inner_ksp)s
+             --petsc.ok_fieldsplit_1_ksp_max_it %(maxit)d
+             --petsc.ok_fieldsplit_1_pc_type mat
+             --petsc.ok_fieldsplit_1_hats_pc_type hypre
+             --petsc.ok_fieldsplit_1_hats_ksp_type %(inner_ksp)s
+             --petsc.ok_fieldsplit_1_hats_ksp_max_it %(maxit)d
+             """ % {'ksp': ksp, 'inner_ksp': inner_ksp, 'maxit': maxit}).split()
+
             parameters.parse(fs_petsc_args)
         PETScOptions.set("sub_pc_type", pc)
         with self.timed_region('mesh'):
@@ -146,6 +134,7 @@ class DolfinCahnHilliard(CahnHilliard):
 
             # Configure the FIELDSPLIT stuff.
             if pc == 'fieldsplit':
+                sigma = 100
                 pc = snes.ksp.pc
 
                 fields = []
@@ -176,8 +165,6 @@ class DolfinCahnHilliard(CahnHilliard):
                 hats = extract_sub_matrix(assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c) * inner(grad(trial), grad(test))*dx))
                 ksp_hats = PETSc.KSP()
                 ksp_hats.create()
-                ksp_hats.setType("richardson")
-                ksp_hats.pc.setType("ml")
                 ksp_hats.setOperators(hats)
                 ksp_hats.setOptionsPrefix("ok_fieldsplit_1_hats_")
                 ksp_hats.setFromOptions()
