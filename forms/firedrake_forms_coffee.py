@@ -8,8 +8,8 @@ class FiredrakeFormsCoffee(FiredrakeForms):
     params = [('degree', [1, 2, 3, 4]),
               ('qdegree', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson']),
-              ('opt', [(False, False, None), (False, True, (V_OP_UAJ, 1)),
-                       (True, False, None), (True, True, (V_OP_UAJ, 1))])]
+              ('opt', [(False, False, None), (True, False, None), (True, True, None)]
+               + [(True, True, (V_OP_UAJ, i)) for i in range(1, 5)])]
 
     def forms(self, degree=1, qdegree=1, dim=3, form='mass', opt=(False, False, None)):
         parameters["coffee"]["licm"] = opt[0]
