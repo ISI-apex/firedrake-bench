@@ -1,6 +1,6 @@
 from firedrake_forms import FiredrakeForms
 from firedrake import *
-from pyop2.ir.ast_plan import V_OP_UAJ
+from pyop2.coffee.ast_plan import V_OP_UAJ
 
 
 class FiredrakeFormsCoffee(FiredrakeForms):
@@ -8,13 +8,13 @@ class FiredrakeFormsCoffee(FiredrakeForms):
     params = [('degree', [1, 2, 3, 4]),
               ('qdegree', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson']),
-              ('licm', [False, True]),
-              ('vect', [(False, None), (True, (V_OP_UAJ, 1))])]
+              ('opt', [(False, False, None), (False, True, (V_OP_UAJ, 1)),
+                       (True, False, None), (True, True, (V_OP_UAJ, 1))])]
 
-    def forms(self, degree=1, qdegree=1, dim=3, form='mass', licm=False, vect=(False, None)):
-        parameters["coffee"]["licm"] = licm
-        parameters["coffee"]["ap"] = vect[0]
-        parameters["coffee"]["vect"] = vect[1]
+    def forms(self, degree=1, qdegree=1, dim=3, form='mass', opt=(False, False, None)):
+        parameters["coffee"]["licm"] = opt[0]
+        parameters["coffee"]["ap"] = opt[2]
+        parameters["coffee"]["vect"] = opt[2]
         super(FiredrakeFormsCoffee, self).forms(degree, qdegree, dim, form)
 
 if __name__ == '__main__':
@@ -28,7 +28,5 @@ if __name__ == '__main__':
 
     # Plot
     regions = ['nf %d' % i for i in range(4)]
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+    b.plot(xaxis='opt', regions=regions, xlabel='COFFEE Optimisations (LICM, AP, VECT)',
            kinds='bar', legend='best')
-    b.plot(xaxis='qdegree', regions=regions, kinds='bar', legend='best',
-           xlabel='Polynomial degree (premultiplying functions)')
