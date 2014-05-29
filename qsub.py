@@ -34,10 +34,11 @@ date
 """
 
 
-def run(benchmark, nodes, queue, email, env, args, np):
+def run(benchmark, template, nodes, queue, email, env, args, np):
     """Submit a batch job
 
     :param benchmark: benchmark to run
+    :param template: template to create PBS script from
     :param nodes: number of nodes to run for
     :param queue: queue to submit to
     :param email: email address to notifiy
@@ -51,16 +52,20 @@ def run(benchmark, nodes, queue, email, env, args, np):
          'email': email,
          'env': open(env).read(),
          'args': ' '.join(args)}
+    if template:
+        with open(template) as f:
+            template = f.read()
     for n in np:
         d['cpus'] = n
         d['jobname'] = '%s_%02d' % (benchmark[:12], n)
         with NamedTemporaryFile(prefix=d['jobname']) as f:
-            f.write(pbs % d)
+            f.write((template or pbs) % d)
             f.file.flush()
             check_call(['qsub', f.name])
 
 if __name__ == '__main__':
     p = ArgumentParser(description="Submit a batch job")
+    p.add_argument('--template', '-t', help="template to create PBS script from")
     p.add_argument('--queue', '-q', help="queue to submit to")
     p.add_argument('--nodes', '-n', type=int, help="number of nodes")
     p.add_argument('--email', '-m',
