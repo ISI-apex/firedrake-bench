@@ -34,7 +34,7 @@ date
 """
 
 
-def run(benchmark, template, nodes, queue, email, env, args, np):
+def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[], np=[1]):
     """Submit a batch job
 
     :param benchmark: benchmark to run
@@ -46,11 +46,14 @@ def run(benchmark, template, nodes, queue, email, env, args, np):
     :param args: list of additional argument to pass to benchmark script
     :param np: number of processes to run for
     """
+    if env:
+        with open(env) as f:
+            env = f.read()
     d = {'script': benchmark,
          'nodes': nodes,
          'queue': queue,
          'email': email,
-         'env': open(env).read(),
+         'env': env,
          'args': ' '.join(args)}
     if template:
         with open(template) as f:
