@@ -70,11 +70,11 @@ if __name__ == '__main__':
     p = ArgumentParser(description="Submit a batch job")
     p.add_argument('--template', '-t', help="template to create PBS script from")
     p.add_argument('--queue', '-q', help="queue to submit to")
-    p.add_argument('--nodes', '-n', type=int, help="number of nodes")
+    p.add_argument('--nodes', '-n', type=int, help="number of nodes", default=1)
     p.add_argument('--email', '-m',
                    help="email address to send status messages to")
     p.add_argument('--env', '-e', help="environment script to source")
-    p.add_argument('--np', type=int, nargs='+',
+    p.add_argument('--np', type=int, nargs='+', default=[1],
                    help="number of processes per node")
     p.add_argument('benchmark', help="benchmark to run")
     p.add_argument('args', help="arguments to pass to benchmarks script",
