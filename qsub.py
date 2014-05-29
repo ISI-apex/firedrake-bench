@@ -35,7 +35,7 @@ date
 
 
 def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[],
-        np=[1], save=False, run=False):
+        np=[1], save=False, run=False, jobname=None):
     """Submit a batch job
 
     :param benchmark: benchmark to run
@@ -61,7 +61,7 @@ def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[],
             template = f.read()
     for n in np:
         d['cpus'] = n
-        d['jobname'] = '%s%02d%02d' % (benchmark[:11], nodes, n)
+        d['jobname'] = '%s%02d%02d' % ((jobname or benchmark)[:11], nodes, n)
         with open(d['jobname'] + '.pbs', 'w') if save \
                 else NamedTemporaryFile(prefix=d['jobname']) as f:
             f.write((template or pbs) % d)
@@ -71,6 +71,7 @@ def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[],
 
 if __name__ == '__main__':
     p = ArgumentParser(description="Submit a batch job")
+    p.add_argument('--jobname', '-j', help="name for the job (defaults to benchmark name)")
     p.add_argument('--template', '-t', help="template to create PBS script from")
     p.add_argument('--queue', '-q', help="queue to submit to")
     p.add_argument('--nodes', '-n', type=int, help="number of nodes", default=1)
