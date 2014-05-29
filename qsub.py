@@ -60,7 +60,7 @@ def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[], 
             template = f.read()
     for n in np:
         d['cpus'] = n
-        d['jobname'] = '%s_%02d' % (benchmark[:12], n)
+        d['jobname'] = '%s%02d%02d' % (benchmark[:11], nodes, n)
         with NamedTemporaryFile(prefix=d['jobname']) as f:
             f.write((template or pbs) % d)
             f.file.flush()
