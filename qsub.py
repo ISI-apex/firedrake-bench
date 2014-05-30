@@ -7,7 +7,7 @@ from tempfile import NamedTemporaryFile
 pbs = """\
 #PBS -N %(jobname)s
 #PBS -l walltime=8:00:00
-#PBS -l select=%(nodes)d:ncpus=%(cpus)d:mem=15gb:sandyb=true
+#PBS -l select=%(nodes)d:ncpus=%(ppn)d:mem=15gb:sandyb=true
 #PBS -l place=excl
 #PBS -q %(queue)s
 #PBS -m eba
@@ -60,7 +60,8 @@ def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[],
         with open(template) as f:
             template = f.read()
     for n in np:
-        d['cpus'] = n
+        d['ppn'] = n
+        d['ptotal'] = n * nodes
         d['jobname'] = '%s%02d%02d' % ((jobname or benchmark)[:11], nodes, n)
         with open(d['jobname'] + '.pbs', 'w') if save \
                 else NamedTemporaryFile(prefix=d['jobname']) as f:
