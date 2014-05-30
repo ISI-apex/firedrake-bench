@@ -24,8 +24,9 @@ if __name__ == '__main__':
     b.combine({'FiredrakeAdvectionDiffusion_np1': 'Firedrake',
                'DolfinAdvectionDiffusion_np1': 'DOLFIN'})
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'])
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
+           xvalues=b.meta['cells'], kinds='plot,loglog')
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+           kinds='bar,barlog')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = AdvectionDiffusion(name='DolfinAdvectionDiffusionParallel')
