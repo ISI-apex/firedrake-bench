@@ -29,7 +29,8 @@ if __name__ == '__main__':
                'DolfinMatrixAssembly_np1': 'DOLFIN'})
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'])
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+           kinds='bar,barlog')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = MatrixAssembly(name='DolfinMatrixAssemblyParallel')
