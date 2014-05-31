@@ -23,7 +23,7 @@ if __name__ == '__main__':
     b.combine({'FiredrakeNavierStokes_np1': 'Firedrake',
                'DolfinNavierStokes_np1': 'DOLFIN'})
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'])
+           xvalues=b.meta['cells'], kinds='plot,loglog', wscale=0.7)
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = NavierStokes(name='DolfinNavierStokesParallel')
