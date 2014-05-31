@@ -16,7 +16,6 @@ def run(benchmark, np, socket=None, core=0):
         print ' '.join(cmd)
         check_call(cmd)
         print datetime.now(), benchmark, 'finished'
-        core += n
 
 if __name__ == '__main__':
     p = ArgumentParser(description="Run a benchmark pinned to CPU cores")
