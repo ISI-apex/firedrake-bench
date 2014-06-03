@@ -27,8 +27,9 @@ if __name__ == '__main__':
     b.combine({'FiredrakePoisson_np1': 'Firedrake',
                'DolfinPoisson_np1': 'DOLFIN'})
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'])
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree')
+           xvalues=b.meta['cells'], kinds='plot,loglog')
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+           kinds='plot,loglog')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = Poisson(name='DolfinPoissonParallel')
