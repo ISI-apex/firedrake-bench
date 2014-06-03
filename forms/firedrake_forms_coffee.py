@@ -31,3 +31,8 @@ if __name__ == '__main__':
     b.plot(xaxis='opt', regions=regions, kinds='bar,barlog', legend='best',
            xlabel='COFFEE Optimisations (LICM, AP, VECT)',
            xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
+    for i, r in enumerate(regions):
+        b.plot(xaxis='opt', regions=[r], kinds='bar,barlog', legend='best',
+               xlabel='COFFEE Optimisations (LICM, AP, VECT)', groups=['form'],
+               figname='FiredrakeFormsCoffee_nf%d' % i,
+               xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
