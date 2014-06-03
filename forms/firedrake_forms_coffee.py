@@ -28,6 +28,6 @@ if __name__ == '__main__':
 
     # Plot
     regions = ['nf %d' % i for i in range(4)]
-    b.plot(xaxis='opt', regions=regions, kinds='bar', legend='best',
+    b.plot(xaxis='opt', regions=regions, kinds='bar,barlog', legend='best',
            xlabel='COFFEE Optimisations (LICM, AP, VECT)',
            xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
