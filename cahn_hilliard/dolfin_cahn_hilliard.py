@@ -45,8 +45,8 @@ parameters["form_compiler"]["cpp_optimize_flags"] = "-O3 -ffast-math -march=nati
 class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world())}
     plotstyle = {'total': {'marker': '*', 'linestyle': '--'},
-                 'mesh': {'marker': '+', 'linestyle': '--'},
-                 'setup': {'marker': 'x', 'linestyle': '--'},
+                 'mesh': {'marker': 's', 'linestyle': '--'},
+                 'setup': {'marker': 'D', 'linestyle': '--'},
                  'timestepping': {'marker': 'o', 'linestyle': '--'}}
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
