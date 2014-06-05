@@ -11,14 +11,7 @@ parameters["form_compiler"]["representation"] = "quadrature"
 
 
 class DolfinPoisson(Poisson):
-    series = {'np': MPI.size(mpi_comm_world())}
-
-    plotstyle = {'total': {'marker': '*', 'linestyle': '--'},
-                 'mesh': {'marker': '+', 'linestyle': '--'},
-                 'setup': {'marker': 'x', 'linestyle': '--'},
-                 'matrix assembly': {'marker': '>', 'linestyle': '--'},
-                 'rhs assembly': {'marker': '<', 'linestyle': '--'},
-                 'solve': {'marker': 'D', 'linestyle': '--'}}
+    series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
     def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='amg'):
         params = {'linear_solver': 'cg',

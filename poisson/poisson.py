@@ -1,11 +1,10 @@
 from pybench import Benchmark
-from itertools import product
 
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [int((1e4*2**x)**(1./dim)) + 1 for x in range(4)]
 r0 = ['DOLFIN', 'Firedrake']
-r1 = ['matrix assembly', 'rhs assembly', 'solve']
+regions = ['matrix assembly', 'rhs assembly', 'solve']
 
 
 class Poisson(Benchmark):
@@ -15,31 +14,33 @@ class Poisson(Benchmark):
               ('size', sizes)]
     meta = {'cells': [6*x**dim for x in sizes],
             'dofs': [(x+1)**dim for x in sizes]}
+    plotstyle = {'total': {'marker': '*'},
+                 'mesh': {'marker': '+'},
+                 'setup': {'marker': 'x'},
+                 'matrix assembly': {'marker': '>'},
+                 'rhs assembly': {'marker': '<'},
+                 'solve': {'marker': 'D'}}
     method = 'poisson'
+    name = 'Poisson'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
-    profileregions = r1
+    profileregions = regions
 
 if __name__ == '__main__':
     import sys
-    regions = map(' '.join, product(r0, r1))
     b = Poisson()
-    b.combine({'FiredrakePoisson_np1': 'Firedrake',
-               'DolfinPoisson_np1': 'DOLFIN'})
+    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog')
+           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'])
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
-           kinds='bar,barlog')
+           kinds='bar,barlog', groups=['variant'])
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
-        b = Poisson(name='DolfinPoissonParallel')
-        b.combine_series([('np', np)], filename='DolfinPoisson')
-        b.save()
-        b = Poisson(name='FiredrakePoissonParallel')
-        b.combine_series([('np', np)], filename='FiredrakePoisson')
-        b.save()
         b = Poisson(name='PoissonParallel')
-        b.combine({'FiredrakePoissonParallel': 'Firedrake',
-                   'DolfinPoissonParallel': 'DOLFIN'})
+        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
+                         filename='Poisson')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog')
+               kinds='plot,loglog', groups=['variant'])
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
+               ylabel='Speedup relative to DOLFIN on 1 core')

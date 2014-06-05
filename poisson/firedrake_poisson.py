@@ -13,14 +13,7 @@ parameters["coffee"]["licm"] = True
 
 
 class FiredrakePoisson(Poisson):
-    series = {'np': op2.MPI.comm.size}
-
-    plotstyle = {'total': {'marker': '*', 'linestyle': '-'},
-                 'mesh': {'marker': '+', 'linestyle': '-'},
-                 'setup': {'marker': 'x', 'linestyle': '-'},
-                 'matrix assembly': {'marker': '>', 'linestyle': '-'},
-                 'rhs assembly': {'marker': '<', 'linestyle': '-'},
-                 'solve': {'marker': 'D', 'linestyle': '-'}}
+    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
     def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='hypre'):
         params = {'ksp_type': 'cg',
