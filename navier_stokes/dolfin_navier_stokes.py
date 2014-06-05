@@ -10,19 +10,7 @@ PETScOptions.set("sub_pc_type", "ilu")
 
 
 class DolfinNavierStokes(NavierStokes):
-
-    series = {'np': MPI.size(mpi_comm_world())}
-    plotstyle = {'total': {'marker': '*', 'linestyle': '--'},
-                 'mesh': {'marker': '+', 'linestyle': '--'},
-                 'setup': {'marker': 'x', 'linestyle': '--'},
-                 'matrix assembly': {'marker': 'p', 'linestyle': '--'},
-                 'timestepping': {'marker': 'o', 'linestyle': '--'},
-                 'tentative velocity RHS': {'marker': '^', 'linestyle': '--'},
-                 'tentative velocity solve': {'marker': 'v', 'linestyle': '--'},
-                 'pressure correction RHS': {'marker': 's', 'linestyle': '--'},
-                 'pressure correction solve': {'marker': 'D', 'linestyle': '--'},
-                 'velocity correction RHS': {'marker': '>', 'linestyle': '--'},
-                 'velocity correction solve': {'marker': '<', 'linestyle': '--'}}
+    series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
     def navier_stokes(self, scale=1, T=0.1, preassemble=True, save=False,
                       compute_norms=False, symmetric=True):

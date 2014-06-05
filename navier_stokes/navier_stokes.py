@@ -1,7 +1,6 @@
 from pybench import Benchmark
 from itertools import product
 
-r0 = ['DOLFIN', 'Firedrake']
 r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
 r2 = ['RHS', 'solve']
 
@@ -12,28 +11,36 @@ class NavierStokes(Benchmark):
     meta = {'cells': [30906, 63432, 124390, 253050, 496156],
             'dofs': [15451, 31714, 62193, 126523, 248076]}
     method = 'navier_stokes'
+    name = 'NavierStokes'
+    plotstyle = {'total': {'marker': '*'},
+                 'mesh': {'marker': '+'},
+                 'setup': {'marker': 'x'},
+                 'matrix assembly': {'marker': 'p'},
+                 'timestepping': {'marker': 'o'},
+                 'tentative velocity RHS': {'marker': '^'},
+                 'tentative velocity solve': {'marker': 'v'},
+                 'pressure correction RHS': {'marker': 's'},
+                 'pressure correction solve': {'marker': 'D'},
+                 'velocity correction RHS': {'marker': '>'},
+                 'velocity correction solve': {'marker': '<'}}
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
     profileregions = ['matrix assembly'] + map(' '.join, product(r1, r2))
 
 if __name__ == '__main__':
     import sys
-    regions = map(' '.join, product(r0, r1, r2))
+    regions = map(' '.join, product(r1, r2))
     b = NavierStokes()
-    b.combine({'FiredrakeNavierStokes_np1': 'Firedrake',
-               'DolfinNavierStokes_np1': 'DOLFIN'})
+    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', wscale=0.7)
+           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'])
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
-        b = NavierStokes(name='DolfinNavierStokesParallel')
-        b.combine_series([('np', np)], filename='DolfinNavierStokes')
-        b.save()
-        b = NavierStokes(name='FiredrakeNavierStokesParallel')
-        b.combine_series([('np', np)], filename='FiredrakeNavierStokes')
-        b.save()
         b = NavierStokes(name='NavierStokesParallel')
-        b.combine({'FiredrakeNavierStokesParallel': 'Firedrake',
-                   'DolfinNavierStokesParallel': 'DOLFIN'})
+        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
+                         filename='NavierStokes')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog', wscale=0.7)
+               kinds='plot,loglog', groups=['variant'])
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
+               ylabel='Speedup relative to DOLFIN on 1 core')

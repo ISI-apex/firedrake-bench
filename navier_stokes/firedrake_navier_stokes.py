@@ -10,19 +10,7 @@ parameters["coffee"]["licm"] = True
 
 
 class FiredrakeNavierStokes(NavierStokes):
-
-    series = {'np': op2.MPI.comm.size}
-    plotstyle = {'total': {'marker': '*', 'linestyle': '-'},
-                 'mesh': {'marker': '+', 'linestyle': '-'},
-                 'setup': {'marker': 'x', 'linestyle': '-'},
-                 'matrix assembly': {'marker': 'p', 'linestyle': '-'},
-                 'timestepping': {'marker': 'o', 'linestyle': '-'},
-                 'tentative velocity RHS': {'marker': '^', 'linestyle': '-'},
-                 'tentative velocity solve': {'marker': 'v', 'linestyle': '-'},
-                 'pressure correction RHS': {'marker': 's', 'linestyle': '-'},
-                 'pressure correction solve': {'marker': 'D', 'linestyle': '-'},
-                 'velocity correction RHS': {'marker': '>', 'linestyle': '-'},
-                 'velocity correction solve': {'marker': '<', 'linestyle': '-'}}
+    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
     def navier_stokes(self, scale=1, T=0.1, preassemble=True, save=False,
                       compute_norms=False):
