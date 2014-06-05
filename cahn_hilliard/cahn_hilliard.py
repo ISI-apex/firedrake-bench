@@ -8,7 +8,7 @@ theta = 0.5      # time stepping family, e.g. theta=1 -> backward Euler, theta=0
 dim = 2
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [125, 176, 250, 354, 500, 707, 1000]
-profileregions = ['mesh', 'setup', 'timestepping']
+regions = ['mesh', 'setup', 'timestepping']
 
 
 class CahnHilliard(Benchmark):
@@ -19,29 +19,28 @@ class CahnHilliard(Benchmark):
     meta = {'cells': [2*x**dim for x in sizes],
             'dofs': [(x+1)**dim for x in sizes]}
     method = 'cahn_hilliard'
+    name = 'CahnHilliard'
+    plotstyle = {'total': {'marker': '*'},
+                 'mesh': {'marker': 's'},
+                 'setup': {'marker': 'D'},
+                 'timestepping': {'marker': 'o'}}
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
-    profileregions = profileregions
+    profileregions = regions
 
 if __name__ == '__main__':
     import sys
-    from itertools import product
-    regions = map(' '.join, product(['DOLFIN', 'Firedrake'], profileregions))
     b = CahnHilliard()
-    b.combine({'FiredrakeCahnHilliard_np1': 'Firedrake',
-               'DolfinCahnHilliard_np1': 'DOLFIN'})
+    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog')
+           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'])
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
-        b = CahnHilliard(name='DolfinCahnHilliardParallel')
-        b.combine_series([('np', np)], filename='DolfinCahnHilliard')
-        b.save()
-        b = CahnHilliard(name='FiredrakeCahnHilliardParallel')
-        b.combine_series([('np', np)], filename='FiredrakeCahnHilliard')
-        b.save()
         b = CahnHilliard(name='CahnHilliardParallel')
-        b.combine({'FiredrakeCahnHilliardParallel': 'Firedrake',
-                   'DolfinCahnHilliardParallel': 'DOLFIN'})
+        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
+                         filename='CahnHilliard')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog')
+               kinds='plot,loglog', groups=['variant'])
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
+               ylabel='Speedup relative to DOLFIN on 1 core')

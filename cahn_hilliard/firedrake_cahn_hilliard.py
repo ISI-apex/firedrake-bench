@@ -4,11 +4,7 @@ from pyop2.profiling import get_timers
 
 
 class FiredrakeCahnHilliard(CahnHilliard):
-    series = {'np': op2.MPI.comm.size}
-    plotstyle = {'total': {'marker': '*', 'linestyle': '-'},
-                 'mesh': {'marker': 's', 'linestyle': '-'},
-                 'setup': {'marker': 'D', 'linestyle': '-'},
-                 'timestepping': {'marker': 'o', 'linestyle': '-'}}
+    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1,
