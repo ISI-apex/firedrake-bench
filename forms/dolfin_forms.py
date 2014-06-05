@@ -59,13 +59,7 @@ def mixed_poisson(degree, qdegree, dim, mesh):
 
 
 class DolfinForms(Forms):
-
-    series = {'np': MPI.size(mpi_comm_world())}
-    plotstyle = {'total': {'marker': '*', 'linestyle': '--'},
-                 'nf 0': {'marker': '>', 'linestyle': '--'},
-                 'nf 1': {'marker': '<', 'linestyle': '--'},
-                 'nf 2': {'marker': '^', 'linestyle': '--'},
-                 'nf 3': {'marker': 'v', 'linestyle': '--'}}
+    series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
     def forms(self, degree=1, qdegree=1, dim=2, form='mass'):
         mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
