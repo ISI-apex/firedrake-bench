@@ -10,18 +10,7 @@ parameters["coffee"]["licm"] = True
 
 
 class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
-
-    series = {'np': op2.MPI.comm.size}
-    plotstyle = {'total': {'marker': '*', 'linestyle': '-'},
-                 'mesh': {'marker': '+', 'linestyle': '-'},
-                 'setup': {'marker': 'x', 'linestyle': '-'},
-                 'advection matrix': {'marker': '>', 'linestyle': '-'},
-                 'diffusion matrix': {'marker': '<', 'linestyle': '-'},
-                 'timestepping': {'marker': 'o', 'linestyle': '-'},
-                 'advection RHS': {'marker': '^', 'linestyle': '-'},
-                 'diffusion RHS': {'marker': 'v', 'linestyle': '-'},
-                 'advection solve': {'marker': 's', 'linestyle': '-'},
-                 'diffusion solve': {'marker': 'D', 'linestyle': '-'}}
+    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
     def advection_diffusion(self, scale=1.0, mesh='square', degree=1, dim=2,
                             dt=0.0001, T=0.01, diffusivity=0.1,

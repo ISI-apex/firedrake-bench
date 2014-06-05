@@ -8,18 +8,7 @@ parameters["form_compiler"]["representation"] = "quadrature"
 
 
 class DolfinAdvectionDiffusion(AdvectionDiffusion):
-
-    series = {'np': MPI.size(mpi_comm_world())}
-    plotstyle = {'total': {'marker': '*', 'linestyle': '--'},
-                 'mesh': {'marker': '+', 'linestyle': '--'},
-                 'setup': {'marker': 'x', 'linestyle': '--'},
-                 'advection matrix': {'marker': '>', 'linestyle': '--'},
-                 'diffusion matrix': {'marker': '<', 'linestyle': '--'},
-                 'timestepping': {'marker': 'o', 'linestyle': '--'},
-                 'advection RHS': {'marker': '^', 'linestyle': '--'},
-                 'diffusion RHS': {'marker': 'v', 'linestyle': '--'},
-                 'advection solve': {'marker': 's', 'linestyle': '--'},
-                 'diffusion solve': {'marker': 'D', 'linestyle': '--'}}
+    series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
     def advection_diffusion(self, scale=1.0, mesh='square', degree=1, dim=2,
                             dt=0.0001, T=0.01, diffusivity=0.1,
