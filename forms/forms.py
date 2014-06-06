@@ -5,8 +5,7 @@ regions = ['nf %d' % i for i in range(4)]
 
 class Forms(Benchmark):
 
-    params = [('dim', [2, 3]),
-              ('p', [1, 2, 3, 4]),
+    params = [('p', [1, 2, 3, 4]),
               ('q', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson'])]
     method = 'forms'

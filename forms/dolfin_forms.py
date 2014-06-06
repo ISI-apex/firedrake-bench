@@ -61,7 +61,7 @@ def mixed_poisson(p, q, dim, mesh):
 class DolfinForms(Forms):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
-    def forms(self, p=1, q=1, dim=2, form='mass'):
+    def forms(self, p=1, q=1, dim=3, form='mass'):
         if dim == 2:
             mesh = UnitSquareMesh(31, 31)
             normalize = 1.0
