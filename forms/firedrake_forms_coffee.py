@@ -4,7 +4,8 @@ from pyop2.coffee.ast_plan import V_OP_UAJ
 
 
 class FiredrakeFormsCoffee(FiredrakeForms):
-
+    name = 'FiredrakeFormsCoffee'
+    series = {}
     params = [('degree', [1, 2, 3, 4]),
               ('qdegree', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson']),
@@ -24,7 +25,7 @@ if __name__ == '__main__':
 
     # Benchmark
     b = FiredrakeFormsCoffee()
-    b.main(benchmark=True, save=None)
+    b.main(load=None)
 
     # Plot
     regions = ['nf %d' % i for i in range(4)]
