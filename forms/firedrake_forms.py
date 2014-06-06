@@ -55,13 +55,19 @@ def mixed_poisson(p, q, dim, mesh):
 class FiredrakeForms(Forms):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
-    def forms(self, p=1, q=1, dim=2, form='mass'):
-        mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
+    def forms(self, p=1, q=1, dim=3, form='mass'):
+        if dim == 2:
+            mesh = UnitSquareMesh(31, 31)
+            normalize = 1.0
+        if dim == 3:
+            size = int(18.0 / (p+q))
+            normalize = 1000.0 / (size+1)**3
+            mesh = UnitCubeMesh(size, size, size)
         it, f, m = eval(form)(p, q, dim, mesh)
         A = assemble(it*dx)
 
         for nf in range(4):
-            with self.timed_region('nf %d' % nf):
+            with self.timed_region('nf %d' % nf, normalize):
                 assemble(reduce(inner, map(m, f[:nf]) + [it])*dx, tensor=A)
                 A.M
         for task, timer in get_timers(reset=True).items():
