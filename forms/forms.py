@@ -6,8 +6,8 @@ regions = ['nf %d' % i for i in range(4)]
 class Forms(Benchmark):
 
     params = [('dim', [2, 3]),
-              ('degree', [1, 2, 3, 4]),
-              ('qdegree', [1, 2, 3, 4]),
+              ('p', [1, 2, 3, 4]),
+              ('q', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson'])]
     method = 'forms'
     name = 'Forms'
@@ -24,15 +24,15 @@ if __name__ == '__main__':
     import sys
     b = Forms()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
            kinds='bar,barlog', legend='best', groups=['variant'])
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
            kinds='bar', legend='best', groups=['variant'], speedup=('DOLFIN',),
            ylabel='Speedup relative to DOLFIN')
-    b.plot(xaxis='qdegree', regions=regions, kinds='bar,barlog', legend='best',
+    b.plot(xaxis='q', regions=regions, kinds='bar,barlog', legend='best',
            xlabel='Polynomial degree (premultiplying functions)',
            groups=['variant'])
-    b.plot(xaxis='qdegree', regions=regions, kinds='bar', legend='best',
+    b.plot(xaxis='q', regions=regions, kinds='bar', legend='best',
            xlabel='Polynomial degree (premultiplying functions)',
            groups=['variant'], speedup=('DOLFIN',),
            ylabel='Speedup relative to DOLFIN')

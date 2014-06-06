@@ -7,9 +7,9 @@ parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
 
 
-def mass(degree, qdegree, dim, mesh):
-    V = FunctionSpace(mesh, 'CG', degree)
-    Q = FunctionSpace(mesh, 'CG', qdegree)
+def mass(p, q, dim, mesh):
+    V = FunctionSpace(mesh, 'CG', p)
+    Q = FunctionSpace(mesh, 'CG', q)
     u = TrialFunction(V)
     v = TestFunction(V)
     it = dot(v, u)
@@ -19,9 +19,9 @@ def mass(degree, qdegree, dim, mesh):
     return it, f, lambda x: x
 
 
-def elasticity(degree, qdegree, dim, mesh):
-    V = VectorFunctionSpace(mesh, 'CG', degree)
-    Q = FunctionSpace(mesh, 'CG', qdegree)
+def elasticity(p, q, dim, mesh):
+    V = VectorFunctionSpace(mesh, 'CG', p)
+    Q = FunctionSpace(mesh, 'CG', q)
     u = TrialFunction(V)
     v = TestFunction(V)
     eps = lambda v: grad(v) + transpose(grad(v))
@@ -32,9 +32,9 @@ def elasticity(degree, qdegree, dim, mesh):
     return it, f, lambda x: x
 
 
-def poisson(degree, qdegree, dim, mesh):
-    V = VectorFunctionSpace(mesh, 'CG', degree)
-    Q = VectorFunctionSpace(mesh, 'CG', qdegree)
+def poisson(p, q, dim, mesh):
+    V = VectorFunctionSpace(mesh, 'CG', p)
+    Q = VectorFunctionSpace(mesh, 'CG', q)
     u = TrialFunction(V)
     v = TestFunction(V)
     it = inner(grad(v), grad(u))
@@ -44,10 +44,10 @@ def poisson(degree, qdegree, dim, mesh):
     return it, f, div
 
 
-def mixed_poisson(degree, qdegree, dim, mesh):
-    BDM = FunctionSpace(mesh, "BDM", degree)
-    DG = FunctionSpace(mesh, "DG", degree - 1)
-    Q = FunctionSpace(mesh, 'CG', qdegree)
+def mixed_poisson(p, q, dim, mesh):
+    BDM = FunctionSpace(mesh, "BDM", p)
+    DG = FunctionSpace(mesh, "DG", p - 1)
+    Q = FunctionSpace(mesh, 'CG', q)
     W = BDM * DG
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
@@ -61,9 +61,9 @@ def mixed_poisson(degree, qdegree, dim, mesh):
 class DolfinForms(Forms):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
-    def forms(self, degree=1, qdegree=1, dim=2, form='mass'):
+    def forms(self, p=1, q=1, dim=2, form='mass'):
         mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
-        it, f, m = eval(form)(degree, qdegree, dim, mesh)
+        it, f, m = eval(form)(p, q, dim, mesh)
         A = assemble(it*dx)
 
         for nf in range(4):
