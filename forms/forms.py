@@ -26,9 +26,16 @@ if __name__ == '__main__':
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
            kinds='bar,barlog', legend='best', groups=['variant'])
+    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
+           kinds='bar', legend='best', groups=['variant'], speedup=('DOLFIN',),
+           ylabel='Speedup relative to DOLFIN')
     b.plot(xaxis='qdegree', regions=regions, kinds='bar,barlog', legend='best',
            xlabel='Polynomial degree (premultiplying functions)',
            groups=['variant'])
+    b.plot(xaxis='qdegree', regions=regions, kinds='bar', legend='best',
+           xlabel='Polynomial degree (premultiplying functions)',
+           groups=['variant'], speedup=('DOLFIN',),
+           ylabel='Speedup relative to DOLFIN')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = Forms(name='FormsParallel')
