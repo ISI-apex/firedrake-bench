@@ -24,17 +24,24 @@ if __name__ == '__main__':
     b = Forms()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
-           kinds='bar,barlog', legend='best', groups=['variant'])
+           kinds='bar,barlog', groups=['variant'])
     b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
-           kinds='bar', legend='best', groups=['variant'], speedup=('DOLFIN',),
+           kinds='bar', groups=['variant'], speedup=('DOLFIN',),
            ylabel='Speedup relative to DOLFIN')
-    b.plot(xaxis='q', regions=regions, kinds='bar,barlog', legend='best',
+    b.plot(xaxis='q', regions=regions, kinds='bar,barlog',
            xlabel='Polynomial degree (premultiplying functions)',
            groups=['variant'])
-    b.plot(xaxis='q', regions=regions, kinds='bar', legend='best',
+    b.plot(xaxis='q', regions=regions, kinds='bar',
            xlabel='Polynomial degree (premultiplying functions)',
            groups=['variant'], speedup=('DOLFIN',),
            ylabel='Speedup relative to DOLFIN')
+    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
+           kinds='bar,barlog', groups=['variant', 'q'],
+           legend={'loc': 'best', 'ncol': 2})
+    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
+           kinds='bar', groups=['variant', 'q'], speedup=('DOLFIN',),
+           ylabel='Speedup relative to DOLFIN',
+           legend={'loc': 'best', 'ncol': 2})
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = Forms(name='FormsParallel')
