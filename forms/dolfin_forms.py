@@ -59,7 +59,7 @@ def mixed_poisson(q, p, dim, mesh):
 
 
 class DolfinForms(Forms):
-    series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
+    series = {'variant': 'DOLFIN'}
 
     def forms(self, q=1, p=1, dim=3, form='mass'):
         if dim == 2:

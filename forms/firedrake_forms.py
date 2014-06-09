@@ -53,7 +53,7 @@ def mixed_poisson(q, p, dim, mesh):
 
 
 class FiredrakeForms(Forms):
-    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
+    series = {'variant': 'Firedrake'}
 
     def forms(self, q=1, p=1, dim=3, form='mass'):
         if dim == 2:
