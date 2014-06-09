@@ -14,7 +14,7 @@ class FiredrakeFormsCoffee(FiredrakeForms):
 
     def forms(self, q=1, p=1, dim=3, form='mass', opt=(False, False, None)):
         parameters["coffee"]["licm"] = opt[0]
-        parameters["coffee"]["ap"] = opt[2]
+        parameters["coffee"]["ap"] = opt[1]
         parameters["coffee"]["vect"] = opt[2]
         super(FiredrakeFormsCoffee, self).forms(q, p, dim, form)
 
