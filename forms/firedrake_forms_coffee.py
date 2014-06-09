@@ -6,17 +6,17 @@ from pyop2.coffee.ast_plan import V_OP_UAJ
 class FiredrakeFormsCoffee(FiredrakeForms):
     name = 'FiredrakeFormsCoffee'
     series = {}
-    params = [('degree', [1, 2, 3, 4]),
-              ('qdegree', [1, 2, 3, 4]),
+    params = [('q', [1, 2, 3, 4]),
+              ('p', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson']),
               ('opt', [(False, False, None), (True, False, None), (True, True, None)]
                + [(True, True, (V_OP_UAJ, i)) for i in range(1, 5)])]
 
-    def forms(self, degree=1, qdegree=1, dim=3, form='mass', opt=(False, False, None)):
+    def forms(self, q=1, p=1, dim=3, form='mass', opt=(False, False, None)):
         parameters["coffee"]["licm"] = opt[0]
         parameters["coffee"]["ap"] = opt[2]
         parameters["coffee"]["vect"] = opt[2]
-        super(FiredrakeFormsCoffee, self).forms(degree, qdegree, dim, form)
+        super(FiredrakeFormsCoffee, self).forms(q, p, dim, form)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
