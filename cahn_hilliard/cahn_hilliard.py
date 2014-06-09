@@ -33,14 +33,17 @@ if __name__ == '__main__':
     b = CahnHilliard()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'])
+           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
+           title='Cahn-Hilliard (single core, 2D, polynomial degree %(degree)d)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = CahnHilliard(name='CahnHilliardParallel')
         b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
                          filename='CahnHilliard')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog', groups=['variant'])
+               kinds='plot,loglog', groups=['variant'],
+               title='Cahn-Hilliard (single node, 2D, degree %(degree)d, mesh size %(size)d**2)')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
-               ylabel='Speedup relative to DOLFIN on 1 core')
+               ylabel='Speedup relative to DOLFIN on 1 core',
+               title='Cahn-Hilliard (single node, 2D, degree %(degree)d, mesh size %(size)d**2)')
