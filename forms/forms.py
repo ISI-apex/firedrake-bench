@@ -5,8 +5,8 @@ regions = ['nf %d' % i for i in range(4)]
 
 class Forms(Benchmark):
 
-    params = [('p', [1, 2, 3, 4]),
-              ('q', [1, 2, 3, 4]),
+    params = [('q', [1, 2, 3, 4]),
+              ('p', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson'])]
     method = 'forms'
     name = 'Forms'
@@ -23,23 +23,23 @@ if __name__ == '__main__':
     import sys
     b = Forms()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
-    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
+    b.plot(xaxis='q', regions=regions, xlabel='Polynomial degree',
            kinds='bar,barlog', groups=['variant'])
-    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
+    b.plot(xaxis='q', regions=regions, xlabel='Polynomial degree',
            kinds='bar', groups=['variant'], speedup=('DOLFIN',),
            ylabel='Speedup relative to DOLFIN')
-    b.plot(xaxis='q', regions=regions, kinds='bar,barlog',
+    b.plot(xaxis='p', regions=regions, kinds='bar,barlog',
            xlabel='Polynomial degree (premultiplying functions)',
            groups=['variant'])
-    b.plot(xaxis='q', regions=regions, kinds='bar',
+    b.plot(xaxis='p', regions=regions, kinds='bar',
            xlabel='Polynomial degree (premultiplying functions)',
            groups=['variant'], speedup=('DOLFIN',),
            ylabel='Speedup relative to DOLFIN')
-    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
-           kinds='bar,barlog', groups=['variant', 'q'],
+    b.plot(xaxis='q', regions=regions, xlabel='Polynomial degree',
+           kinds='bar,barlog', groups=['variant', 'p'],
            legend={'loc': 'best', 'ncol': 2})
-    b.plot(xaxis='p', regions=regions, xlabel='Polynomial degree',
-           kinds='bar', groups=['variant', 'q'], speedup=('DOLFIN',),
+    b.plot(xaxis='q', regions=regions, xlabel='Polynomial degree',
+           kinds='bar', groups=['variant', 'p'], speedup=('DOLFIN',),
            ylabel='Speedup relative to DOLFIN',
            legend={'loc': 'best', 'ncol': 2})
     if len(sys.argv) > 1:
