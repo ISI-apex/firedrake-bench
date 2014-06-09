@@ -31,16 +31,20 @@ if __name__ == '__main__':
     b = Poisson()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'])
+           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
+           title='Poisson (single core, %(dim)dD, polynomial degree %(degree)d)')
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
-           kinds='bar,barlog', groups=['variant'])
+           kinds='bar,barlog', groups=['variant'],
+           title='Poisson (single core, %(dim)dD, mesh size %(size)d**%(dim)d)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = Poisson(name='PoissonParallel')
         b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
                          filename='Poisson')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog', groups=['variant'])
+               kinds='plot,loglog', groups=['variant'],
+               title='Poisson (single node, %(dim)dD, polynomial degree %(degree)d, mesh size %(size)d**%(dim)d)')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
-               ylabel='Speedup relative to DOLFIN on 1 core')
+               ylabel='Speedup relative to DOLFIN on 1 core',
+               title='Poisson (single node, %(dim)dD, polynomial degree %(degree)d, mesh size %(size)d**%(dim)d)')
