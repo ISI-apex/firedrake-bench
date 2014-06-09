@@ -31,13 +31,16 @@ if __name__ == '__main__':
     regions = ['nf %d' % i for i in range(4)]
     b.plot(xaxis='opt', regions=regions, kinds='bar,barlog',
            xlabel='COFFEE Optimisations (LICM, AP, VECT)',
-           xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
+           xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)],
+           title='%(form)s (single core, 3D, degree q = %(q)d, premultiplying degree p = %(p)d)')
     b.plot(xaxis='opt', regions=regions, kinds='bar',
            xlabel='COFFEE Optimisations (LICM, AP, VECT)',
            ylabel='Speedup over unoptimised baseline', speedup=((False, False, None),),
-           xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
+           xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)],
+           title='%(form)s (single core, 3D, degree q = %(q)d, premultiplying degree p = %(p)d)')
     for i, r in enumerate(regions):
         b.plot(xaxis='opt', regions=[r], kinds='bar,barlog',
                xlabel='COFFEE Optimisations (LICM, AP, VECT)', groups=['form'],
                figname='FiredrakeFormsCoffee_nf%d' % i,
-               xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
+               xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)],
+               title=str(i) + ' premultiplying functions (single core, 3D, degree q = %(q)d, premultiplying degree p = %(p)d)')
