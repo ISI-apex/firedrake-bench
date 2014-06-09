@@ -32,6 +32,10 @@ if __name__ == '__main__':
     b.plot(xaxis='opt', regions=regions, kinds='bar,barlog',
            xlabel='COFFEE Optimisations (LICM, AP, VECT)',
            xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
+    b.plot(xaxis='opt', regions=regions, kinds='bar',
+           xlabel='COFFEE Optimisations (LICM, AP, VECT)',
+           ylabel='Speedup over unoptimised baseline', speedup=((False, False, None),),
+           xvalues=['n/n/n', 'y/n/n', 'y/y/n'] + ['y/y/(4, %d)' % i for i in range(1, 5)])
     for i, r in enumerate(regions):
         b.plot(xaxis='opt', regions=[r], kinds='bar,barlog',
                xlabel='COFFEE Optimisations (LICM, AP, VECT)', groups=['form'],
