@@ -30,16 +30,20 @@ if __name__ == '__main__':
     b = AdvectionDiffusion()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'])
+           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
+           title='Advection-diffusion (single core, 2D, polynomial degree %(degree)d)')
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
-           kinds='bar,barlog', groups=['variant'])
+           kinds='bar,barlog', groups=['variant'],
+           title='Advection-diffusion (single core, 2D, mesh scale %(scale)s)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = AdvectionDiffusion(name='AdvectionDiffusionParallel')
         b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
                          filename='AdvectionDiffusion')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog', groups=['variant'])
+               kinds='plot,loglog', groups=['variant'],
+               title='Advection-diffusion (single node, 2D, degree %(degree)d, mesh scale %(scale)s)')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
-               ylabel='Speedup relative to DOLFIN on 1 core')
+               ylabel='Speedup relative to DOLFIN on 1 core',
+               title='Advection-diffusion (single node, 2D, degree %(degree)d, mesh scale %(scale)s)')
