@@ -70,8 +70,9 @@ class FiredrakeForms(Forms):
             with self.timed_region('nf %d' % nf, normalize):
                 assemble(reduce(inner, map(m, f[:nf]) + [it])*dx, tensor=A)
                 A.M
-        for task, timer in get_timers(reset=True).items():
-            self.register_timing(task, timer.total)
+        t = get_timers(reset=True)
+        task = 'Assemble cells'
+        self.register_timing(task, t[task].total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
