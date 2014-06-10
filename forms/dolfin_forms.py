@@ -61,19 +61,13 @@ def mixed_poisson(q, p, dim, mesh):
 class DolfinForms(Forms):
     series = {'variant': 'DOLFIN'}
 
-    def forms(self, q=1, p=1, dim=3, form='mass'):
-        if dim == 2:
-            mesh = UnitSquareMesh(31, 31)
-            normalize = 1.0
-        if dim == 3:
-            size = int(18.0 / (q+p))
-            normalize = 1000.0 / (size+1)**3
-            mesh = UnitCubeMesh(size, size, size)
+    def forms(self, q=1, p=1, dim=2, form='mass'):
+        mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
         it, f, m = eval(form)(q, p, dim, mesh)
         A = assemble(it*dx)
 
         for nf in range(4):
-            with self.timed_region('nf %d' % nf, normalize):
+            with self.timed_region('nf %d' % nf):
                 assemble(reduce(inner, map(m, f[:nf]) + [it])*dx, tensor=A)
         t = timings(True)
         task = 'Assemble cells'
