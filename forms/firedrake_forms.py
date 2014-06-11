@@ -1,7 +1,9 @@
 from forms import Forms
 from firedrake import *
+from firedrake import __version__ as firedrake_version
 # from pyop2.coffee.ast_plan import V_OP_UAJ
 from pyop2.profiling import get_timers
+from pyop2 import __version__ as pyop2_version
 
 parameters["assembly_cache"]["enabled"] = False
 parameters["coffee"]["licm"] = True
@@ -55,6 +57,9 @@ def mixed_poisson(q, p, dim, mesh):
 
 class FiredrakeForms(Forms):
     series = {'variant': 'Firedrake'}
+    meta = {'coffee': parameters["coffee"],
+            'firedrake': firedrake_version,
+            'pyop2': pyop2_version}
 
     def forms(self, q=1, p=1, dim=3, form='mass'):
         mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
