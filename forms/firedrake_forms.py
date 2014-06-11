@@ -1,12 +1,13 @@
 from forms import Forms
 from firedrake import *
-from pyop2.ir.ast_plan import V_OP_UAJ
+# from pyop2.coffee.ast_plan import V_OP_UAJ
 from pyop2.profiling import get_timers
 
 parameters["assembly_cache"]["enabled"] = False
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
-parameters["coffee"]["vect"] = (V_OP_UAJ, 1)
+# Vectorisation caused slowdowns for some forms
+# parameters["coffee"]["vect"] = (V_OP_UAJ, 1)
 
 
 def mass(q, p, dim, mesh):
