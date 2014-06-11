@@ -56,7 +56,7 @@ def mixed_poisson(q, p, dim, mesh):
 class FiredrakeForms(Forms):
     series = {'variant': 'Firedrake'}
 
-    def forms(self, q=1, p=1, dim=2, form='mass'):
+    def forms(self, q=1, p=1, dim=3, form='mass'):
         mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
         it, f, m = eval(form)(q, p, dim, mesh)
         A = assemble(it*dx)
