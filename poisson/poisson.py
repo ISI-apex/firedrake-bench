@@ -33,9 +33,10 @@ if __name__ == '__main__':
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
            title='Poisson (single core, %(dim)dD, polynomial degree %(degree)d)')
-    b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
-           kinds='bar,barlog', groups=['variant'],
-           title='Poisson (single core, %(dim)dD, mesh size %(size)d**%(dim)d)')
+    b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
+           xvalues=b.meta['cells'], kinds='plot', groups=['variant', 'degree'],
+           ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
+           title='Poisson (single core, %(dim)dD)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = Poisson(name='PoissonParallel')
