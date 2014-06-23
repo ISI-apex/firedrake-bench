@@ -1,5 +1,4 @@
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
-import random
 import sys
 import numpy as np
 from petsc4py import PETSc
@@ -7,19 +6,25 @@ from dolfin import *
 
 
 # Class representing the intial conditions
-class InitialConditions(Expression):
-    def __init__(self):
-        # DOLFIN 1.3
-        # random.seed(2 + MPI.process_number())
-        # DOLFIN master
-        random.seed(2 + MPI.rank(mpi_comm_world()))
+u_init_code = """
+#include <stdlib.h>
+namespace dolfin {
 
-    def eval(self, values, x):
-        values[0] = 0.63 + 0.02*(0.5 - random.random())
-        values[1] = 0.0
+class InitialConditions : public Expression {
+public:
+  InitialConditions() : Expression(2) {
+    srandom(2 + MPI::process_number());
+  }
 
-    def value_shape(self):
-        return (2,)
+  void eval(Array<double>& values, const Array<double>& x,
+            const ufc::cell& c) const {
+    values[0] = 0.63 + 0.02*(0.5 - (double)random()/RAND_MAX);
+    values[1] = 0.0;
+  }
+};
+
+}
+"""
 
 
 # Class for interfacing with the Newton solver
@@ -99,7 +104,7 @@ class DolfinCahnHilliard(CahnHilliard):
             c0, mu0 = split(u0)
 
             # Create intial conditions and interpolate
-            u_init = InitialConditions()
+            u_init = Expression(cppcode=u_init_code)
             u.interpolate(u_init)
             u0.interpolate(u_init)
 
