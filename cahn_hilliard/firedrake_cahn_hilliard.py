@@ -135,8 +135,10 @@ class FiredrakeCahnHilliard(CahnHilliard):
                     nu = norm(u)
                     if op2.MPI.comm.rank == 0:
                         print t, 'L2(u):', nu
-        for task, timer in get_timers(reset=True).items():
-            self.register_timing(task, timer.total)
+        t = get_timers(reset=True)
+        task = 'Assemble cells'
+        for task in ['Assemble cells', 'Build mesh', 'Build sparsity', 'SNES solver execution']:
+            self.register_timing(task, t[task].total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
