@@ -154,21 +154,13 @@ class DolfinCahnHilliard(CahnHilliard):
 
                 pc.setFieldSplitIS(*fields)
 
-                def extract_sub_matrix(schur_prec):
-                    Zmat = as_backend_type(schur_prec).mat()
-                    Pdofs = SubSpace(ME, 1).dofmap().dofs()
-                    Pis = PETSc.IS()
-                    Pis.createGeneral(Pdofs.astype(np.int32))
-                    Pmat = Zmat.getSubMatrix(Pis, Pis)
-                    return Pmat
-
-                trial = TrialFunction(ME)
-                test = TestFunction(ME)
-                mass = extract_sub_matrix(assemble(inner(trial, test)*dx))
+                trial = TrialFunction(V)
+                test = TestFunction(V)
+                mass = as_backend_type(assemble(inner(trial, test)*dx)).mat()
 
                 a = 1
                 c = (dt * lmbda)/(1 + dt * sigma)
-                hats = extract_sub_matrix(assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c) * inner(grad(trial), grad(test))*dx))
+                hats = as_backend_type(assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c) * inner(grad(trial), grad(test))*dx)).mat()
                 ksp_hats = PETSc.KSP()
                 ksp_hats.create()
                 ksp_hats.setOperators(hats)
