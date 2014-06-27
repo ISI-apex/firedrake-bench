@@ -49,19 +49,20 @@ class FiredrakeCahnHilliard(CahnHilliard):
             c, mu = split(u)
             c0, mu0 = split(u0)
 
-            # Create intial conditions and interpolate
-            init_code = """void u_init(double A[1]) {
-              A[0] = 0.63 + 0.02*(0.5 - (double)random()/RAND_MAX);
-            }"""
-            user_code = """int __rank;
-            MPI_Comm_rank(MPI_COMM_WORLD, &__rank);
-            srandom(2 + __rank);"""
-            u_init = op2.Kernel(init_code, "u_init",
-                                headers=["#include <stdlib.h>"],
-                                user_code=user_code)
-            op2.par_loop(u_init, u.function_space().node_set[0],
-                         u.dat[0](op2.WRITE))
-            u.dat._force_evaluation()
+            with self.timed_region('initial condition'):
+                # Create intial conditions and interpolate
+                init_code = """void u_init(double A[1]) {
+                  A[0] = 0.63 + 0.02*(0.5 - (double)random()/RAND_MAX);
+                }"""
+                user_code = """int __rank;
+                MPI_Comm_rank(MPI_COMM_WORLD, &__rank);
+                srandom(2 + __rank);"""
+                u_init = op2.Kernel(init_code, "u_init",
+                                    headers=["#include <stdlib.h>"],
+                                    user_code=user_code)
+                op2.par_loop(u_init, u.function_space().node_set[0],
+                             u.dat[0](op2.WRITE))
+                u.dat._force_evaluation()
 
             # Compute the chemical potential df/dc
             c = variable(c)

@@ -103,10 +103,11 @@ class DolfinCahnHilliard(CahnHilliard):
             c, mu = split(u)
             c0, mu0 = split(u0)
 
-            # Create intial conditions and interpolate
-            u_init = Expression(cppcode=u_init_code)
-            u.interpolate(u_init)
-            u0.interpolate(u_init)
+            with self.timed_region('initial condition'):
+                # Create intial conditions and interpolate
+                u_init = Expression(cppcode=u_init_code)
+                u.interpolate(u_init)
+                u0.interpolate(u_init)
 
             # Compute the chemical potential df/dc
             c = variable(c)
