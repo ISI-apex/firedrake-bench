@@ -8,7 +8,7 @@ theta = 0.5      # time stepping family, e.g. theta=1 -> backward Euler, theta=0
 dim = 2
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [125, 176, 250, 354, 500, 707, 1000]
-regions = ['mesh', 'setup', 'timestepping']
+regions = ['mesh', 'initial condition', 'Assemble cells', 'SNES solver execution']
 
 
 class CahnHilliard(Benchmark):
@@ -22,8 +22,9 @@ class CahnHilliard(Benchmark):
     name = 'CahnHilliard'
     plotstyle = {'total': {'marker': '*'},
                  'mesh': {'marker': 's'},
-                 'setup': {'marker': 'D'},
-                 'timestepping': {'marker': 'o'}}
+                 'initial condition': {'marker': 'D'},
+                 'Assemble cells': {'marker': '^'},
+                 'SNES solver execution': {'marker': 'o'}}
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
     profileregions = regions
