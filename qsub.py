@@ -27,6 +27,7 @@ echo
 echo Running %(script)s
 echo
 
+mpiexec python %(script)s.py -r 2>&1  | tee $LOGFILE
 mpiexec python %(script)s.py %(args)s 2>&1  | tee $LOGFILE
 
 echo -n Finished at
