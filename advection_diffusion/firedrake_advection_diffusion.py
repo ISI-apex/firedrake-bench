@@ -5,6 +5,9 @@ from firedrake import __version__ as firedrake_version
 from pyop2.profiling import get_timers
 from pyop2 import __version__ as pyop2_version
 
+make_mesh = {2: lambda x: UnitSquareMesh(x, x),
+             3: lambda x: UnitCubeMesh(x, x, x)}
+
 parameters["coffee"]["licm"] = True
 # Vectorization appears to degrade performance for p2
 # parameters["coffee"]["ap"] = True
@@ -19,7 +22,7 @@ AdvectionDiffusion.meta.update({'coffee': parameters["coffee"],
 class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
-    def advection_diffusion(self, scale=1.0, mesh='square', degree=1, dim=2,
+    def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, diffusivity=0.1,
                             advection=True, diffusion=True,
                             print_norm=False, preassemble=True, pc='hypre'):
@@ -29,7 +32,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                              'ksp_rtol': 1e-6,
                              'ksp_atol': 1e-15}
         with self.timed_region('mesh'):
-            mesh = Mesh("meshes/%s_%s.msh" % (mesh, scale))
+            mesh = make_mesh[dim](size)
 
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "CG", degree)

@@ -1,14 +1,17 @@
 from pybench import Benchmark
 
+dim = 2
+# Create a series of meshes that roughly double in number of DOFs
+sizes = [int((1.6e4*2**x)**(1./dim)) + 1 for x in range(5)]
 regions = ['advection RHS', 'diffusion RHS', 'advection solve', 'diffusion solve']
 
 
 class AdvectionDiffusion(Benchmark):
 
     params = [('degree', range(1, 4)),
-              ('scale', [1.0, 0.71, 0.5, 0.35, 0.25])]
-    meta = {'cells': [26386, 52166, 105418, 216162, 422660],
-            'dofs': [13192, 26082, 52708, 108080, 211327]}
+              ('size', sizes)]
+    meta = {'cells': [2*x**dim for x in sizes],
+            'dofs': [(x+1)**dim for x in sizes]}
     method = 'advection_diffusion'
     name = 'AdvectionDiffusion'
     plotstyle = {'total': {'marker': '*'},
@@ -29,12 +32,12 @@ if __name__ == '__main__':
     import sys
     b = AdvectionDiffusion()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
-    b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
+    b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
            title='Advection-diffusion (single core, 2D, polynomial degree %(degree)d)')
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
            kinds='bar,barlog', groups=['variant'],
-           title='Advection-diffusion (single core, 2D, mesh scale %(scale)s)')
+           title='Advection-diffusion (single core, 2D, mesh size %(size)s**2)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = AdvectionDiffusion(name='AdvectionDiffusionParallel')
@@ -42,8 +45,8 @@ if __name__ == '__main__':
                          filename='AdvectionDiffusion')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
-               title='Advection-diffusion (single node, 2D, degree %(degree)d, mesh scale %(scale)s)')
+               title='Advection-diffusion (single node, 2D, degree %(degree)d, mesh size %(size)s**2)')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
                ylabel='Speedup relative to DOLFIN on 1 core',
-               title='Advection-diffusion (single node, 2D, degree %(degree)d, mesh scale %(scale)s)')
+               title='Advection-diffusion (single node, 2D, degree %(degree)d, mesh size %(size)s**2)')
