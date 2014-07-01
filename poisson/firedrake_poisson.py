@@ -9,8 +9,8 @@ make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
 
 parameters["coffee"]["licm"] = True
+parameters["coffee"]["ap"] = True
 # Vectorization appears to degrade performance for p2
-# parameters["coffee"]["ap"] = True
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 Poisson.meta.update({'coffee': parameters["coffee"],
