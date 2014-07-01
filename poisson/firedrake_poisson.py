@@ -1,7 +1,9 @@
 from poisson import Poisson
 from firedrake import *
-# from pyop2.ir.ast_plan import V_OP_UAJ
+from firedrake import __version__ as firedrake_version
+# from pyop2.coffee.ast_plan import V_OP_UAJ
 from pyop2.profiling import get_timers
+from pyop2 import __version__ as pyop2_version
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
@@ -10,6 +12,10 @@ parameters["coffee"]["licm"] = True
 # Vectorization appears to degrade performance for p2
 # parameters["coffee"]["ap"] = True
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
+
+Poisson.meta.update({'coffee': parameters["coffee"],
+                     'firedrake': firedrake_version,
+                     'pyop2': pyop2_version})
 
 
 class FiredrakePoisson(Poisson):
