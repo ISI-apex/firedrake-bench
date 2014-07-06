@@ -2,6 +2,9 @@ from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 from firedrake import *
 from pyop2.profiling import get_timers
 
+parameters["coffee"]["licm"] = True
+parameters["coffee"]["ap"] = True
+
 
 class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
