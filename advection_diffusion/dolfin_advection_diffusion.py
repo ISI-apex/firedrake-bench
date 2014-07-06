@@ -14,7 +14,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
     def advection_diffusion(self, size=64, degree=1, dim=2,
-                            dt=0.0001, T=0.01, diffusivity=0.1,
+                            dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True,
                             print_norm=False, preassemble=True, pc='amg'):
         solver_parameters = {'linear_solver': 'cg', 'preconditioner': pc}
@@ -55,7 +55,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                     D = assemble(diff)
 
         with self.timed_region('timestepping'):
-            while T < 0.011:
+            while T < Tend:
 
                 # Advection
                 if advection:

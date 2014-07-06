@@ -23,7 +23,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
     def advection_diffusion(self, size=64, degree=1, dim=2,
-                            dt=0.0001, T=0.01, diffusivity=0.1,
+                            dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True,
                             print_norm=False, preassemble=True, pc='hypre'):
         solver_parameters = {'ksp_type': 'cg',
@@ -72,7 +72,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                     D.M
 
         with self.timed_region('timestepping'):
-            while T < 0.011:
+            while T < Tend:
 
                 # Advection
                 if advection:
