@@ -53,6 +53,7 @@ class DolfinCahnHilliard(CahnHilliard):
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1,
                       save=False, compute_norms=False):
+        self.series['size'] = size
         if pc == 'fieldsplit':
             fs_petsc_args = [sys.argv[0]] + ("""
              --petsc.ok_ksp_type %(ksp)s

@@ -14,12 +14,11 @@ regions = ['mesh', 'initial condition', 'Assemble cells', 'SNES solver execution
 class CahnHilliard(Benchmark):
 
     params = [('degree', [1]),
-              ('size', sizes),
-              ('steps', [1])]
+              ('steps', [10])]
     meta = {'cells': [2*x**dim for x in sizes],
             'dofs': [(x+1)**dim for x in sizes]}
     method = 'cahn_hilliard'
-    name = 'CahnHilliard'
+    benchmark = 'CahnHilliard'
     plotstyle = {'total': {'marker': '*'},
                  'mesh': {'marker': 's'},
                  'initial condition': {'marker': 'D'},
@@ -32,14 +31,14 @@ class CahnHilliard(Benchmark):
 if __name__ == '__main__':
     import sys
     b = CahnHilliard()
-    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
+    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']), ('size', sizes)])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
            title='Cahn-Hilliard (single core, 2D, polynomial degree %(degree)d)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = CahnHilliard(name='CahnHilliardParallel')
-        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
+        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'], ('size', sizes))],
                          filename='CahnHilliard')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],

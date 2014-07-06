@@ -9,6 +9,7 @@ class FiredrakeCahnHilliard(CahnHilliard):
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1,
                       save=False, compute_norms=False):
+        self.series['size'] = size
         params = {'pc_type': pc,
                   'ksp_type': ksp,
                   'snes_rtol': 1e-9,
