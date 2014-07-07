@@ -17,6 +17,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True,
                             print_norm=False, preassemble=True, pc='amg'):
+        self.series['size'] = size
         solver_parameters = {'linear_solver': 'cg', 'preconditioner': pc}
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)

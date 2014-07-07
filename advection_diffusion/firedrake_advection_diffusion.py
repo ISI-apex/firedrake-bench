@@ -26,6 +26,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True,
                             print_norm=False, preassemble=True, pc='hypre'):
+        self.series['size'] = size
         solver_parameters = {'ksp_type': 'cg',
                              'pc_type': pc,
                              'pc_hypre_type': 'boomeramg',
