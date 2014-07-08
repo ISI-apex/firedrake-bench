@@ -12,8 +12,9 @@ parameters["coffee"]["licm"] = True
 class FiredrakeNavierStokes(NavierStokes):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
-    def navier_stokes(self, scale=1, T=0.1, preassemble=True, save=False,
+    def navier_stokes(self, scale=1.0, T=0.1, preassemble=True, save=False,
                       compute_norms=False):
+        self.series['scale'] = scale
         with self.timed_region('mesh'):
             # Load mesh from file
             mesh = Mesh("meshes/lshape_%s.msh" % scale)

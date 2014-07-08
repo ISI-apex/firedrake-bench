@@ -1,17 +1,17 @@
 from pybench import Benchmark
 from itertools import product
 
+scale = [0.8, 0.56, 0.4, 0.28, 0.2]
 r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
 r2 = ['RHS', 'solve']
 
 
 class NavierStokes(Benchmark):
 
-    params = [('scale', [0.8, 0.56, 0.4, 0.28, 0.2])]
     meta = {'cells': [30906, 63432, 124390, 253050, 496156],
             'dofs': [15451, 31714, 62193, 126523, 248076]}
     method = 'navier_stokes'
-    name = 'NavierStokes'
+    benchmark = 'NavierStokes'
     plotstyle = {'total': {'marker': '*'},
                  'mesh': {'marker': '+'},
                  'setup': {'marker': 'x'},
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     import sys
     regions = map(' '.join, product(r1, r2))
     b = NavierStokes()
-    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
+    b.combine_series([('np', [1]), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
            title='Navier-Stokes (single core, 2D, P2-P1 discretisation)')
@@ -43,8 +43,8 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         tsuff = ' (single node, 2D, P2-P1 discretisation, mesh scaling: %(scale)s)'
         np = map(int, sys.argv[1:])
-        b = NavierStokes(name='NavierStokesParallel')
-        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
+        b = NavierStokes(benchmark='NavierStokesParallel')
+        b.combine_series([('np', np), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])],
                          filename='NavierStokes')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],

@@ -12,8 +12,9 @@ PETScOptions.set("sub_pc_type", "ilu")
 class DolfinNavierStokes(NavierStokes):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
-    def navier_stokes(self, scale=1, T=0.1, preassemble=True, save=False,
+    def navier_stokes(self, scale=1.0, T=0.1, preassemble=True, save=False,
                       compute_norms=False, symmetric=True):
+        self.series['scale'] = scale
         with self.timed_region('mesh'):
             # Load mesh from file
             mesh = Mesh("meshes/lshape_%s.xml.gz" % scale)
