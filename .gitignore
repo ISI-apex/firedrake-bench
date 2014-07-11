@@ -1,4 +1,5 @@
 *.dat
+*.[eo]*
 *.log
 *.msh
 *.pdf
