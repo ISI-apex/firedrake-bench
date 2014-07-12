@@ -9,7 +9,7 @@ class Forms(Benchmark):
               ('p', [1, 2, 3, 4]),
               ('form', ['mass', 'elasticity', 'poisson', 'mixed_poisson'])]
     method = 'forms'
-    name = 'Forms'
+    benchmark = 'Forms'
     plotstyle = {'total': {'marker': '*'},
                  'nf 0': {'marker': '>'},
                  'nf 1': {'marker': '<'},
