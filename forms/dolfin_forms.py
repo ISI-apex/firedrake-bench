@@ -7,44 +7,44 @@ parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
 
 
-def mass(q, p, dim, mesh):
+def mass(q, p, dim, mesh, nf=0):
     V = FunctionSpace(mesh, 'CG', q)
     P = FunctionSpace(mesh, 'CG', p)
     u = TrialFunction(V)
     v = TestFunction(V)
     it = dot(v, u)
-    f = [Function(P) for _ in range(3)]
+    f = [Function(P) for _ in range(nf)]
     for f_ in f:
         f_.interpolate(Expression('1.0'))
-    return it, f, lambda x: x
+    return reduce(inner, f + [it])*dx
 
 
-def elasticity(q, p, dim, mesh):
+def elasticity(q, p, dim, mesh, nf=0):
     V = VectorFunctionSpace(mesh, 'CG', q)
     P = FunctionSpace(mesh, 'CG', p)
     u = TrialFunction(V)
     v = TestFunction(V)
     eps = lambda v: grad(v) + transpose(grad(v))
     it = 0.25*inner(eps(v), eps(u))
-    f = [Function(P) for _ in range(3)]
+    f = [Function(P) for _ in range(nf)]
     for f_ in f:
         f_.interpolate(Expression('1.0'))
-    return it, f, lambda x: x
+    return reduce(inner, f + [it])*dx
 
 
-def poisson(q, p, dim, mesh):
+def poisson(q, p, dim, mesh, nf=0):
     V = VectorFunctionSpace(mesh, 'CG', q)
     P = VectorFunctionSpace(mesh, 'CG', p)
     u = TrialFunction(V)
     v = TestFunction(V)
     it = inner(grad(v), grad(u))
-    f = [Function(P) for _ in range(3)]
+    f = [Function(P) for _ in range(nf)]
     for f_ in f:
         f_.interpolate(Expression(('1.0',)*dim))
-    return it, f, div
+    return reduce(inner, map(div, f) + [it])*dx
 
 
-def mixed_poisson(q, p, dim, mesh):
+def mixed_poisson(q, p, dim, mesh, nf=0):
     BDM = FunctionSpace(mesh, "BDM", q)
     DG = FunctionSpace(mesh, "DG", q - 1)
     P = FunctionSpace(mesh, 'CG', p)
@@ -52,10 +52,10 @@ def mixed_poisson(q, p, dim, mesh):
     sigma, u = TrialFunctions(W)
     tau, v = TestFunctions(W)
     it = dot(sigma, tau) + div(tau)*u + div(sigma)*v
-    f = [Function(P) for _ in range(3)]
+    f = [Function(P) for _ in range(nf)]
     for f_ in f:
         f_.interpolate(Expression('1.0'))
-    return it, f, lambda x: x
+    return reduce(inner, f + [it])*dx
 
 
 class DolfinForms(Forms):
@@ -63,12 +63,11 @@ class DolfinForms(Forms):
 
     def forms(self, q=1, p=1, dim=2, form='mass'):
         mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
-        it, f, m = eval(form)(q, p, dim, mesh)
-        A = assemble(it*dx)
+        A = assemble(eval(form)(q, p, dim, mesh))
 
         for nf in range(4):
             with self.timed_region('nf %d' % nf):
-                assemble(reduce(inner, map(m, f[:nf]) + [it])*dx, tensor=A)
+                assemble(eval(form)(q, p, dim, mesh, nf), tensor=A)
         t = timings(True)
         task = 'Assemble cells'
         self.register_timing(task, float(t.get(task, 'Total time')))
