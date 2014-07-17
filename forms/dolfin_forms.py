@@ -66,8 +66,9 @@ class DolfinForms(Forms):
         A = assemble(eval(form)(q, p, dim, mesh))
 
         for nf in range(4):
+            f = eval(form)(q, p, dim, mesh, nf)
             with self.timed_region('nf %d' % nf):
-                assemble(eval(form)(q, p, dim, mesh, nf), tensor=A)
+                assemble(f, tensor=A)
         t = timings(True)
         task = 'Assemble cells'
         self.register_timing(task, float(t.get(task, 'Total time')))
