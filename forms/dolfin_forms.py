@@ -63,7 +63,7 @@ def mixed_poisson(q, p, dim, mesh, nf=0):
 class DolfinForms(Forms):
     series = {'variant': 'DOLFIN'}
 
-    def forms(self, q=1, p=1, dim=2, form='mass'):
+    def forms(self, q=1, p=1, dim=3, form='mass'):
         mesh = meshes[dim]
         A = assemble(eval(form)(q, p, dim, mesh))
 
