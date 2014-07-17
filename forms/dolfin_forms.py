@@ -6,6 +6,8 @@ parameters["form_compiler"]["optimize"] = True
 parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
 
+meshes = {2: UnitSquareMesh(31, 31), 3: UnitCubeMesh(9, 9, 9)}
+
 
 def mass(q, p, dim, mesh, nf=0):
     V = FunctionSpace(mesh, 'CG', q)
@@ -62,7 +64,7 @@ class DolfinForms(Forms):
     series = {'variant': 'DOLFIN'}
 
     def forms(self, q=1, p=1, dim=2, form='mass'):
-        mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
+        mesh = meshes[dim]
         A = assemble(eval(form)(q, p, dim, mesh))
 
         for nf in range(4):

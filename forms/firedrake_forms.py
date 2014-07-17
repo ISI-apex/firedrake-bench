@@ -11,6 +11,8 @@ parameters["coffee"]["ap"] = True
 # Vectorisation caused slowdowns for some forms
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 1)
 
+meshes = {2: UnitSquareMesh(31, 31), 3: UnitCubeMesh(9, 9, 9)}
+
 
 def mass(q, p, dim, mesh, nf=0):
     V = FunctionSpace(mesh, 'CG', q)
@@ -62,7 +64,7 @@ class FiredrakeForms(Forms):
             'pyop2': pyop2_version}
 
     def forms(self, q=1, p=1, dim=3, form='mass'):
-        mesh = UnitSquareMesh(31, 31) if dim == 2 else UnitCubeMesh(9, 9, 9)
+        mesh = meshes[dim]
         A = assemble(eval(form)(q, p, dim, mesh))
 
         for nf in range(4):
