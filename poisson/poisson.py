@@ -21,7 +21,7 @@ class Poisson(Benchmark):
                  'rhs assembly': {'marker': '<'},
                  'solve': {'marker': 'D'}}
     method = 'poisson'
-    name = 'Poisson'
+    benchmark = 'Poisson'
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
     profileregions = regions
@@ -39,7 +39,7 @@ if __name__ == '__main__':
            title='Poisson (single core, %(dim)dD)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
-        b = Poisson(name='PoissonParallel')
+        b = Poisson(benchmark='PoissonParallel')
         b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
                          filename='Poisson')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
