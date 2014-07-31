@@ -7,6 +7,10 @@ from pyop2 import __version__ as pyop2_version
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
              3: lambda x: UnitCubeMesh(x, x, x)}
+initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
+           3: "48*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])*cos(4*pi*x[2])"}
+analytical = {2: "cos(4*pi*x[0])*sin(4*pi*x[1])",
+              3: "cos(4*pi*x[0])*sin(4*pi*x[1])*cos(4*pi*x[2])"}
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
@@ -21,16 +25,17 @@ Poisson.meta.update({'coffee': parameters["coffee"],
 class FiredrakePoisson(Poisson):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
-    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='hypre'):
+    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='hypre', print_norm=True):
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
-                  'pc_hpyre_type': 'boomeramg',
+                  'pc_hypre_type': 'boomeramg',
                   'ksp_rtol': 1e-6,
                   'ksp_atol': 1e-15}
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
+            print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_dset.size
 
             # Define boundary condition
             bc = DirichletBC(V, 0.0, [3, 4])
@@ -38,12 +43,10 @@ class FiredrakePoisson(Poisson):
             # Define variational problem
             u = TrialFunction(V)
             v = TestFunction(V)
-            f = Function(V).interpolate(Expression("10*exp(-(pow(x[0] - 0.5, 2) + pow(x[1] - 0.5, 2)) / 0.02)"))
-            g = Function(V).interpolate(Expression("sin(5*x[0])"))
+            f = Function(V).interpolate(Expression(initial[dim]))
             f.dat._force_evaluation()
-            g.dat._force_evaluation()
             a = inner(grad(u), grad(v))*dx
-            L = f*v*dx + g*v*ds
+            L = f*v*dx
 
             # Compute solution
             u = Function(V)
@@ -62,6 +65,12 @@ class FiredrakePoisson(Poisson):
             with self.timed_region('solve'):
                 solve(a == L, u, bcs=[bc], solver_parameters=params)
                 u.dat._force_evaluation()
+
+        # Analytical solution
+        a = Function(V).interpolate(Expression(analytical[dim]))
+        l2 = sqrt(assemble(dot(u - a, u - a) * dx))
+        if print_norm and op2.MPI.comm.rank == 0:
+            print 'L2 error norm:', l2
         for task, timer in get_timers(reset=True).items():
             self.register_timing(task, timer.total)
 
