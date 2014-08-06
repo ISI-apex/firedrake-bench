@@ -63,11 +63,11 @@ def mixed_poisson(q, p, dim, mesh, nf=0):
 class DolfinForms(Forms):
     series = {'variant': 'DOLFIN'}
 
-    def forms(self, q=1, p=1, dim=3, form='mass'):
+    def forms(self, q=1, p=1, dim=3, max_nf=3, form='mass'):
         mesh = meshes[dim]
         A = assemble(eval(form)(q, p, dim, mesh))
 
-        for nf in range(4):
+        for nf in range(max_nf + 1):
             f = eval(form)(q, p, dim, mesh, nf)
             with self.timed_region('nf %d' % nf):
                 assemble(f, tensor=A)
