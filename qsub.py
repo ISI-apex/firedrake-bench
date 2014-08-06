@@ -62,6 +62,7 @@ def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[],
             template = f.read()
     for n in np:
         d['ppn'] = n
+        d['pnuma'] = (n + 1) / 2
         d['ptotal'] = n * nodes
         d['jobname'] = '%s%02d%02d' % ((jobname or benchmark)[:11], nodes, n)
         with open(d['jobname'] + '.pbs', 'w') if save \
