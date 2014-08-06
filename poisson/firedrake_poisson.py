@@ -32,6 +32,8 @@ class FiredrakePoisson(Poisson):
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
                   'pc_hypre_type': 'boomeramg',
+                  'pc_hypre_boomeramg_strong_threshold': 0.75,
+                  'pc_hypre_boomeramg_agg_nl': 2,
                   'ksp_rtol': 1e-6,
                   'ksp_atol': 1e-15}
         with self.timed_region('mesh'):
