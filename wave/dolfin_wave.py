@@ -39,7 +39,6 @@ class DolfinWave(Wave):
             dt = 0.001 * scale
             t = 0.0
 
-            phi_inc = dt / 2 * p
             rhs = inner(grad(v), grad(phi)) * dx
 
         with self.timed_region('timestepping'):
@@ -47,18 +46,18 @@ class DolfinWave(Wave):
                 bcval.assign(sin(2*pi*5*t))
 
                 with self.timed_region('phi'):
-                    phi -= phi_inc
+                    phi.vector().axpy(-0.5 * dt, p.vector())
 
                 with self.timed_region('p'):
                     if lump_mass:
-                        p.vector().array()[:] += dt * Ml * assemble(rhs).array()
+                        p.vector().add_local(dt * Ml * assemble(rhs).array())
                         bc.apply(p.vector())
                     else:
                         solve(u * v * dx == v * p * dx + dt * rhs,
                               p, bcs=bc, solver_parameters=params)
 
                 with self.timed_region('phi'):
-                    phi -= phi_inc
+                    phi.vector().axpy(-0.5 * dt, p.vector())
 
                 t += dt
 
