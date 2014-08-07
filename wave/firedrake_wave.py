@@ -19,7 +19,7 @@ class FiredrakeWave(Wave):
     def make_mesh(self, scale):
         return Mesh("meshes/wave_tank_%s.msh" % scale)
 
-    def wave(self, scale=1.0, lump_mass=True, N=100):
+    def wave(self, scale=1.0, lump_mass=True, N=100, save=False):
         self.series['scale'] = scale
         with self.timed_region('mesh'):
             mesh = self.make_mesh(scale)
@@ -41,6 +41,10 @@ class FiredrakeWave(Wave):
             t = 0.0
 
             rhs = inner(grad(v), grad(phi)) * dx
+
+            if save:
+                outfile = File("vtk/firedrake_wave_%s.pvd" % scale)
+                outfile << phi
 
         with self.timed_region('timestepping'):
             while t < N*dt:
@@ -66,6 +70,8 @@ class FiredrakeWave(Wave):
                     phi.dat._force_evaluation()
 
                 t += dt
+                if save:
+                    outfile << phi
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')

@@ -12,7 +12,7 @@ PETScOptions.set("pc_sor_symmetric", True)
 class DolfinWave(Wave):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
-    def wave(self, scale=1.0, lump_mass=True, N=100):
+    def wave(self, scale=1.0, lump_mass=True, N=100, save=False):
         params = {'linear_solver': 'cg',
                   'preconditioner': 'sor'}
         self.series['scale'] = scale
@@ -41,6 +41,10 @@ class DolfinWave(Wave):
 
             rhs = inner(grad(v), grad(phi)) * dx
 
+            if save:
+                outfile = File("vtk/dolfin_wave_%s.pvd" % scale)
+                outfile << phi
+
         with self.timed_region('timestepping'):
             while t < N*dt:
                 bcval.assign(sin(2*pi*5*t))
@@ -60,6 +64,8 @@ class DolfinWave(Wave):
                     phi.vector().axpy(-0.5 * dt, p.vector())
 
                 t += dt
+                if save:
+                    outfile << phi
 
 if __name__ == '__main__':
     set_log_active(False)
