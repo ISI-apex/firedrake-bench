@@ -55,6 +55,7 @@ class DolfinWave(Wave):
                 with self.timed_region('p'):
                     if lump_mass:
                         p.vector().add_local(dt * Ml * assemble(rhs).array())
+                        p.vector().apply("add")
                         bc.apply(p.vector())
                     else:
                         solve(u * v * dx == v * p * dx + dt * rhs,
