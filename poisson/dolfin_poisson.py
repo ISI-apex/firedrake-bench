@@ -28,7 +28,7 @@ class DolfinPoisson(Poisson):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
     meshes = {}
 
-    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='amg', print_norm=True):
+    def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='amg', print_norm=True):
         params = {'linear_solver': 'cg',
                   'preconditioner': pc}
         if (dim, size) in self.meshes:

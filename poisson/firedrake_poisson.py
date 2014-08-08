@@ -30,7 +30,7 @@ class FiredrakePoisson(Poisson):
     def make_mesh(self, dim, x):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
-    def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='hypre', print_norm=True):
+    def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='hypre', print_norm=True):
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
                   'pc_hypre_type': 'boomeramg',
