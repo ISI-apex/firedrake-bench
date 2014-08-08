@@ -9,9 +9,6 @@ regions = ['matrix assembly', 'rhs assembly', 'solve']
 
 class Poisson(Benchmark):
 
-    params = [('dim', [dim]),
-              ('degree', range(1, 4)),
-              ('size', sizes)]
     meta = {'cells': [6*x**dim for x in sizes],
             'dofs': [(x+1)**dim for x in sizes]}
     plotstyle = {'total': {'marker': '*'},
@@ -29,7 +26,8 @@ class Poisson(Benchmark):
 if __name__ == '__main__':
     import sys
     b = Poisson()
-    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN'])])
+    b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']),
+                      ('degree', [1, 2, 3]), ('size', sizes)])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
            title='Poisson (single core, %(dim)dD, polynomial degree %(degree)d)')
@@ -40,7 +38,8 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = Poisson(benchmark='PoissonParallel')
-        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN'])],
+        b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN']),
+                          ('degree', [1, 2, 3]), ('size', sizes)],
                          filename='Poisson')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],

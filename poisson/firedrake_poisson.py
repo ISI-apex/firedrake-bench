@@ -31,6 +31,8 @@ class FiredrakePoisson(Poisson):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='hypre', print_norm=True):
+        self.series['size'] = size
+        self.series['degree'] = degree
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
                   'pc_hypre_type': 'boomeramg',

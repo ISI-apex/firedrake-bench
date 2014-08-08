@@ -29,6 +29,8 @@ class DolfinPoisson(Poisson):
     meshes = {}
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='amg', print_norm=True):
+        self.series['size'] = size
+        self.series['degree'] = degree
         params = {'linear_solver': 'cg',
                   'preconditioner': pc}
         if (dim, size) in self.meshes:
