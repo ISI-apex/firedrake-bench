@@ -3,6 +3,7 @@ from firedrake import *
 from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
 from pyop2 import __version__ as pyop2_version
+from pyop2.profiling import timing
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
@@ -24,8 +25,7 @@ class FiredrakeWave(Wave):
             scale = round(scale/sqrt(op2.MPI.comm.size), 2)
         else:
             self.series['scale'] = scale
-        with self.timed_region('mesh'):
-            mesh = self.make_mesh(scale)
+        mesh = self.make_mesh(scale)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, 'Lagrange', 1)
             p = Function(V)
@@ -75,6 +75,7 @@ class FiredrakeWave(Wave):
                 t += dt
                 if save:
                     outfile << phi
+        self.register_timing('mesh', timing('Build mesh'))
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
