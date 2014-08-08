@@ -17,13 +17,12 @@ parameters["coffee"]["ap"] = True
 # Vectorization appears to degrade performance for p2
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
-Poisson.meta.update({'coffee': parameters["coffee"],
-                     'firedrake': firedrake_version,
-                     'pyop2': pyop2_version})
-
 
 class FiredrakePoisson(Poisson):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
+    meta = {'coffee': parameters["coffee"],
+            'firedrake': firedrake_version,
+            'pyop2': pyop2_version}
 
     @memoize
     @timed
@@ -33,6 +32,8 @@ class FiredrakePoisson(Poisson):
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='hypre', print_norm=True):
         self.series['size'] = size
         self.series['degree'] = degree
+        self.meta['cells'] = 6*size**dim
+        self.meta['dofs'] = (size+1)**dim
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
                   'pc_hypre_type': 'boomeramg',

@@ -26,11 +26,15 @@ def make_mesh(dim, x):
 
 class DolfinPoisson(Poisson):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
+    meta = {'dolfin_version': dolfin_version(),
+            'dolfin_commit': git_commit_hash()}
     meshes = {}
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='amg', print_norm=True):
         self.series['size'] = size
         self.series['degree'] = degree
+        self.meta['cells'] = 6*size**dim
+        self.meta['dofs'] = (size+1)**dim
         params = {'linear_solver': 'cg',
                   'preconditioner': pc}
         if (dim, size) in self.meshes:

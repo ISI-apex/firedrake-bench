@@ -3,14 +3,13 @@ from pybench import Benchmark
 dim = 3
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [int((1e4*2**x)**(1./dim)) + 1 for x in range(4)]
+cells = [6*x**dim for x in sizes]
 r0 = ['DOLFIN', 'Firedrake']
 regions = ['matrix assembly', 'rhs assembly', 'solve']
 
 
 class Poisson(Benchmark):
 
-    meta = {'cells': [6*x**dim for x in sizes],
-            'dofs': [(x+1)**dim for x in sizes]}
     plotstyle = {'total': {'marker': '*'},
                  'mesh': {'marker': '+'},
                  'setup': {'marker': 'x'},
@@ -29,10 +28,10 @@ if __name__ == '__main__':
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']),
                       ('degree', [1, 2, 3]), ('size', sizes)])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
+           xvalues=cells, kinds='plot,loglog', groups=['variant'],
            title='Poisson (single core, %(dim)dD, polynomial degree %(degree)d)')
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot', groups=['variant', 'degree'],
+           xvalues=cells, kinds='plot', groups=['variant', 'degree'],
            ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
            title='Poisson (single core, %(dim)dD)')
     if len(sys.argv) > 1:
