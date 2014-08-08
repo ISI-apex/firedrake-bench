@@ -1,9 +1,10 @@
 from poisson import Poisson
+from pybench import timed
 from firedrake import *
 from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
 # from pyop2.coffee.ast_plan import V_OP_UAJ
-from pyop2.profiling import get_timers, timing
+from pyop2.profiling import get_timers
 from pyop2 import __version__ as pyop2_version
 
 initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
@@ -25,6 +26,7 @@ class FiredrakePoisson(Poisson):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
     @memoize
+    @timed
     def make_mesh(self, dim, x):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
@@ -36,7 +38,8 @@ class FiredrakePoisson(Poisson):
                   'pc_hypre_boomeramg_agg_nl': 2,
                   'ksp_rtol': 1e-6,
                   'ksp_atol': 1e-15}
-        mesh = self.make_mesh(dim, size)
+        t_, mesh = self.make_mesh(dim, size)
+        self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
             print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_dset.size
@@ -77,7 +80,6 @@ class FiredrakePoisson(Poisson):
             print 'L2 error norm:', l2
         for task, timer in get_timers(reset=True).items():
             self.register_timing(task, timer.total)
-        self.register_timing('mesh', timing('Build mesh'))
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
