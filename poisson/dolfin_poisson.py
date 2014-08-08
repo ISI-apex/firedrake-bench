@@ -30,8 +30,13 @@ class DolfinPoisson(Poisson):
             'dolfin_commit': git_commit_hash()}
     meshes = {}
 
-    def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='amg', print_norm=True):
-        self.series['size'] = size
+    def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='amg',
+                print_norm=True, weak=False):
+        if weak:
+            size = int((1e4*MPI.size(mpi_comm_world()))**(1./dim))
+            self.meta['size'] = size
+        else:
+            self.series['size'] = size
         self.series['degree'] = degree
         self.meta['cells'] = 6*size**dim
         self.meta['dofs'] = (size+1)**dim

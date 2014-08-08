@@ -23,7 +23,7 @@ class Poisson(Benchmark):
     profileregions = regions
 
 if __name__ == '__main__':
-    import sys
+    from sys import argv
     b = Poisson()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']),
                       ('degree', [1, 2, 3]), ('size', sizes)])
@@ -34,8 +34,15 @@ if __name__ == '__main__':
            xvalues=cells, kinds='plot', groups=['variant', 'degree'],
            ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
            title='Poisson (single core, %(dim)dD)')
-    if len(sys.argv) > 1:
-        np = map(int, sys.argv[1:])
+    if len(argv) > 1 and argv[1] == 'weak':
+        b = Poisson(benchmark='PoissonWeak')
+        b.combine_series([('np', map(int, argv[2:])), ('variant', ['Firedrake']),
+                          ('degree', [1])], filename='Poisson')
+        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+               kinds='plot,loglog', groups=['variant'],
+               title='Poisson (weak scaling, polynomial degree %(degree)d, 3D)')
+    elif len(argv) > 1:
+        np = map(int, argv[1:])
         b = Poisson(benchmark='PoissonParallel')
         b.combine_series([('np', np), ('variant', ['Firedrake', 'DOLFIN']),
                           ('degree', [1, 2, 3]), ('size', sizes)],
