@@ -1,8 +1,6 @@
 from poisson import Poisson
 from dolfin import *
 
-make_mesh = {2: lambda x: UnitSquareMesh(x, x),
-             3: lambda x: UnitCubeMesh(x, x, x)}
 initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
            3: "48*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])*cos(4*pi*x[2])"}
 analytical = {2: "cos(4*pi*x[0])*sin(4*pi*x[1])",
@@ -18,15 +16,24 @@ PETScOptions.set('pc_hypre_boomeramg_strong_threshold', 0.75)
 PETScOptions.set('pc_hypre_boomeramg_agg_nl', 2)
 
 
+def make_mesh(dim, x):
+    mesh = UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
+    mesh.init()
+    return mesh
+
+
 class DolfinPoisson(Poisson):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
+    meshes = {}
 
     def poisson(self, size=32, degree=1, dim=2, preassemble=True, pc='amg', print_norm=True):
         params = {'linear_solver': 'cg',
                   'preconditioner': pc}
-        with self.timed_region('mesh'):
-            mesh = make_mesh[dim](size)
-            mesh.init()
+        if (dim, size) in self.meshes:
+            mesh = self.meshes[dim, size]
+        else:
+            mesh = make_mesh(dim, size)
+            self.meshes[dim, size] = mesh
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
             print '[%d]' % MPI.rank(mpi_comm_world()), 'DOFs:', V.dofmap().global_dimension()
