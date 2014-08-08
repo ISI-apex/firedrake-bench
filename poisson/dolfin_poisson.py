@@ -1,4 +1,5 @@
 from poisson import Poisson
+from pybench import timed
 from dolfin import *
 
 initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
@@ -16,6 +17,7 @@ PETScOptions.set('pc_hypre_boomeramg_strong_threshold', 0.75)
 PETScOptions.set('pc_hypre_boomeramg_agg_nl', 2)
 
 
+@timed
 def make_mesh(dim, x):
     mesh = UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
     mesh.init()
@@ -30,10 +32,11 @@ class DolfinPoisson(Poisson):
         params = {'linear_solver': 'cg',
                   'preconditioner': pc}
         if (dim, size) in self.meshes:
-            mesh = self.meshes[dim, size]
+            t_, mesh = self.meshes[dim, size]
         else:
-            mesh = make_mesh(dim, size)
-            self.meshes[dim, size] = mesh
+            t_, mesh = make_mesh(dim, size)
+            self.meshes[dim, size] = t_, mesh
+        self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
             print '[%d]' % MPI.rank(mpi_comm_world()), 'DOFs:', V.dofmap().global_dimension()
