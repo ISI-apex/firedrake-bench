@@ -5,7 +5,6 @@ regions = ['setup', 'timestepping', 'p', 'phi']
 
 
 class Wave(Benchmark):
-    params = [('lump_mass', [True, False])]
     meta = {'cells': [42254, 82072, 169418, 337266, 679624],
             'dofs': [21119, 41028, 84701, 168625, 339804]}
     method = 'wave'
@@ -20,7 +19,7 @@ if __name__ == '__main__':
     b.combine_series([('np', [1]), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
            xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
-           title='Explicit wave equation (single core, 2D, mass lumping: %(lump_mass)s)')
+           title='Explicit wave equation (single core, 2D)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])
         b = Wave(benchmark='WaveParallel')
@@ -28,8 +27,8 @@ if __name__ == '__main__':
                          filename='Wave')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
-               title='Explicit wave equation (single node, 2D, mesh scaling %(scale)s, mass lumping: %(lump_mass)s)')
+               title='Explicit wave equation (single node, 2D, mesh scaling %(scale)s)')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
                ylabel='Speedup relative to DOLFIN on 1 core',
-               title='Explicit wave equation (single node, 2D, mesh scaling %(scale)s, mass lumping: %(lump_mass)s)')
+               title='Explicit wave equation (single node, 2D, mesh scaling %(scale)s)')
