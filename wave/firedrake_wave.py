@@ -19,8 +19,11 @@ class FiredrakeWave(Wave):
     def make_mesh(self, scale):
         return Mesh("meshes/wave_tank_%s.msh" % scale)
 
-    def wave(self, scale=1.0, lump_mass=True, N=100, save=False):
-        self.series['scale'] = scale
+    def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False):
+        if weak:
+            scale = round(scale/sqrt(op2.MPI.comm.size), 2)
+        else:
+            self.series['scale'] = scale
         with self.timed_region('mesh'):
             mesh = self.make_mesh(scale)
         with self.timed_region('setup'):

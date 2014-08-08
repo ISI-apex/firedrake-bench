@@ -12,10 +12,13 @@ PETScOptions.set("pc_sor_symmetric", True)
 class DolfinWave(Wave):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
-    def wave(self, scale=1.0, lump_mass=True, N=100, save=False):
+    def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False):
         params = {'linear_solver': 'cg',
                   'preconditioner': 'sor'}
-        self.series['scale'] = scale
+        if weak:
+            scale = round(scale/sqrt(MPI.size(mpi_comm_world())), 2)
+        else:
+            self.series['scale'] = scale
         with self.timed_region('mesh'):
             mesh = Mesh("meshes/wave_tank_%s.xml.gz" % scale)
         with self.timed_region('setup'):
