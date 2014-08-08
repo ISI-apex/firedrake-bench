@@ -1,4 +1,4 @@
-from wave import Wave
+from wave import Wave, cells, dofs
 from firedrake import *
 from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
@@ -22,7 +22,10 @@ class FiredrakeWave(Wave):
 
     def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False):
         if weak:
-            scale = round(scale/sqrt(op2.MPI.comm.size), 2)
+            scale = round(0.5/sqrt(op2.MPI.comm.size), 2)
+            self.meta['scale'] = scale
+            self.meta['cells'] = cells[scale]
+            self.meta['dofs'] = dofs[scale]
         else:
             self.series['scale'] = scale
         mesh = self.make_mesh(scale)

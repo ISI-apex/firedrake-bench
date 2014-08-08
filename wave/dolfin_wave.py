@@ -1,4 +1,4 @@
-from wave import Wave
+from wave import Wave, cells, dofs
 from dolfin import *
 
 # Form compiler options
@@ -16,7 +16,10 @@ class DolfinWave(Wave):
         params = {'linear_solver': 'cg',
                   'preconditioner': 'sor'}
         if weak:
-            scale = round(scale/sqrt(MPI.size(mpi_comm_world())), 2)
+            scale = round(0.5/sqrt(MPI.size(mpi_comm_world())), 2)
+            self.meta['scale'] = scale
+            self.meta['cells'] = cells[scale]
+            self.meta['dofs'] = dofs[scale]
         else:
             self.series['scale'] = scale
         with self.timed_region('mesh'):
