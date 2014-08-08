@@ -1,12 +1,12 @@
 from pybench import Benchmark
 
-scale = [1.0, 0.71, 0.5, 0.35, 0.25]
+scale = [1.0, 0.71, 0.5, 0.35, 0.25, 0.18, 0.125]
 regions = ['setup', 'timestepping', 'p', 'phi']
 
 
 class Wave(Benchmark):
-    meta = {'cells': [42254, 82072, 169418, 337266, 679624],
-            'dofs': [21119, 41028, 84701, 168625, 339804]}
+    meta = {'cells': [42254, 82072, 169418, 337266, 679624, 1309528, 2716428],
+            'dofs': [21119, 41028, 84701, 168625, 339804, 656622, 1358206]}
     method = 'wave'
     benchmark = 'Wave'
     profilegraph = {'format': 'svg,pdf',

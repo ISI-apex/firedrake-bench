@@ -1,3 +1,3 @@
 MESH = wave_tank
-SCALES = 1.0 0.71 0.5 0.35 0.25
+SCALES = 1.0 0.71 0.5 0.35 0.25 0.18 0.125
 include ../../common.mk
