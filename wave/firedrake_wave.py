@@ -8,13 +8,12 @@ from pyop2.profiling import timing
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
 
-Wave.meta.update({'coffee': parameters["coffee"],
-                  'firedrake': firedrake_version,
-                  'pyop2': pyop2_version})
-
 
 class FiredrakeWave(Wave):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
+    meta = {'coffee': parameters["coffee"],
+            'firedrake': firedrake_version,
+            'pyop2': pyop2_version}
 
     @memoize
     def make_mesh(self, scale):
@@ -24,10 +23,10 @@ class FiredrakeWave(Wave):
         if weak:
             scale = round(0.5/sqrt(op2.MPI.comm.size), 2)
             self.meta['scale'] = scale
-            self.meta['cells'] = cells[scale]
-            self.meta['dofs'] = dofs[scale]
         else:
             self.series['scale'] = scale
+        self.meta['cells'] = cells[scale]
+        self.meta['dofs'] = dofs[scale]
         mesh = self.make_mesh(scale)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, 'Lagrange', 1)

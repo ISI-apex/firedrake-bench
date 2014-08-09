@@ -11,6 +11,8 @@ PETScOptions.set("pc_sor_symmetric", True)
 
 class DolfinWave(Wave):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
+    meta = {'dolfin_version': dolfin_version(),
+            'dolfin_commit': git_commit_hash()}
 
     def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False):
         params = {'linear_solver': 'cg',
@@ -18,10 +20,10 @@ class DolfinWave(Wave):
         if weak:
             scale = round(0.5/sqrt(MPI.size(mpi_comm_world())), 2)
             self.meta['scale'] = scale
-            self.meta['cells'] = cells[scale]
-            self.meta['dofs'] = dofs[scale]
         else:
             self.series['scale'] = scale
+        self.meta['cells'] = cells[scale]
+        self.meta['dofs'] = dofs[scale]
         with self.timed_region('mesh'):
             mesh = Mesh("meshes/wave_tank_%s.xml.gz" % scale)
         with self.timed_region('setup'):

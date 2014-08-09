@@ -7,8 +7,6 @@ regions = ['setup', 'timestepping', 'p', 'phi']
 
 
 class Wave(Benchmark):
-    meta = {'cells': sorted(cells.values()),
-            'dofs': sorted(dofs.values())}
     method = 'wave'
     benchmark = 'Wave'
     profilegraph = {'format': 'svg,pdf',
@@ -28,7 +26,7 @@ if __name__ == '__main__':
     b = Wave()
     b.combine_series([('np', [1]), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
+           xvalues=cells, kinds='plot,loglog', groups=['variant'],
            title='Explicit wave equation (single core, 2D, mass lumping: %(lump_mass)s)')
     if len(argv) > 1 and argv[1] == 'weak':
         b = Wave(benchmark='WaveWeak')
