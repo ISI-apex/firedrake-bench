@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 
 pbs = """\
 #PBS -N %(jobname)s
-#PBS -l walltime=8:00:00
+#PBS -l walltime=%(walltime)s:00
 #PBS -l select=%(nodes)d:ncpus=%(ppn)d:mem=15gb:sandyb=true
 #PBS -l place=excl
 #PBS -q %(queue)s
@@ -36,7 +36,7 @@ date
 
 
 def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[],
-        np=[1], save=False, run=False, jobname=None):
+        np=[1], save=False, run=False, jobname=None, walltime='01:00'):
     """Submit a batch job
 
     :param benchmark: benchmark to run
@@ -54,6 +54,8 @@ def run(benchmark, template=None, nodes=1, queue='', email='', env='', args=[],
     d = {'script': benchmark,
          'nodes': nodes,
          'queue': queue,
+         'queue': queue,
+         'walltime': walltime,
          'email': email,
          'env': env,
          'args': ' '.join(args)}
@@ -77,6 +79,7 @@ if __name__ == '__main__':
     p.add_argument('--jobname', '-j', help="name for the job (defaults to benchmark name)")
     p.add_argument('--template', '-t', help="template to create PBS script from")
     p.add_argument('--queue', '-q', help="queue to submit to")
+    p.add_argument('--walltime', '-w', help="walltime required (HH:MM)")
     p.add_argument('--nodes', '-n', type=int, help="number of nodes", default=1)
     p.add_argument('--email', '-m',
                    help="email address to send status messages to")
