@@ -17,9 +17,11 @@ class Wave(Benchmark):
 cells[0.2] = 1059980
 cells[0.16] = 1617232
 cells[0.14] = 2172644
+cells[0.1] = 4247104
 dofs[0.2] = 529982
 dofs[0.16] = 808608
 dofs[0.14] = 1086314
+dofs[0.1] = 2123544
 
 if __name__ == '__main__':
     from sys import argv
