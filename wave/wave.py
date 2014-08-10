@@ -39,21 +39,21 @@ if __name__ == '__main__':
     b.combine_series([('np', [1]), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])])
     b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
            xvalues=cells, kinds='plot,loglog', groups=['variant'],
-           title='Explicit wave equation (single core, 2D, mass lumping: %(lump_mass)s)')
+           title='Explicit wave equation (single core, 2D, mass lumping)')
     if len(argv) > 1 and argv[1] == 'weak':
         b = Wave(benchmark='WaveWeak')
         b.combine_series([('np', map(int, argv[2:])), ('variant', ['Firedrake'])], filename='Wave')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
-               title='Explicit wave equation (weak scaling, single node, 2D)')
+               title='Explicit wave equation (weak scaling, 2D, mass lumping)')
     elif len(argv) > 1:
         b = Wave(benchmark='WaveParallel')
         b.combine_series([('np', map(int, argv[1:])), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])],
                          filename='Wave')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
-               title='Explicit wave equation (single node, 2D, mesh scaling %(scale)s)')
+               title='Explicit wave equation (strong scaling, 2D, mesh scaling %(scale)s)')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
                ylabel='Speedup relative to DOLFIN on 1 core',
-               title='Explicit wave equation (single node, 2D, mesh scaling %(scale)s)')
+               title='Explicit wave equation (strong scaling, 2D, mesh scaling %(scale)s)')
