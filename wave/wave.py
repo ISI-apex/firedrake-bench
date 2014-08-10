@@ -1,4 +1,4 @@
-from pybench import Benchmark
+from pybench import Benchmark, parser
 
 scale = [1.0, 0.71, 0.5, 0.35, 0.25, 0.18, 0.125]
 cells = dict(zip(scale, [42254, 82072, 169418, 337266, 679624, 1309528, 2716428]))
@@ -34,22 +34,23 @@ dofs[0.07] = 4387439
 dofs[0.05] = 8254238
 
 if __name__ == '__main__':
-    from sys import argv
-    b = Wave()
-    b.combine_series([('np', [1]), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])])
-    b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
-           xvalues=cells, kinds='plot,loglog', groups=['variant'],
-           title='Explicit wave equation (single core, 2D, mass lumping)')
-    if len(argv) > 1 and argv[1] == 'weak':
-        b = Wave(benchmark='WaveWeak')
-        b.combine_series([('np', map(int, argv[2:])), ('variant', ['Firedrake'])], filename='Wave')
+    args = parser(description="Plot results for explicit wave benchmark").parse_args()
+    if args.sequential:
+        b = Wave(resultsdir=args.resultsdir, plotdir=args.plotdir)
+        b.combine_series([('np', [1]), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])])
+        b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
+               xvalues=cells, kinds='plot,loglog', groups=['variant'],
+               title='Explicit wave equation (single core, 2D, mass lumping)')
+    if args.weak:
+        b = Wave(benchmark='WaveWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
+        b.combine_series([('np', args.weak), ('variant', ['Firedrake'])], filename='Wave')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
                title='Explicit wave equation (weak scaling, 2D, mass lumping)')
-    elif len(argv) > 1:
-        b = Wave(benchmark='WaveParallel')
-        b.combine_series([('np', map(int, argv[1:])), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])],
-                         filename='Wave')
+    if args.parallel:
+        b = Wave(benchmark='WaveParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
+        b.combine_series([('np', args.parallel), ('scale', scale),
+                          ('variant', ['Firedrake', 'DOLFIN'])], filename='Wave')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
                title='Explicit wave equation (strong scaling, 2D, mesh scaling %(scale)s)')
