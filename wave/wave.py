@@ -9,6 +9,12 @@ regions = ['setup', 'timestepping', 'p', 'phi']
 class Wave(Benchmark):
     method = 'wave'
     benchmark = 'Wave'
+    plotstyle = {'total': {'marker': '*'},
+                 'mesh': {'marker': '+'},
+                 'setup': {'marker': 'x'},
+                 'p': {'marker': '>'},
+                 'phi': {'marker': '<'},
+                 'timestepping': {'marker': 'D'}}
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
     profileregions = regions
