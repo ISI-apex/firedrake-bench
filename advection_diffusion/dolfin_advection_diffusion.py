@@ -10,6 +10,10 @@ parameters["form_compiler"]["optimize"] = True
 parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
 
+# Tune AMG parameters
+PETScOptions.set('pc_hypre_boomeramg_strong_threshold', 0.75)
+PETScOptions.set('pc_hypre_boomeramg_agg_nl', 2)
+
 
 @timed
 def make_mesh(dim, x):
