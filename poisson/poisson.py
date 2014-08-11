@@ -23,11 +23,14 @@ class Poisson(Benchmark):
     profileregions = regions
 
 if __name__ == '__main__':
-    args = parser(description="Plot results for Poisson benchmark").parse_args()
+    p = parser(description="Plot results for Poisson benchmark")
+    p.add_argument('-d', '--size', type=int, nargs='+',
+                   help='mesh sizes to plot')
+    args = p.parse_args()
     if args.sequential:
         b = Poisson(resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']),
-                          ('degree', [1, 2, 3]), ('size', sizes)])
+                          ('degree', [1, 2, 3]), ('size', args.size or sizes)])
         b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
                xvalues=cells, kinds='plot,loglog', groups=['variant'],
                title='Poisson (single core, %(dim)dD, polynomial degree %(degree)d)')
@@ -45,7 +48,7 @@ if __name__ == '__main__':
     if args.parallel:
         b = Poisson(benchmark='PoissonParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', args.parallel), ('variant', ['Firedrake', 'DOLFIN']),
-                          ('degree', [1, 2, 3]), ('size', sizes)],
+                          ('degree', [1, 2, 3]), ('size', args.size or sizes)],
                          filename='Poisson')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
