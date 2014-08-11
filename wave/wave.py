@@ -34,10 +34,14 @@ dofs[0.07] = 4387439
 dofs[0.05] = 8254238
 
 if __name__ == '__main__':
-    args = parser(description="Plot results for explicit wave benchmark").parse_args()
+    p = parser(description="Plot results for explicit wave benchmark")
+    p.add_argument('-d', '--scale', type=float, nargs='+',
+                   help='mesh scales to plot')
+    args = p.parse_args()
     if args.sequential:
         b = Wave(resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', [1]), ('scale', scale), ('variant', ['Firedrake', 'DOLFIN'])])
+        b.combine_series([('np', [1]), ('scale', args.scale or scale),
+                          ('variant', ['Firedrake', 'DOLFIN'])])
         b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
                xvalues=cells, kinds='plot,loglog', groups=['variant'],
                title='Explicit wave equation (single core, 2D, mass lumping)')
@@ -49,7 +53,7 @@ if __name__ == '__main__':
                title='Explicit wave equation (weak scaling, 2D, mass lumping)')
     if args.parallel:
         b = Wave(benchmark='WaveParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', args.parallel), ('scale', scale),
+        b.combine_series([('np', args.parallel), ('scale', args.scale or scale),
                           ('variant', ['Firedrake', 'DOLFIN'])], filename='Wave')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
