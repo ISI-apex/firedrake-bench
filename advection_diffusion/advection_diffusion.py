@@ -3,14 +3,14 @@ from pybench import Benchmark
 dim = 2
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [125, 176, 250, 354, 500]
+cells = [2*x**dim for x in sizes]
+dofs = [(x+1)**dim for x in sizes]
 regions = ['advection RHS', 'diffusion RHS', 'advection solve', 'diffusion solve']
 
 
 class AdvectionDiffusion(Benchmark):
 
     params = [('degree', range(1, 4))]
-    meta = {'cells': [2*x**dim for x in sizes],
-            'dofs': [(x+1)**dim for x in sizes]}
     method = 'advection_diffusion'
     benchmark = 'AdvectionDiffusion'
     plotstyle = {'total': {'marker': '*'},
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     b = AdvectionDiffusion()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']), ('size', sizes)])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
+           xvalues=cells, kinds='plot,loglog', groups=['variant'],
            title='Advection-diffusion (single core, 2D, polynomial degree %(degree)d)')
     b.plot(xaxis='degree', regions=regions, xlabel='Polynomial degree',
            kinds='bar,barlog', groups=['variant'],

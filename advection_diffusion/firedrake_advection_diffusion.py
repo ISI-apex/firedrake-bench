@@ -14,19 +14,19 @@ parameters["coffee"]["ap"] = True
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 
-AdvectionDiffusion.meta.update({'coffee': parameters["coffee"],
-                                'firedrake': firedrake_version,
-                                'pyop2': pyop2_version})
-
-
 class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
+    meta = {'coffee': parameters["coffee"],
+            'firedrake': firedrake_version,
+            'pyop2': pyop2_version}
 
     def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True,
                             print_norm=False, preassemble=True, pc='hypre'):
         self.series['size'] = size
+        self.meta['cells'] = (2 if dim == 2 else 6)*size**dim
+        self.meta['dofs'] = (size+1)**dim
         solver_parameters = {'ksp_type': 'cg',
                              'pc_type': pc,
                              'pc_hypre_type': 'boomeramg',

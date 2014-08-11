@@ -12,12 +12,16 @@ parameters["form_compiler"]["representation"] = "quadrature"
 
 class DolfinAdvectionDiffusion(AdvectionDiffusion):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
+    meta = {'dolfin_version': dolfin_version(),
+            'dolfin_commit': git_commit_hash()}
 
     def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True,
                             print_norm=False, preassemble=True, pc='amg'):
         self.series['size'] = size
+        self.meta['cells'] = (2 if dim == 2 else 6)*size**dim
+        self.meta['dofs'] = (size+1)**dim
         solver_parameters = {'linear_solver': 'cg', 'preconditioner': pc}
         with self.timed_region('mesh'):
             mesh = make_mesh[dim](size)
