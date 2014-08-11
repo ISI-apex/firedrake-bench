@@ -1,12 +1,11 @@
 from advection_diffusion import AdvectionDiffusion
+from pybench import timed
 from firedrake import *
 from firedrake import __version__ as firedrake_version
+from firedrake.utils import memoize
 # from pyop2.coffee.ast_plan import V_OP_UAJ
 from pyop2.profiling import get_timers
 from pyop2 import __version__ as pyop2_version
-
-make_mesh = {2: lambda x: UnitSquareMesh(x, x),
-             3: lambda x: UnitCubeMesh(x, x, x)}
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
@@ -20,6 +19,11 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
             'firedrake': firedrake_version,
             'pyop2': pyop2_version}
 
+    @memoize
+    @timed
+    def make_mesh(self, dim, x):
+        return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
+
     def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True,
@@ -32,8 +36,8 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                              'pc_hypre_type': 'boomeramg',
                              'ksp_rtol': 1e-6,
                              'ksp_atol': 1e-15}
-        with self.timed_region('mesh'):
-            mesh = make_mesh[dim](size)
+        t_, mesh = self.make_mesh(dim, size)
+        self.register_timing('mesh', t_)
 
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "CG", degree)

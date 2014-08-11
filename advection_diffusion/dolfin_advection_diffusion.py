@@ -1,4 +1,5 @@
 from advection_diffusion import AdvectionDiffusion
+from pybench import timed
 from dolfin import *
 
 make_mesh = {2: lambda x: UnitSquareMesh(x, x),
@@ -10,10 +11,18 @@ parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
 
 
+@timed
+def make_mesh(dim, x):
+    mesh = UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
+    mesh.init()
+    return mesh
+
+
 class DolfinAdvectionDiffusion(AdvectionDiffusion):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
     meta = {'dolfin_version': dolfin_version(),
             'dolfin_commit': git_commit_hash()}
+    meshes = {}
 
     def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
@@ -23,8 +32,12 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         self.meta['cells'] = (2 if dim == 2 else 6)*size**dim
         self.meta['dofs'] = (size+1)**dim
         solver_parameters = {'linear_solver': 'cg', 'preconditioner': pc}
-        with self.timed_region('mesh'):
-            mesh = make_mesh[dim](size)
+        if (dim, size) in self.meshes:
+            t_, mesh = self.meshes[dim, size]
+        else:
+            t_, mesh = make_mesh(dim, size)
+            self.meshes[dim, size] = t_, mesh
+        self.register_timing('mesh', t_)
 
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "CG", degree)
