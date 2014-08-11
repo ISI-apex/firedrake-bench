@@ -26,9 +26,13 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
 
     def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
-                            advection=True, diffusion=True,
+                            advection=True, diffusion=True, weak=False,
                             print_norm=False, preassemble=True, pc='hypre'):
-        self.series['size'] = size
+        if weak:
+            size = int((1e4*op2.MPI.comm.size)**(1./dim))
+            self.meta['size'] = size
+        else:
+            self.series['size'] = size
         self.meta['cells'] = (2 if dim == 2 else 6)*size**dim
         self.meta['dofs'] = (size+1)**dim
         solver_parameters = {'ksp_type': 'cg',
