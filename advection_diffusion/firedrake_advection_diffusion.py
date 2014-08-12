@@ -24,7 +24,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
     def make_mesh(self, dim, x):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
-    def advection_diffusion(self, size=64, degree=1, dim=2,
+    def advection_diffusion(self, size=64, degree=1, dim=2, verbose=False,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True, weak=False,
                             print_norm=False, preassemble=True, pc='hypre',
@@ -44,11 +44,17 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                              'pc_hypre_boomeramg_max_levels': max_levels,
                              'ksp_rtol': 1e-6,
                              'ksp_atol': 1e-15}
+        if verbose:
+            solver_parameters['pc_hypre_boomeramg_print_statistics'] = True
+            solver_parameters['ksp_view'] = True
+            solver_parameters['ksp_monitor'] = True
         t_, mesh = self.make_mesh(dim, size)
         self.register_timing('mesh', t_)
 
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "CG", degree)
+            if verbose:
+                print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_dset.size
             U = VectorFunctionSpace(mesh, "CG", degree)
 
             p = TrialFunction(V)

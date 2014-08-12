@@ -24,7 +24,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
             'dolfin_commit': git_commit_hash()}
     meshes = {}
 
-    def advection_diffusion(self, size=64, degree=1, dim=2,
+    def advection_diffusion(self, size=64, degree=1, dim=2, verbose=False,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True, weak=False,
                             print_norm=False, preassemble=True, pc='amg',
@@ -41,6 +41,10 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         PETScOptions.set('pc_hypre_boomeramg_strong_threshold', strong_threshold)
         PETScOptions.set('pc_hypre_boomeramg_agg_nl', agg_nl)
         PETScOptions.set('pc_hypre_boomeramg_max_levels', max_levels)
+        if verbose:
+            PETScOptions.set('pc_hypre_boomeramg_print_statistics', True)
+            PETScOptions.set('ksp_monitor', True)
+            parameters["krylov_solver"]["monitor_convergence"] = True
 
         if (dim, size) in self.meshes:
             t_, mesh = self.meshes[dim, size]
@@ -52,6 +56,8 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "CG", degree)
             U = VectorFunctionSpace(mesh, "CG", degree)
+            if verbose:
+                print '[%d]' % MPI.rank(mpi_comm_world()), 'DOFs:', V.dofmap().global_dimension()
 
             p = TrialFunction(V)
             q = TestFunction(V)
