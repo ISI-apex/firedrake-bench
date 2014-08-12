@@ -28,7 +28,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True, weak=False,
                             print_norm=False, preassemble=True, pc='amg',
-                            strong_threshold=0.75, agg_nl=2, max_levels=25):
+                            strong_threshold=0.25, agg_nl=2, max_levels=25):
         if weak:
             size = int((1e4*MPI.size(mpi_comm_world()))**(1./dim))
             self.meta['size'] = size
