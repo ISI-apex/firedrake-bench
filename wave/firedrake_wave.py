@@ -1,9 +1,10 @@
 from wave import Wave, cells, dofs
+from pybench import timed
 from firedrake import *
 from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
 from pyop2 import __version__ as pyop2_version
-from pyop2.profiling import timing
+from pyop2.profiling import get_timers
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
@@ -16,6 +17,7 @@ class FiredrakeWave(Wave):
             'pyop2': pyop2_version}
 
     @memoize
+    @timed
     def make_mesh(self, scale):
         return Mesh("meshes/wave_tank_%s.msh" % scale)
 
@@ -27,7 +29,8 @@ class FiredrakeWave(Wave):
             self.series['scale'] = scale
         self.meta['cells'] = cells[scale]
         self.meta['dofs'] = dofs[scale]
-        mesh = self.make_mesh(scale)
+        t_, mesh = self.make_mesh(scale)
+        self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, 'Lagrange', 1)
             p = Function(V)
@@ -77,7 +80,8 @@ class FiredrakeWave(Wave):
                 t += dt
                 if save:
                     outfile << phi
-        self.register_timing('mesh', timing('Build mesh'))
+        for task, timer in get_timers(reset=True).items():
+            self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
