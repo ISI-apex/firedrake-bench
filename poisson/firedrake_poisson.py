@@ -39,7 +39,7 @@ class FiredrakePoisson(Poisson):
             self.series['size'] = size
         self.series['degree'] = degree
         self.meta['cells'] = 6*size**dim
-        self.meta['dofs'] = (size+1)**dim
+        self.meta['vertices'] = (size+1)**dim
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
                   'pc_hypre_type': 'boomeramg',
@@ -76,6 +76,7 @@ class FiredrakePoisson(Poisson):
             with self.timed_region('matrix assembly'):
                 A = assemble(a, bcs=bc)
                 A.M
+                self.meta['dofs'] = A.M.handle.sizes[0][1]
             with self.timed_region('rhs assembly'):
                 b = assemble(L)
                 bc.apply(b)

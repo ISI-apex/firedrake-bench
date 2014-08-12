@@ -36,7 +36,7 @@ class DolfinPoisson(Poisson):
             self.series['size'] = size
         self.series['degree'] = degree
         self.meta['cells'] = 6*size**dim
-        self.meta['dofs'] = (size+1)**dim
+        self.meta['vertices'] = (size+1)**dim
         params = {'linear_solver': 'cg',
                   'preconditioner': pc}
         # Tune AMG parameters
@@ -80,6 +80,7 @@ class DolfinPoisson(Poisson):
             with self.timed_region('matrix assembly'):
                 A = assemble(a)
                 bc.apply(A)
+                self.meta['dofs'] = A.size(0)
             with self.timed_region('rhs assembly'):
                 b = assemble(L)
                 bc.apply(b)
