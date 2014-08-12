@@ -29,8 +29,9 @@ class FiredrakePoisson(Poisson):
     def make_mesh(self, dim, x):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
-    def poisson(self, size=32, degree=1, dim=3, preassemble=True, pc='hypre',
-                print_norm=True, weak=False):
+    def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,
+                print_norm=True, pc='hypre', strong_threshold=0.75, agg_nl=2,
+                max_levels=25):
         if weak:
             size = int((1e4*op2.MPI.comm.size)**(1./dim))
             self.meta['size'] = size
@@ -42,8 +43,9 @@ class FiredrakePoisson(Poisson):
         params = {'ksp_type': 'cg',
                   'pc_type': pc,
                   'pc_hypre_type': 'boomeramg',
-                  'pc_hypre_boomeramg_strong_threshold': 0.75,
-                  'pc_hypre_boomeramg_agg_nl': 2,
+                  'pc_hypre_boomeramg_strong_threshold': strong_threshold,
+                  'pc_hypre_boomeramg_agg_nl': agg_nl,
+                  'pc_hypre_boomeramg_max_levels': max_levels,
                   'ksp_rtol': 1e-6,
                   'ksp_atol': 1e-15}
         t_, mesh = self.make_mesh(dim, size)
