@@ -43,13 +43,22 @@ if __name__ == '__main__':
                kinds='bar,barlog', groups=['variant'],
                title='Advection-diffusion (sequential, 2D, mesh size %(size)s**2)')
     if args.weak:
-        b = AdvectionDiffusion(benchmark='AdvectionDiffusionWeak',
-                               resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', args.weak), ('variant', ['Firedrake'])],
-                         filename='AdvectionDiffusion')
-        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog', groups=['variant'],
-               title='Advection-diffusion (weak scaling, 2D, polynomial degree %(degree)d)')
+        for degree in [1, 2, 3]:
+            dofs = lambda n: (int((1e4*n)**(1./dim))*degree+1)**dim
+
+            def doflabel(n):
+                return '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
+            b = AdvectionDiffusion(benchmark='AdvectionDiffusionWeak',
+                                   params=[('degree', [degree])],
+                                   resultsdir=args.resultsdir, plotdir=args.plotdir)
+            b.combine_series([('np', args.weak), ('variant', ['Firedrake'])],
+                             filename='AdvectionDiffusion')
+            dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
+            b.plot(xaxis='np', regions=regions,
+                   xlabel='Number of processors / DOFs (DOFs per processor: %dk)' % dpp,
+                   xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.weak],
+                   kinds='plot,loglog', groups=['variant'],
+                   title='Advection-diffusion (weak scaling, 2D, polynomial degree %(degree)d)')
     if args.parallel:
         b = AdvectionDiffusion(benchmark='AdvectionDiffusionParallel',
                                resultsdir=args.resultsdir, plotdir=args.plotdir)
