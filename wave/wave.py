@@ -20,12 +20,14 @@ class Wave(Benchmark):
     profileregions = regions
 
 # Weak scaling sizes
+cells[0.29] = 522954
 cells[0.2] = 1059980
 cells[0.16] = 1617232
 cells[0.14] = 2172644
 cells[0.1] = 4247104
 cells[0.07] = 8774894
 cells[0.05] = 16508492
+dofs[0.29] = 261469
 dofs[0.2] = 529982
 dofs[0.16] = 808608
 dofs[0.14] = 1086314
