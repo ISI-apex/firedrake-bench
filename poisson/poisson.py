@@ -39,12 +39,17 @@ if __name__ == '__main__':
                ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
                title='Poisson (single core, %(dim)dD)')
     if args.weak:
-        b = Poisson(benchmark='PoissonWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', args.weak), ('variant', ['Firedrake']),
-                          ('degree', [1, 2, 3])], filename='Poisson')
-        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot,loglog', groups=['variant'],
-               title='Poisson (weak scaling, polynomial degree %(degree)d, 3D)')
+        for degree in [1, 2, 3]:
+            def doflabel(n):
+                dofs = (int((1e4*n)**(1./dim))*degree+1)**dim
+                return '%.1fM' % (dofs/1e6) if dofs > 1e6 else '%dk' % (dofs/1e3)
+            b = Poisson(benchmark='PoissonWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
+            b.combine_series([('np', args.weak), ('variant', ['Firedrake']),
+                              ('degree', [degree])], filename='Poisson')
+            b.plot(xaxis='np', regions=regions, xlabel='Number of processors / DOFs',
+                   xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.weak],
+                   kinds='plot,loglog', groups=['variant'],
+                   title='Poisson (weak scaling, polynomial degree %d, 3D)' % degree)
     if args.parallel:
         b = Poisson(benchmark='PoissonParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', args.parallel), ('variant', ['Firedrake', 'DOLFIN']),
