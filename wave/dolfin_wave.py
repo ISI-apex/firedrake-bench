@@ -14,7 +14,8 @@ class DolfinWave(Wave):
     meta = {'dolfin_version': dolfin_version(),
             'dolfin_commit': git_commit_hash()}
 
-    def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False):
+    def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False,
+             verbose=False):
         params = {'linear_solver': 'cg',
                   'preconditioner': 'sor'}
         if weak:
@@ -28,6 +29,8 @@ class DolfinWave(Wave):
             mesh = Mesh("meshes/wave_tank_%s.xml.gz" % scale)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, 'Lagrange', 1)
+            if verbose:
+                print '[%d]' % MPI.rank(mpi_comm_world()), 'DOFs:', V.dofmap().global_dimension()
             p = Function(V)
             phi = Function(V, name="phi")
 

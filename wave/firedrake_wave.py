@@ -22,7 +22,8 @@ class FiredrakeWave(Wave):
     def make_mesh(self, scale):
         return Mesh("meshes/wave_tank_%s.msh" % scale)
 
-    def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False):
+    def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False,
+             verbose=False):
         if weak:
             scale = round(0.5/sqrt(op2.MPI.comm.size), 2)
             self.meta['scale'] = scale
@@ -37,6 +38,8 @@ class FiredrakeWave(Wave):
             total_dofs = np.zeros(1, dtype=int)
             op2.MPI.comm.Allreduce(np.array([V.dof_count], dtype=int), total_dofs)
             self.meta['dofs'] = total_dofs[0]
+            if verbose:
+                print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_count
             p = Function(V)
             phi = Function(V, name="phi")
 
