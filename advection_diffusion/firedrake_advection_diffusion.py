@@ -36,18 +36,24 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
             self.series['size'] = size
         self.meta['cells'] = (2 if dim == 2 else 6)*size**dim
         self.meta['dofs'] = (size+1)**dim
-        solver_parameters = {'ksp_type': 'cg',
-                             'pc_type': pc,
-                             'pc_hypre_type': 'boomeramg',
-                             'pc_hypre_boomeramg_strong_threshold': strong_threshold,
-                             'pc_hypre_boomeramg_agg_nl': agg_nl,
-                             'pc_hypre_boomeramg_max_levels': max_levels,
-                             'ksp_rtol': 1e-6,
-                             'ksp_atol': 1e-15}
+        adv_params = {'ksp_type': 'cg',
+                      'pc_type': 'jacobi',
+                      'ksp_rtol': 1e-6,
+                      'ksp_atol': 1e-15}
+        diff_params = {'ksp_type': 'cg',
+                       'pc_type': pc,
+                       'pc_hypre_type': 'boomeramg',
+                       'pc_hypre_boomeramg_strong_threshold': strong_threshold,
+                       'pc_hypre_boomeramg_agg_nl': agg_nl,
+                       'pc_hypre_boomeramg_max_levels': max_levels,
+                       'ksp_rtol': 1e-6,
+                       'ksp_atol': 1e-15}
         if verbose:
-            solver_parameters['pc_hypre_boomeramg_print_statistics'] = True
-            solver_parameters['ksp_view'] = True
-            solver_parameters['ksp_monitor'] = True
+            diff_params['pc_hypre_boomeramg_print_statistics'] = True
+            diff_params['ksp_view'] = True
+            diff_params['ksp_monitor'] = True
+            adv_params['ksp_view'] = True
+            adv_params['ksp_monitor'] = True
         t_, mesh = self.make_mesh(dim, size)
         self.register_timing('mesh', t_)
 
@@ -100,9 +106,9 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                             b = assemble(adv_rhs)
                             b.dat._force_evaluation()
                         with self.timed_region('advection solve'):
-                            solve(A, t, b, solver_parameters=solver_parameters)
+                            solve(A, t, b, solver_parameters=adv_params)
                     else:
-                        solve(adv == adv_rhs, t, solver_parameters=solver_parameters)
+                        solve(adv == adv_rhs, t, solver_parameters=adv_params)
 
                 # Diffusion
                 if diffusion:
@@ -111,9 +117,9 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                             b = assemble(diff_rhs)
                             b.dat._force_evaluation()
                         with self.timed_region('diffusion solve'):
-                            solve(D, t, b, solver_parameters=solver_parameters)
+                            solve(D, t, b, solver_parameters=diff_params)
                     else:
-                        solve(diff == diff_rhs, t, solver_parameters=solver_parameters)
+                        solve(diff == diff_rhs, t, solver_parameters=diff_params)
 
                 T = T + dt
 

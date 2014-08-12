@@ -36,7 +36,8 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
             self.series['size'] = size
         self.meta['cells'] = (2 if dim == 2 else 6)*size**dim
         self.meta['dofs'] = (size+1)**dim
-        solver_parameters = {'linear_solver': 'cg', 'preconditioner': pc}
+        adv_params = {'linear_solver': 'cg', 'preconditioner': 'jacobi'}
+        diff_params = {'linear_solver': 'cg', 'preconditioner': pc}
         # Tune AMG parameters
         PETScOptions.set('pc_hypre_boomeramg_strong_threshold', strong_threshold)
         PETScOptions.set('pc_hypre_boomeramg_agg_nl', agg_nl)
@@ -99,7 +100,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                         with self.timed_region('advection solve'):
                             solve(A, t.vector(), b, "cg", pc)
                     else:
-                        solve(adv == adv_rhs, t, solver_parameters=solver_parameters)
+                        solve(adv == adv_rhs, t, solver_parameters=adv_params)
 
                 # Diffusion
                 if diffusion:
@@ -109,7 +110,7 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
                         with self.timed_region('diffusion solve'):
                             solve(D, t.vector(), b, "cg", pc)
                     else:
-                        solve(diff == diff_rhs, t, solver_parameters=solver_parameters)
+                        solve(diff == diff_rhs, t, solver_parameters=diff_params)
 
                 T = T + dt
 
