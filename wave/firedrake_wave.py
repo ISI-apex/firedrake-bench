@@ -1,5 +1,5 @@
 import numpy as np
-from wave import Wave, cells, dofs
+from wave import Wave, cells, vertices
 from pybench import timed
 from firedrake import *
 from firedrake import __version__ as firedrake_version
@@ -30,7 +30,7 @@ class FiredrakeWave(Wave):
         else:
             self.series['scale'] = scale
         self.meta['cells'] = cells[scale]
-        self.meta['vertices'] = dofs[scale]
+        self.meta['vertices'] = vertices[scale]
         t_, mesh = self.make_mesh(scale)
         self.register_timing('mesh', t_)
         with self.timed_region('setup'):

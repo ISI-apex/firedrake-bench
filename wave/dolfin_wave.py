@@ -1,4 +1,4 @@
-from wave import Wave, cells, dofs
+from wave import Wave, cells, vertices
 from dolfin import *
 
 # Form compiler options
@@ -24,7 +24,7 @@ class DolfinWave(Wave):
         else:
             self.series['scale'] = scale
         self.meta['cells'] = cells[scale]
-        self.meta['dofs'] = dofs[scale]
+        self.meta['dofs'] = vertices[scale]
         with self.timed_region('mesh'):
             mesh = Mesh("meshes/wave_tank_%s.xml.gz" % scale)
         with self.timed_region('setup'):
