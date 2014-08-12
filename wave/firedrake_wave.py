@@ -1,3 +1,4 @@
+import numpy as np
 from wave import Wave, cells, dofs
 from pybench import timed
 from firedrake import *
@@ -28,11 +29,14 @@ class FiredrakeWave(Wave):
         else:
             self.series['scale'] = scale
         self.meta['cells'] = cells[scale]
-        self.meta['dofs'] = dofs[scale]
+        self.meta['vertices'] = dofs[scale]
         t_, mesh = self.make_mesh(scale)
         self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, 'Lagrange', 1)
+            total_dofs = np.zeros(1, dtype=int)
+            op2.MPI.comm.Allreduce(np.array([V.dof_count], dtype=int), total_dofs)
+            self.meta['dofs'] = total_dofs[0]
             p = Function(V)
             phi = Function(V, name="phi")
 
