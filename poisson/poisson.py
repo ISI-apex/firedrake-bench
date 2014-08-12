@@ -26,18 +26,22 @@ if __name__ == '__main__':
     p = parser(description="Plot results for Poisson benchmark")
     p.add_argument('-d', '--size', type=int, nargs='+',
                    help='mesh sizes to plot')
+    p.add_argument('-v', '--variant', nargs='+',
+                   help='variants to plot')
     args = p.parse_args()
+    variants = args.variant or ['Firedrake', 'DOLFIN']
     if args.sequential:
         b = Poisson(resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']),
+        b.combine_series([('np', [1]), ('variant', variants),
                           ('degree', [1, 2, 3]), ('size', args.size or sizes)])
         b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
                xvalues=cells, kinds='plot,loglog', groups=['variant'],
-               title='Poisson (single core, %(dim)dD, polynomial degree %(degree)d)')
-        b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-               xvalues=cells, kinds='plot', groups=['variant', 'degree'],
-               ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
-               title='Poisson (single core, %(dim)dD)')
+               title='Poisson (sequential, 3D, polynomial degree %(degree)d)')
+        if 'DOLFIN' in variants:
+            b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
+                   xvalues=cells, kinds='plot', groups=['variant', 'degree'],
+                   ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
+                   title='Poisson (sequential, 3D)')
     if args.weak:
         for degree in [1, 2, 3]:
             dofs = lambda n: (int((1e4*n)**(1./dim))*degree+1)**dim
@@ -45,7 +49,7 @@ if __name__ == '__main__':
             def doflabel(n):
                 return '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
             b = Poisson(benchmark='PoissonWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
-            b.combine_series([('np', args.weak), ('variant', ['Firedrake']),
+            b.combine_series([('np', args.weak), ('variant', variants),
                               ('degree', [degree])], filename='Poisson')
             dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
             b.plot(xaxis='np', regions=regions,
@@ -55,13 +59,14 @@ if __name__ == '__main__':
                    title='Poisson (weak scaling, polynomial degree %d, 3D)' % degree)
     if args.parallel:
         b = Poisson(benchmark='PoissonParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', args.parallel), ('variant', ['Firedrake', 'DOLFIN']),
+        b.combine_series([('np', args.parallel), ('variant', variants),
                           ('degree', [1, 2, 3]), ('size', args.size or sizes)],
                          filename='Poisson')
         b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
                kinds='plot,loglog', groups=['variant'],
-               title='Poisson (single node, %(dim)dD, polynomial degree %(degree)d, mesh size %(size)d**%(dim)d)')
-        b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-               kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
-               ylabel='Speedup relative to DOLFIN on 1 core',
-               title='Poisson (single node, %(dim)dD, polynomial degree %(degree)d, mesh size %(size)d**%(dim)d)')
+               title='Poisson (strong scaling, 3D, polynomial degree %(degree)d, mesh size %(size)d**3)')
+        if 'DOLFIN' in variants:
+            b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
+                   kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
+                   ylabel='Speedup relative to DOLFIN on 1 core',
+                   title='Poisson (strong scaling, 3D, polynomial degree %(degree)d, mesh size %(size)d**3)')
