@@ -30,8 +30,8 @@ class FiredrakePoisson(Poisson):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,
-                print_norm=True, pc='hypre', strong_threshold=0.75, agg_nl=2,
-                max_levels=25):
+                print_norm=True, verbose=False, pc='hypre',
+                strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
             size = int((1e4*op2.MPI.comm.size)**(1./dim))
             self.meta['size'] = size
@@ -48,11 +48,16 @@ class FiredrakePoisson(Poisson):
                   'pc_hypre_boomeramg_max_levels': max_levels,
                   'ksp_rtol': 1e-6,
                   'ksp_atol': 1e-15}
+        if verbose:
+            params['pc_hypre_boomeramg_print_statistics'] = True
+            params['ksp_view'] = True
+            params['ksp_monitor'] = True
         t_, mesh = self.make_mesh(dim, size)
         self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
-            print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_dset.size
+            if verbose:
+                print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_dset.size
 
             # Define boundary condition
             bc = DirichletBC(V, 0.0, [3, 4])

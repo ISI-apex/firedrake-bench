@@ -27,8 +27,8 @@ class DolfinPoisson(Poisson):
     meshes = {}
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,
-                print_norm=True, pc='amg', strong_threshold=0.75, agg_nl=2,
-                max_levels=25):
+                print_norm=True, verbose=False, pc='amg',
+                strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
             size = int((1e4*MPI.size(mpi_comm_world()))**(1./dim))
             self.meta['size'] = size
@@ -43,6 +43,10 @@ class DolfinPoisson(Poisson):
         PETScOptions.set('pc_hypre_boomeramg_strong_threshold', strong_threshold)
         PETScOptions.set('pc_hypre_boomeramg_agg_nl', agg_nl)
         PETScOptions.set('pc_hypre_boomeramg_max_levels', max_levels)
+        if verbose:
+            PETScOptions.set('pc_hypre_boomeramg_print_statistics', True)
+            PETScOptions.set('ksp_view', True)
+            PETScOptions.set('ksp_monitor', True)
 
         if (dim, size) in self.meshes:
             t_, mesh = self.meshes[dim, size]
@@ -52,7 +56,8 @@ class DolfinPoisson(Poisson):
         self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
-            print '[%d]' % MPI.rank(mpi_comm_world()), 'DOFs:', V.dofmap().global_dimension()
+            if verbose:
+                print '[%d]' % MPI.rank(mpi_comm_world()), 'DOFs:', V.dofmap().global_dimension()
 
             # Define Dirichlet boundary (x = 0 or x = 1)
             def boundary(x):
