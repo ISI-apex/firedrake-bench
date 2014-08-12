@@ -53,6 +53,7 @@ class FiredrakeWave(Wave):
                 Ml = assemble(1.0 / assemble(v*dx))
 
             dt = 0.001 * scale
+            dtc = Constant(dt)
             t = 0.0
 
             rhs = inner(grad(v), grad(phi)) * dx
@@ -66,22 +67,22 @@ class FiredrakeWave(Wave):
                 bcval.assign(sin(2*pi*5*t))
 
                 with self.timed_region('phi'):
-                    phi -= 0.5 * dt * p
+                    phi -= 0.5 * dtc * p
                     phi.dat._force_evaluation()
 
                 with self.timed_region('p'):
                     if lump_mass:
-                        p += dt * Ml * assemble(rhs)
+                        p += dtc * Ml * assemble(rhs)
                         bc.apply(p)
                         p.dat._force_evaluation()
                     else:
-                        solve(u * v * dx == v * p * dx + dt * rhs,
+                        solve(u * v * dx == v * p * dx + dtc * rhs,
                               p, bcs=bc, solver_parameters={'ksp_type': 'cg',
                                                             'pc_type': 'sor',
                                                             'pc_sor_symmetric': True})
 
                 with self.timed_region('phi'):
-                    phi -= 0.5 * dt * p
+                    phi -= 0.5 * dtc * p
                     phi.dat._force_evaluation()
 
                 t += dt
