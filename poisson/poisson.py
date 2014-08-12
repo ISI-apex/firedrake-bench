@@ -40,13 +40,16 @@ if __name__ == '__main__':
                title='Poisson (single core, %(dim)dD)')
     if args.weak:
         for degree in [1, 2, 3]:
+            dofs = lambda n: (int((1e4*n)**(1./dim))*degree+1)**dim
+
             def doflabel(n):
-                dofs = (int((1e4*n)**(1./dim))*degree+1)**dim
-                return '%.1fM' % (dofs/1e6) if dofs > 1e6 else '%dk' % (dofs/1e3)
+                return '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
             b = Poisson(benchmark='PoissonWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
             b.combine_series([('np', args.weak), ('variant', ['Firedrake']),
                               ('degree', [degree])], filename='Poisson')
-            b.plot(xaxis='np', regions=regions, xlabel='Number of processors / DOFs',
+            dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
+            b.plot(xaxis='np', regions=regions,
+                   xlabel='Number of processors / DOFs (DOFs per processor: %dk)' % dpp,
                    xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.weak],
                    kinds='plot,loglog', groups=['variant'],
                    title='Poisson (weak scaling, polynomial degree %d, 3D)' % degree)
