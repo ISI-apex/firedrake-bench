@@ -27,6 +27,7 @@ cells[0.144] = 2000264
 cells[0.102] = 4098480
 cells[0.072] = 8216776
 cells[0.051] = 16365888
+cells[0.036] = 32832894
 vertices[0.289] = 255050
 vertices[0.204] = 498559
 vertices[0.158] = 868981
@@ -34,6 +35,7 @@ vertices[0.144] = 1000124
 vertices[0.102] = 2049232
 vertices[0.072] = 4108380
 vertices[0.051] = 8182936
+vertices[0.036] = 16416447
 
 if __name__ == '__main__':
     p = parser(description="Plot results for explicit wave benchmark")
