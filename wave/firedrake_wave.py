@@ -25,7 +25,7 @@ class FiredrakeWave(Wave):
     def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False,
              verbose=False):
         if weak:
-            scale = round(0.5/sqrt(op2.MPI.comm.size), 2)
+            scale = round(0.5/sqrt(op2.MPI.comm.size), 3)
             self.meta['scale'] = scale
         else:
             self.series['scale'] = scale

@@ -1,8 +1,8 @@
 from pybench import Benchmark, parser
 
-scale = [1.0, 0.71, 0.5, 0.35, 0.25, 0.18, 0.125]
-cells = dict(zip(scale, [42254, 82072, 169418, 337266, 679624, 1309528, 2716428]))
-vertices = dict(zip(scale, [21119, 41028, 84701, 168625, 339804, 656622, 1358206]))
+scale = [1.0, 0.71, 0.5, 0.354, 0.25, 0.177, 0.125]
+cells = dict(zip(scale, [42254, 82072, 169418, 335842, 679624, 1380102, 2716428]))
+vertices = dict(zip(scale, [21119, 41028, 84701, 167913, 339804, 690043, 1358206]))
 regions = ['setup', 'timestepping', 'p', 'phi']
 
 
@@ -20,20 +20,20 @@ class Wave(Benchmark):
     profileregions = regions
 
 # Weak scaling sizes
-cells[0.29] = 522954
-cells[0.2] = 1059980
-cells[0.16] = 1617232
-cells[0.14] = 2172644
-cells[0.1] = 4247104
-cells[0.07] = 8774894
-cells[0.05] = 16508492
-vertices[0.29] = 261469
-vertices[0.2] = 529982
-vertices[0.16] = 808608
-vertices[0.14] = 1086314
-vertices[0.1] = 2123544
-vertices[0.07] = 4387439
-vertices[0.05] = 8254238
+cells[0.289] = 510116
+cells[0.204] = 997134
+cells[0.158] = 1737978
+cells[0.144] = 2000264
+cells[0.102] = 4098480
+cells[0.072] = 8216776
+cells[0.051] = 16365888
+vertices[0.289] = 255050
+vertices[0.204] = 498559
+vertices[0.158] = 868981
+vertices[0.144] = 1000124
+vertices[0.102] = 2049232
+vertices[0.072] = 4108380
+vertices[0.051] = 8182936
 
 if __name__ == '__main__':
     p = parser(description="Plot results for explicit wave benchmark")
@@ -48,7 +48,7 @@ if __name__ == '__main__':
                xvalues=cells, kinds='plot,loglog', groups=['variant'],
                title='Explicit wave equation (single core, 2D, mass lumping)')
     if args.weak:
-        dofs = lambda n: vertices[round(0.5/n**.5, 2)]
+        dofs = lambda n: vertices[round(0.5/n**.5, 3)]
 
         def doflabel(n):
             return '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
