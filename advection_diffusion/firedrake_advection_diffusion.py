@@ -27,7 +27,8 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
     def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True, weak=False,
-                            print_norm=False, preassemble=True, pc='hypre'):
+                            print_norm=False, preassemble=True, pc='hypre',
+                            strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
             size = int((1e4*op2.MPI.comm.size)**(1./dim))
             self.meta['size'] = size
@@ -38,8 +39,9 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
         solver_parameters = {'ksp_type': 'cg',
                              'pc_type': pc,
                              'pc_hypre_type': 'boomeramg',
-                             'pc_hypre_boomeramg_strong_threshold': 0.75,
-                             'pc_hypre_boomeramg_agg_nl': 2,
+                             'pc_hypre_boomeramg_strong_threshold': strong_threshold,
+                             'pc_hypre_boomeramg_agg_nl': agg_nl,
+                             'pc_hypre_boomeramg_max_levels': max_levels,
                              'ksp_rtol': 1e-6,
                              'ksp_atol': 1e-15}
         t_, mesh = self.make_mesh(dim, size)

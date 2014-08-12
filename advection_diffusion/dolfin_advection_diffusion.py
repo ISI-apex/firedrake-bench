@@ -10,10 +10,6 @@ parameters["form_compiler"]["optimize"] = True
 parameters["form_compiler"]["cpp_optimize"] = True
 parameters["form_compiler"]["representation"] = "quadrature"
 
-# Tune AMG parameters
-PETScOptions.set('pc_hypre_boomeramg_strong_threshold', 0.75)
-PETScOptions.set('pc_hypre_boomeramg_agg_nl', 2)
-
 
 @timed
 def make_mesh(dim, x):
@@ -31,7 +27,8 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
     def advection_diffusion(self, size=64, degree=1, dim=2,
                             dt=0.0001, T=0.01, Tend=0.011, diffusivity=0.1,
                             advection=True, diffusion=True, weak=False,
-                            print_norm=False, preassemble=True, pc='amg'):
+                            print_norm=False, preassemble=True, pc='amg',
+                            strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
             size = int((1e4*MPI.size(mpi_comm_world()))**(1./dim))
             self.meta['size'] = size
@@ -40,6 +37,11 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         self.meta['cells'] = (2 if dim == 2 else 6)*size**dim
         self.meta['dofs'] = (size+1)**dim
         solver_parameters = {'linear_solver': 'cg', 'preconditioner': pc}
+        # Tune AMG parameters
+        PETScOptions.set('pc_hypre_boomeramg_strong_threshold', strong_threshold)
+        PETScOptions.set('pc_hypre_boomeramg_agg_nl', agg_nl)
+        PETScOptions.set('pc_hypre_boomeramg_max_levels', max_levels)
+
         if (dim, size) in self.meshes:
             t_, mesh = self.meshes[dim, size]
         else:
