@@ -36,10 +36,10 @@ class FiredrakeWave(Wave):
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, 'Lagrange', 1)
             total_dofs = np.zeros(1, dtype=int)
-            op2.MPI.comm.Allreduce(np.array([V.dof_count], dtype=int), total_dofs)
+            op2.MPI.comm.Allreduce(np.array([V.dof_dset.size], dtype=int), total_dofs)
             self.meta['dofs'] = total_dofs[0]
             if verbose:
-                print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_count
+                print '[%d]' % op2.MPI.comm.rank, 'DOFs:', V.dof_dset.size
             p = Function(V)
             phi = Function(V, name="phi")
 
