@@ -71,23 +71,22 @@ if __name__ == '__main__':
                     elif dofs > 1e3*n:
                         return '%dk' % (dofs/(1e3*n))
                     return str(dofs/n)
+                title = 'Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6)
+                xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.parallel]
+                xlabel = 'Number of processors / DOFs per processor'
                 b = Poisson(benchmark='PoissonParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
                 b.combine_series([('np', args.parallel), ('variant', variants),
                                   ('degree', [degree]), ('size', [size])],
                                  filename='Poisson')
-                b.plot(xaxis='np', regions=regions,
-                       xlabel='Number of processors / DOFs per processor',
-                       xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
-                       kinds='plot,loglog', groups=['variant'],
-                       title='Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6))
+                b.plot(xaxis='np', regions=regions, xlabel=xlabel,
+                       xticklabels=xticklabels, kinds='plot,loglog',
+                       groups=['variant'], title=title)
                 b.plot(xaxis='np', regions=regions, figname='PoissonEfficiency',
-                       xlabel='Number of processors / DOFs per processor',
                        ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
-                       xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
-                       kinds='semilogx', groups=['variant'], transform=efficiency,
-                       title='Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6))
+                       xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
+                       groups=['variant'], title=title, transform=efficiency)
                 if 'DOLFIN' in variants:
-                    b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
-                           kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
+                    b.plot(xaxis='np', regions=regions, speedup=(1, 'DOLFIN'),
                            ylabel='Speedup relative to DOLFIN on 1 core',
-                           title='Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6))
+                           xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
+                           groups=['variant'], title=title)
