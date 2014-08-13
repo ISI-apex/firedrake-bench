@@ -86,24 +86,21 @@ if __name__ == '__main__':
                 elif dofs > 1e3*n:
                     return '%dk' % (dofs/(1e3*n))
                 return str(dofs/n)
+            title = 'Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6)
+            xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.parallel]
+            xlabel = 'Number of processors / DOFs per processor'
             b = Wave(benchmark='WaveParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
             b.combine_series([('np', args.parallel), ('scale', [sc]),
                               ('variant', variants)], filename='Wave')
-            b.plot(xaxis='np', regions=regions,
-                   xlabel='Number of processors / DOFs per processor',
-                   xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
-                   kinds='plot,loglog', groups=['variant'],
-                   title='Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6))
+            b.plot(xaxis='np', regions=regions, xlabel=xlabel,
+                   xticklabels=xticklabels, kinds='plot,loglog',
+                   groups=['variant'], title=title)
             b.plot(xaxis='np', regions=regions, figname='WaveEfficiency',
-                   xlabel='Number of processors / DOFs per processor',
                    ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
-                   xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
-                   kinds='semilogx', groups=['variant'], transform=efficiency,
-                   title='Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6))
+                   xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
+                   groups=['variant'], title=title, transform=efficiency)
             if 'DOLFIN' in variants:
-                b.plot(xaxis='np', regions=regions,
-                       xlabel='Number of processors / DOFs per processor',
-                       xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
-                       kinds='plot', groups=['variant'], speedup=(1, 'DOLFIN'),
+                b.plot(xaxis='np', regions=regions, speedup=(1, 'DOLFIN'),
                        ylabel='Speedup relative to DOLFIN on 1 core',
-                       title='Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6))
+                       xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
+                       groups=['variant'], title=title)
