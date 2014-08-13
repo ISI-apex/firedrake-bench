@@ -22,6 +22,10 @@ class Poisson(Benchmark):
                     'node_threshold': 2.0}
     profileregions = regions
 
+
+def efficiency(xvals, yvals):
+    return [yvals[0]/(x*y) for x, y in zip(xvals, yvals)]
+
 if __name__ == '__main__':
     p = parser(description="Plot results for Poisson benchmark")
     p.add_argument('-d', '--size', type=int, nargs='+',
@@ -74,6 +78,12 @@ if __name__ == '__main__':
                        xlabel='Number of processors / DOFs per processor',
                        xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
                        kinds='plot,loglog', groups=['variant'],
+                       title='Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6))
+                b.plot(xaxis='np', regions=regions, figname='PoissonEfficiency',
+                       xlabel='Number of processors / DOFs per processor',
+                       ylabel='Parallel efficiency w.r.t. single core',
+                       xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
+                       kinds='semilogx', groups=['variant'], transform=efficiency,
                        title='Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6))
                 if 'DOLFIN' in variants:
                     b.plot(xaxis='np', regions=regions, xlabel='Number of processors',
