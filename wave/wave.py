@@ -51,6 +51,8 @@ if __name__ == '__main__':
                    help='mesh scales to plot')
     p.add_argument('-v', '--variant', nargs='+',
                    help='variants to plot')
+    p.add_argument('-b', '--base', type=int,
+                   help='index of size to use as base for parallel efficiency')
     args = p.parse_args()
     variants = args.variant or ['Firedrake', 'DOLFIN']
     if args.sequential:
@@ -72,6 +74,9 @@ if __name__ == '__main__':
                kinds='plot,loglog', groups=['variant'],
                title='Explicit wave equation (weak scaling, 2D, mass lumping)')
     if args.parallel:
+        base = args.base or 0
+        efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
+                                           for x, y in zip(xvals, yvals)]
         for sc in args.scale or scale:
             dofs = vertices[sc]
 
@@ -88,6 +93,12 @@ if __name__ == '__main__':
                    xlabel='Number of processors / DOFs per processor',
                    xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
                    kinds='plot,loglog', groups=['variant'],
+                   title='Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6))
+            b.plot(xaxis='np', regions=regions, figname='WaveEfficiency',
+                   xlabel='Number of processors / DOFs per processor',
+                   ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
+                   xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
+                   kinds='semilogx', groups=['variant'], transform=efficiency,
                    title='Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6))
             if 'DOLFIN' in variants:
                 b.plot(xaxis='np', regions=regions,
