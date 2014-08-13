@@ -3,7 +3,7 @@ from pybench import Benchmark, parser
 scale = [1.0, 0.707, 0.5, 0.354, 0.25, 0.177, 0.125]
 cells = dict(zip(scale, [42254, 91600, 169418, 335842, 679624, 1380102, 2716428]))
 vertices = dict(zip(scale, [21119, 45792, 84701, 167913, 339804, 690043, 1358206]))
-regions = ['setup', 'timestepping', 'p', 'phi']
+regions = ['p', 'phi']
 
 
 class Wave(Benchmark):
