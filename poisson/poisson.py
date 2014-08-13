@@ -22,16 +22,14 @@ class Poisson(Benchmark):
                     'node_threshold': 2.0}
     profileregions = regions
 
-
-def efficiency(xvals, yvals):
-    return [yvals[0]/(x*y) for x, y in zip(xvals, yvals)]
-
 if __name__ == '__main__':
     p = parser(description="Plot results for Poisson benchmark")
     p.add_argument('-d', '--size', type=int, nargs='+',
                    help='mesh sizes to plot')
     p.add_argument('-v', '--variant', nargs='+',
                    help='variants to plot')
+    p.add_argument('-b', '--base', type=int,
+                   help='index of size to use as base for parallel efficiency')
     args = p.parse_args()
     variants = args.variant or ['Firedrake', 'DOLFIN']
     if args.sequential:
@@ -60,6 +58,9 @@ if __name__ == '__main__':
                    kinds='plot,loglog', groups=['variant'],
                    title='Poisson (weak scaling, polynomial degree %d, 3D)' % degree)
     if args.parallel:
+        base = args.base or 0
+        efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
+                                           for x, y in zip(xvals, yvals)]
         for degree in [1, 2, 3]:
             for size in args.size or sizes:
                 dofs = (size*degree+1)**dim
@@ -81,7 +82,7 @@ if __name__ == '__main__':
                        title='Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6))
                 b.plot(xaxis='np', regions=regions, figname='PoissonEfficiency',
                        xlabel='Number of processors / DOFs per processor',
-                       ylabel='Parallel efficiency w.r.t. single core',
+                       ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
                        xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.parallel],
                        kinds='semilogx', groups=['variant'], transform=efficiency,
                        title='Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6))
