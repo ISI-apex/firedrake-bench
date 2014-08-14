@@ -24,7 +24,9 @@ class Poisson(Benchmark):
 
 if __name__ == '__main__':
     p = parser(description="Plot results for Poisson benchmark")
-    p.add_argument('-d', '--size', type=int, nargs='+',
+    p.add_argument('-d', '--degree', type=int, nargs='+',
+                   help='polynomial degrees to plot')
+    p.add_argument('-m', '--size', type=int, nargs='+',
                    help='mesh sizes to plot')
     p.add_argument('-v', '--variant', nargs='+',
                    help='variants to plot')
@@ -32,10 +34,11 @@ if __name__ == '__main__':
                    help='index of size to use as base for parallel efficiency')
     args = p.parse_args()
     variants = args.variant or ['Firedrake', 'DOLFIN']
+    degrees = args.degree or [1, 2, 3]
     if args.sequential:
         b = Poisson(resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', [1]), ('variant', variants),
-                          ('degree', [1, 2, 3]), ('size', args.size or sizes)])
+                          ('degree', degrees), ('size', args.size or sizes)])
         b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
                xvalues=cells, kinds='plot,loglog', groups=['variant'],
                title='Poisson (sequential, 3D, polynomial degree %(degree)d)')
@@ -45,7 +48,7 @@ if __name__ == '__main__':
                    ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
                    title='Poisson (sequential, 3D)')
     if args.weak:
-        for degree in [1, 2, 3]:
+        for degree in degrees:
             dofs = lambda n: (int((1e4*n)**(1./dim))*degree+1)**dim
             doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
             b = Poisson(benchmark='PoissonWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
@@ -61,7 +64,7 @@ if __name__ == '__main__':
         base = args.base or 0
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
                                            for x, y in zip(xvals, yvals)]
-        for degree in [1, 2, 3]:
+        for degree in degrees:
             for size in args.size or sizes:
                 dofs = (size*degree+1)**dim
 
