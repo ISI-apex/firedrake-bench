@@ -55,12 +55,13 @@ if __name__ == '__main__':
                    help='index of size to use as base for parallel efficiency')
     args = p.parse_args()
     variants = args.variant or ['Firedrake', 'DOLFIN']
+    groups = ['variant'] if len(variants) > 1 else []
     if args.sequential:
         b = Wave(resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', [1]), ('scale', args.scale or scale),
                           ('variant', variants)])
         b.plot(xaxis='scale', regions=regions, xlabel='mesh size (cells)',
-               xvalues=cells, kinds='plot,loglog', groups=['variant'],
+               xvalues=cells, kinds='plot,loglog', groups=groups,
                title='Explicit wave equation (single core, 2D, mass lumping)')
     if args.weak:
         base = args.weak.index(args.base or 1)
@@ -76,11 +77,11 @@ if __name__ == '__main__':
         title = 'Explicit wave equation (weak scaling, 2D, mass lumping)'
         b.plot(xaxis='np', regions=regions,
                xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
-               groups=['variant'], title=title)
+               groups=groups, title=title)
         b.plot(xaxis='np', regions=regions, figname='WaveWeakEfficiency',
                ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
                xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
-               groups=['variant'], title=title, transform=efficiency, ymin=0)
+               groups=groups, title=title, transform=efficiency, ymin=0)
     if args.parallel:
         base = args.parallel.index(args.base or 1)
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
@@ -102,13 +103,13 @@ if __name__ == '__main__':
                               ('variant', variants)], filename='Wave')
             b.plot(xaxis='np', regions=regions, xlabel=xlabel,
                    xticklabels=xticklabels, kinds='plot,loglog',
-                   groups=['variant'], title=title)
+                   groups=groups, title=title)
             b.plot(xaxis='np', regions=regions, figname='WaveStrongEfficiency',
                    ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
                    xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
-                   groups=['variant'], title=title, transform=efficiency, ymin=0)
+                   groups=groups, title=title, transform=efficiency, ymin=0)
             if 'DOLFIN' in variants:
                 b.plot(xaxis='np', regions=regions, speedup=(1, 'DOLFIN'),
                        ylabel='Speedup relative to DOLFIN on 1 core',
                        xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
-                       groups=['variant'], title=title)
+                       groups=groups, title=title)
