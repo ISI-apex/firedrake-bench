@@ -34,17 +34,18 @@ if __name__ == '__main__':
                    help='index of size to use as base for parallel efficiency')
     args = p.parse_args()
     variants = args.variant or ['Firedrake', 'DOLFIN']
+    groups = ['variant'] if len(variants) > 1 else []
     degrees = args.degree or [1, 2, 3]
     if args.sequential:
         b = Poisson(resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', [1]), ('variant', variants),
                           ('degree', degrees), ('size', args.size or sizes)])
         b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-               xvalues=cells, kinds='plot,loglog', groups=['variant'],
+               xvalues=cells, kinds='plot,loglog', groups=groups,
                title='Poisson (sequential, 3D, polynomial degree %(degree)d)')
         if 'DOLFIN' in variants:
             b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-                   xvalues=cells, kinds='plot', groups=['variant', 'degree'],
+                   xvalues=cells, kinds='plot', groups=groups,
                    ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
                    title='Poisson (sequential, 3D)')
     if args.weak:
@@ -63,11 +64,11 @@ if __name__ == '__main__':
             title = 'Poisson (weak scaling, polynomial degree %d, 3D)' % degree
             b.plot(xaxis='np', regions=regions,
                    xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
-                   groups=['variant'], title=title)
+                   groups=groups, title=title)
             b.plot(xaxis='np', regions=regions, figname='PoissonWeakEfficiency',
                    ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
                    xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
-                   groups=['variant'], title=title, transform=efficiency, ymin=0)
+                   groups=groups, title=title, transform=efficiency, ymin=0)
     if args.parallel:
         base = args.parallel.index(args.base or 1)
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
@@ -91,13 +92,13 @@ if __name__ == '__main__':
                                  filename='Poisson')
                 b.plot(xaxis='np', regions=regions, xlabel=xlabel,
                        xticklabels=xticklabels, kinds='plot,loglog',
-                       groups=['variant'], title=title)
+                       groups=groups, title=title)
                 b.plot(xaxis='np', regions=regions, figname='PoissonStrongEfficiency',
                        ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
                        xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
-                       groups=['variant'], title=title, transform=efficiency, ymin=0)
+                       groups=groups, title=title, transform=efficiency, ymin=0)
                 if 'DOLFIN' in variants:
                     b.plot(xaxis='np', regions=regions, speedup=(1, 'DOLFIN'),
                            ylabel='Speedup relative to DOLFIN on 1 core',
                            xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
-                           groups=['variant'], title=title)
+                           groups=groups, title=title)
