@@ -30,7 +30,7 @@ class DolfinPoisson(Poisson):
                 print_norm=True, verbose=False, pc='amg',
                 strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
-            size = int((1e4*MPI.size(mpi_comm_world()))**(1./dim))
+            size = int((size*MPI.size(mpi_comm_world()))**(1./dim))
             self.meta['size'] = size
         else:
             self.series['size'] = size

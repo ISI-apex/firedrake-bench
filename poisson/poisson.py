@@ -48,8 +48,9 @@ if __name__ == '__main__':
                    ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
                    title='Poisson (sequential, 3D)')
     if args.weak:
+        size = args.size[0] if args.size else 1e4
         for degree in degrees:
-            dofs = lambda n: (int((1e4*n)**(1./dim))*degree+1)**dim
+            dofs = lambda n: (int((size*n)**(1./dim))*degree+1)**dim
             doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
             b = Poisson(benchmark='PoissonWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
             b.combine_series([('np', args.weak), ('variant', variants),

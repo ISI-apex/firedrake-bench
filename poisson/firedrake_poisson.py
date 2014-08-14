@@ -33,7 +33,7 @@ class FiredrakePoisson(Poisson):
                 print_norm=True, verbose=False, pc='hypre',
                 strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
-            size = int((1e4*op2.MPI.comm.size)**(1./dim))
+            size = int((size*op2.MPI.comm.size)**(1./dim))
             self.meta['size'] = size
         else:
             self.series['size'] = size
