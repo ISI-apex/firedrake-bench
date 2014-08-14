@@ -19,7 +19,7 @@ class DolfinWave(Wave):
         params = {'linear_solver': 'cg',
                   'preconditioner': 'sor'}
         if weak:
-            scale = round(1./sqrt(MPI.size(mpi_comm_world())), 3)
+            scale = round(scale/sqrt(MPI.size(mpi_comm_world())), 3)
             self.meta['scale'] = scale
         else:
             self.series['scale'] = scale

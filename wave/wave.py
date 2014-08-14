@@ -64,8 +64,9 @@ if __name__ == '__main__':
                title='Explicit wave equation (single core, 2D, mass lumping)')
     if args.weak:
         base = args.weak.index(args.base or 1)
+        scale = args.scale[0] if args.scale else 1.0
         efficiency = lambda xvals, yvals: [yvals[base]/y for x, y in zip(xvals, yvals)]
-        dofs = lambda n: vertices[round(1./n**.5, 3)]
+        dofs = lambda n: vertices[round(scale/n**.5, 3)]
         doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
         b = Wave(benchmark='WaveWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', args.weak), ('variant', variants)], filename='Wave')
