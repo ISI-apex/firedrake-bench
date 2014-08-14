@@ -63,18 +63,25 @@ if __name__ == '__main__':
                xvalues=cells, kinds='plot,loglog', groups=['variant'],
                title='Explicit wave equation (single core, 2D, mass lumping)')
     if args.weak:
+        base = args.weak.index(args.base or 1)
+        efficiency = lambda xvals, yvals: [yvals[base]/y for x, y in zip(xvals, yvals)]
         dofs = lambda n: vertices[round(1./n**.5, 3)]
         doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
         b = Wave(benchmark='WaveWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
         b.combine_series([('np', args.weak), ('variant', variants)], filename='Wave')
         dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
+        xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
+        xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
+        title = 'Explicit wave equation (weak scaling, 2D, mass lumping)'
         b.plot(xaxis='np', regions=regions,
-               xlabel='Number of processors / DOFs (DOFs per processor: %dk)' % dpp,
-               xticklabels=['%d\n%s' % (n, doflabel(n)) for n in args.weak],
-               kinds='plot,loglog', groups=['variant'],
-               title='Explicit wave equation (weak scaling, 2D, mass lumping)')
+               xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
+               groups=['variant'], title=title)
+        b.plot(xaxis='np', regions=regions, figname='WaveWeakEfficiency',
+               ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
+               xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
+               groups=['variant'], title=title, transform=efficiency, ymin=0)
     if args.parallel:
-        base = args.base or 0
+        base = args.parallel.index(args.base or 1)
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
                                            for x, y in zip(xvals, yvals)]
         for sc in args.scale or scale:
@@ -89,16 +96,16 @@ if __name__ == '__main__':
             title = 'Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6)
             xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.parallel]
             xlabel = 'Number of processors / DOFs per processor'
-            b = Wave(benchmark='WaveParallel', resultsdir=args.resultsdir, plotdir=args.plotdir)
+            b = Wave(benchmark='WaveStrong', resultsdir=args.resultsdir, plotdir=args.plotdir)
             b.combine_series([('np', args.parallel), ('scale', [sc]),
                               ('variant', variants)], filename='Wave')
             b.plot(xaxis='np', regions=regions, xlabel=xlabel,
                    xticklabels=xticklabels, kinds='plot,loglog',
                    groups=['variant'], title=title)
-            b.plot(xaxis='np', regions=regions, figname='WaveEfficiency',
+            b.plot(xaxis='np', regions=regions, figname='WaveStrongEfficiency',
                    ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
                    xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
-                   groups=['variant'], title=title, transform=efficiency)
+                   groups=['variant'], title=title, transform=efficiency, ymin=0)
             if 'DOLFIN' in variants:
                 b.plot(xaxis='np', regions=regions, speedup=(1, 'DOLFIN'),
                        ylabel='Speedup relative to DOLFIN on 1 core',
