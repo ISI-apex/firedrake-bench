@@ -67,7 +67,7 @@ if __name__ == '__main__':
                    groups=groups, title=title)
             b.plot(xaxis='np', regions=regions, figname='PoissonWeakEfficiency',
                    ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
-                   xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
+                   xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
                    groups=groups, title=title, transform=efficiency, ymin=0)
     if args.parallel:
         base = args.parallel.index(args.base or 1)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                        groups=groups, title=title)
                 b.plot(xaxis='np', regions=regions, figname='PoissonStrongEfficiency',
                        ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
-                       xlabel=xlabel, xticklabels=xticklabels, kinds='semilogx',
+                       xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
                        groups=groups, title=title, transform=efficiency, ymin=0)
                 if 'DOLFIN' in variants:
                     b.plot(xaxis='np', regions=regions, speedup=(1, 'DOLFIN'),
