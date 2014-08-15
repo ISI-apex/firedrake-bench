@@ -75,10 +75,11 @@ if __name__ == '__main__':
         xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
         xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
         title = 'Explicit wave equation (weak scaling, 2D, mass lumping)'
-        b.plot(xaxis='np', regions=regions,
+        b.plot(xaxis='np', regions=regions, hidexticks=range(5),
                xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
                groups=groups, title=title)
-        b.plot(xaxis='np', regions=regions, figname='WaveWeakEfficiency',
+        b.plot(xaxis='np', regions=regions, hidexticks=range(5),
+               figname='WaveWeakEfficiency',
                ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
                xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
                groups=groups, title=title, transform=efficiency, ymin=0)
