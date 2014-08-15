@@ -62,10 +62,11 @@ if __name__ == '__main__':
             xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
             xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
             title = 'Poisson (weak scaling, polynomial degree %d, 3D)' % degree
-            b.plot(xaxis='np', regions=regions,
+            b.plot(xaxis='np', regions=regions, hidexticks=range(6),
                    xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
                    groups=groups, title=title)
-            b.plot(xaxis='np', regions=regions, figname='PoissonWeakEfficiency',
+            b.plot(xaxis='np', regions=regions, hidexticks=range(6),
+                   figname='PoissonWeakEfficiency',
                    ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
                    xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
                    groups=groups, title=title, transform=efficiency, ymin=0)
