@@ -102,8 +102,8 @@ if __name__ == '__main__':
             b.combine_series([('np', args.parallel), ('scale', [sc]),
                               ('variant', variants)], filename='Wave')
             b.plot(xaxis='np', regions=regions, xlabel=xlabel,
-                   xticklabels=xticklabels, kinds='plot,loglog',
-                   groups=groups, title=title)
+                   xticklabels=xticklabels, kinds='loglog',
+                   groups=groups, title=title, trendline='perfect speedup')
             b.plot(xaxis='np', regions=regions, figname='WaveStrongEfficiency',
                    ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
                    xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
