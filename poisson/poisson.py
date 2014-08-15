@@ -91,8 +91,8 @@ if __name__ == '__main__':
                                   ('degree', [degree]), ('size', [size])],
                                  filename='Poisson')
                 b.plot(xaxis='np', regions=regions, xlabel=xlabel,
-                       xticklabels=xticklabels, kinds='plot,loglog',
-                       groups=groups, title=title)
+                       xticklabels=xticklabels, kinds='loglog',
+                       groups=groups, title=title, trendline='perfect speedup')
                 b.plot(xaxis='np', regions=regions, figname='PoissonStrongEfficiency',
                        ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
                        xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
