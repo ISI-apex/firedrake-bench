@@ -125,7 +125,7 @@ if __name__ == '__main__':
                        groups=groups, title=title, trendline='perfect speedup')
                 b.plot(xaxis='np', regions=regions, figname='PoissonStrongEfficiency',
                        ylabel='Parallel efficiency w.r.t. %d cores' % args.parallel[base],
-                       xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
+                       xlabel=xlabel, xticklabels=xticklabels, kinds='plot', hidexticks=range(2),
                        groups=groups, title=title, transform=efficiency, ymin=0)
                 if 'DOLFIN' in variants:
                     b.plot(xaxis='np', regions=regions, speedup=(1, 'DOLFIN'),
