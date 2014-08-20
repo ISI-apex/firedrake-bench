@@ -51,7 +51,6 @@ if __name__ == '__main__':
     if args.weak:
         base = args.weak.index(args.base or 1)
         size = args.size[0] if args.size else 1e4
-        efficiency = lambda xvals, yvals: [yvals[base]/y for x, y in zip(xvals, yvals)]
         for degree in degrees:
             dofs = lambda n: (int((size*n)**(1./dim))*degree+1)**dim
             doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
@@ -62,14 +61,44 @@ if __name__ == '__main__':
             xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
             xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
             title = 'Poisson (weak scaling, polynomial degree %d, 3D)' % degree
-            b.plot(xaxis='np', regions=regions, hidexticks=range(6),
-                   xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
-                   groups=groups, title=title)
-            b.plot(xaxis='np', regions=regions, hidexticks=range(6),
-                   figname='PoissonWeakEfficiency',
-                   ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
-                   xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
-                   groups=groups, title=title, transform=efficiency, ymin=0)
+            if args.base:
+                efficiency = lambda xvals, yvals: [yvals[0]/y for x, y in zip(xvals, yvals)]
+                subplotargs = {(0, 0): {'xvals': args.weak[:base+1],
+                                        'hideyticks': range(2),
+                                        'title': 'intra node: 1-%d processors' % args.base,
+                                        'xticklabels': xticklabels[:base+1],
+                                        'xlabel': None},
+                               (0, 1): {'xvals': args.weak[base:],
+                                        'title': 'inter node: %d-%d processors' % (args.base, args.weak[-1]),
+                                        'xticklabels': xticklabels[base:],
+                                        'xlabel': None,
+                                        'ylabel': None},
+                               (1, 0): {'xvals': args.weak[:base+1],
+                                        'xticklabels': xticklabels[:base+1],
+                                        'transform': efficiency,
+                                        'ymin': 0,
+                                        'xlabel': 'Number of processors / DOFs',
+                                        'ylabel': 'Parallel efficiency w.r.t. 1/%d cores' % args.weak[base]},
+                               (1, 1): {'xvals': args.weak[base:],
+                                        'xticklabels': xticklabels[base:],
+                                        'transform': efficiency,
+                                        'hidexticks': range(3),
+                                        'ymin': 0,
+                                        'xlabel': 'DOFs per processor: %dk' % dpp,
+                                        'ylabel': None}}
+                b.plot(xaxis='np', regions=regions, kinds='plot', groups=groups,
+                       title=title, subplots=(2, 2), sharex='col', sharey='row',
+                       hspace=0.02, wspace=0.02, subplotargs=subplotargs)
+            else:
+                efficiency = lambda xvals, yvals: [yvals[base]/y for x, y in zip(xvals, yvals)]
+                b.plot(xaxis='np', regions=regions, hidexticks=range(6),
+                       xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
+                       groups=groups, title=title)
+                b.plot(xaxis='np', regions=regions, hidexticks=range(6),
+                       figname='PoissonWeakEfficiency',
+                       ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
+                       xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
+                       groups=groups, title=title, transform=efficiency, ymin=0)
     if args.parallel:
         base = args.parallel.index(args.base or 1)
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
