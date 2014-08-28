@@ -41,6 +41,57 @@ if __name__ == '__main__':
         b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
                xvalues=cells, kinds='plot,loglog', groups=groups,
                title='Cahn-Hilliard (single core, 2D)')
+    if args.weak:
+        base = args.weak.index(args.base or 1)
+        size = args.size[0] if args.size else 1000
+        dofs = lambda n: (int((size*n)**0.5)+1)**2
+        doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
+        b = CahnHilliard(resultsdir=args.resultsdir, plotdir=args.plotdir)
+        b.combine_series([('np', args.weak), ('variant', variants)])
+        dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
+        xlabel = 'Number of cores / DOFs (DOFs per core: %dk)' % dpp
+        xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
+        title = 'CahnHilliard (weak scaling, 2D)'
+        if args.base:
+            efficiency = lambda xvals, yvals: [yvals[0]/y for x, y in zip(xvals, yvals)]
+            subplotargs = {(0, 0): {'xvals': args.weak[:base+1],
+                                    'hideyticks': range(2),
+                                    'title': 'intra node: 1-%d cores' % args.base,
+                                    'xticklabels': xticklabels[:base+1],
+                                    'xlabel': None},
+                           (0, 1): {'xvals': args.weak[base:],
+                                    'title': 'inter node: %d-%d cores' % (args.base, args.weak[-1]),
+                                    'xticklabels': xticklabels[base:],
+                                    'xlabel': None,
+                                    'ylabel': None},
+                           (1, 0): {'xvals': args.weak[:base+1],
+                                    'xticklabels': xticklabels[:base+1],
+                                    'transform': efficiency,
+                                    'ymin': 0,
+                                    'xlabel': 'Number of cores / DOFs',
+                                    'ylabel': 'Parallel efficiency w.r.t. 1/%d cores' % args.weak[base]},
+                           (1, 1): {'xvals': args.weak[base:],
+                                    'xticklabels': xticklabels[base:],
+                                    'transform': efficiency,
+                                    'hidexticks': range(3),
+                                    'ymin': 0,
+                                    'xlabel': 'DOFs per core: %dk' % dpp,
+                                    'ylabel': None}}
+            b.plot(xaxis='np', regions=regions, kinds='plot', groups=groups,
+                   figname='CahnHilliardWeak',
+                   title=title, subplots=(2, 2), sharex='col', sharey='row',
+                   hspace=0.02, wspace=0.02, subplotargs=subplotargs)
+        else:
+            efficiency = lambda xvals, yvals: [yvals[base]/y for x, y in zip(xvals, yvals)]
+            b.plot(xaxis='np', regions=regions, hidexticks=range(6),
+                   figname='CahnHilliardWeak',
+                   xlabel=xlabel, xticklabels=xticklabels, kinds='plot,loglog',
+                   groups=groups, title=title)
+            b.plot(xaxis='np', regions=regions, hidexticks=range(6),
+                   figname='CahnHilliardWeakEfficiency',
+                   ylabel='Parallel efficiency w.r.t. %d cores' % args.weak[base],
+                   xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
+                   groups=groups, title=title, transform=efficiency, ymin=0)
     if args.parallel:
         base = args.parallel.index(args.base or 1)
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
