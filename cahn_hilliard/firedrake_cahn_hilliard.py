@@ -11,7 +11,7 @@ class FiredrakeCahnHilliard(CahnHilliard):
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
-                      save=False, compute_norms=True):
+                      save=False, compute_norms=True, verbose=False):
         if weak:
             size = int((size*op2.MPI.comm.size)**0.5)
             self.meta['size'] = size
@@ -37,6 +37,10 @@ class FiredrakeCahnHilliard(CahnHilliard):
                   'fieldsplit_1_ksp_type': inner_ksp,
                   'fieldsplit_1_ksp_max_it': maxit,
                   'fieldsplit_1_pc_type': 'mat'}
+        if verbose:
+            params['ksp_monitor'] = True
+            params['snes_view'] = True
+            params['snes_monitor'] = True
 
         with self.timed_region('mesh'):
             # Create mesh and define function spaces

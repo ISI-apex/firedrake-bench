@@ -52,7 +52,7 @@ class DolfinCahnHilliard(CahnHilliard):
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
-                      save=False, compute_norms=True):
+                      save=False, compute_norms=True, verbose=False):
         if weak:
             size = int((size*MPI.size(mpi_comm_world()))**0.5)
             self.meta['size'] = size
@@ -87,6 +87,10 @@ class DolfinCahnHilliard(CahnHilliard):
              """ % {'ksp': ksp, 'inner_ksp': inner_ksp, 'maxit': maxit}).split()
 
             parameters.parse(fs_petsc_args)
+        if verbose:
+            PETScOptions.set('ok_ksp_monitor')
+            PETScOptions.set('ok_snes_view')
+            PETScOptions.set('ok_snes_monitor')
         PETScOptions.set("sub_pc_type", pc)
         with self.timed_region('mesh'):
             # Create mesh and define function spaces
