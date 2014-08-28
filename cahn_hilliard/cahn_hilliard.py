@@ -13,8 +13,6 @@ regions = ['mesh', 'initial condition', 'Assemble cells', 'SNES solver execution
 
 class CahnHilliard(Benchmark):
 
-    params = [('degree', [1]),
-              ('steps', [10])]
     meta = {'cells': [2*x**dim for x in sizes],
             'dofs': [(x+1)**dim for x in sizes]}
     method = 'cahn_hilliard'
