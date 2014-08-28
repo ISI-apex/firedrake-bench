@@ -1,8 +1,10 @@
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 from pybench import timed
 from firedrake import *
+from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
 from pyop2.profiling import get_timers
+from pyop2 import __version__ as pyop2_version
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
@@ -10,6 +12,9 @@ parameters["coffee"]["ap"] = True
 
 class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
+    meta = {'coffee': parameters["coffee"],
+            'firedrake': firedrake_version,
+            'pyop2': pyop2_version}
 
     @memoize
     @timed

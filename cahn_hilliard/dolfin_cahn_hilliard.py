@@ -57,6 +57,8 @@ def make_mesh(x):
 
 class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
+    meta = {'dolfin_version': dolfin_version(),
+            'dolfin_commit': git_commit_hash()}
     meshes = {}
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
