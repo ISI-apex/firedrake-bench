@@ -5,16 +5,14 @@ lmbda = 1.0e-02  # surface parameter
 dt = 5.0e-06     # time step
 theta = 0.5      # time stepping family, e.g. theta=1 -> backward Euler, theta=0.5 -> Crank-Nicolson
 
-dim = 2
 # Create a series of meshes that roughly double in number of DOFs
 sizes = [125, 176, 250, 354, 500, 707, 1000]
+cells = [2*x**2 for x in sizes]
 regions = ['mesh', 'initial condition', 'Assemble cells', 'SNES solver execution']
 
 
 class CahnHilliard(Benchmark):
 
-    meta = {'cells': [2*x**dim for x in sizes],
-            'dofs': [(x+1)**dim for x in sizes]}
     method = 'cahn_hilliard'
     benchmark = 'CahnHilliard'
     plotstyle = {'total': {'marker': '*'},
@@ -31,7 +29,7 @@ if __name__ == '__main__':
     b = CahnHilliard()
     b.combine_series([('np', [1]), ('variant', ['Firedrake', 'DOLFIN']), ('size', sizes)])
     b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
-           xvalues=b.meta['cells'], kinds='plot,loglog', groups=['variant'],
+           xvalues=cells, kinds='plot,loglog', groups=['variant'],
            title='Cahn-Hilliard (single core, 2D, polynomial degree %(degree)d)')
     if len(sys.argv) > 1:
         np = map(int, sys.argv[1:])

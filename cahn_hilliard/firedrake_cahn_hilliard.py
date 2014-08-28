@@ -17,6 +17,8 @@ class FiredrakeCahnHilliard(CahnHilliard):
             self.meta['size'] = size
         else:
             self.series['size'] = size
+        self.meta['cells'] = 2*size**2
+        self.meta['vertices'] = (size+1)**2
         params = {'pc_type': pc,
                   'ksp_type': ksp,
                   'snes_rtol': 1e-9,

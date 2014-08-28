@@ -58,6 +58,8 @@ class DolfinCahnHilliard(CahnHilliard):
             self.meta['size'] = size
         else:
             self.series['size'] = size
+        self.meta['cells'] = 2*size**2
+        self.meta['vertices'] = (size+1)**2
         if pc == 'fieldsplit':
             fs_petsc_args = [sys.argv[0]] + ("""
              --petsc.ok_ksp_type %(ksp)s
