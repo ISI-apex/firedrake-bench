@@ -51,9 +51,13 @@ class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
-                      inner_ksp='preonly', ksp='gmres', maxit=1,
+                      inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
                       save=False, compute_norms=True):
-        self.series['size'] = size
+        if weak:
+            size = int((size*MPI.size(mpi_comm_world()))**0.5)
+            self.meta['size'] = size
+        else:
+            self.series['size'] = size
         if pc == 'fieldsplit':
             fs_petsc_args = [sys.argv[0]] + ("""
              --petsc.ok_ksp_type %(ksp)s

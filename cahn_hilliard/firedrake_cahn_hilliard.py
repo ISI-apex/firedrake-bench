@@ -10,9 +10,13 @@ class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
-                      inner_ksp='preonly', ksp='gmres', maxit=1,
+                      inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
                       save=False, compute_norms=True):
-        self.series['size'] = size
+        if weak:
+            size = int((size*op2.MPI.comm.size)**0.5)
+            self.meta['size'] = size
+        else:
+            self.series['size'] = size
         params = {'pc_type': pc,
                   'ksp_type': ksp,
                   'snes_rtol': 1e-9,
