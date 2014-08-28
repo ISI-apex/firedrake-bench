@@ -125,7 +125,7 @@ class FiredrakeCahnHilliard(CahnHilliard):
                 pc_schur.createPython(mass.getSizes(), SchurInv())
                 pc_schur.setUp()
                 pc = solver.snes.ksp.pc
-                pc.setFieldSplitSchurPrecondition(PETSc.PC.SchurPreType.USER, pc_schur)
+                pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
 
             # Output file
             if save:

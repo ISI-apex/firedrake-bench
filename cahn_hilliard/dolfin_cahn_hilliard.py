@@ -190,7 +190,7 @@ class DolfinCahnHilliard(CahnHilliard):
 
                 def monitor(snes, its, norm):
                     pc = snes.ksp.pc
-                    pc.setFieldSplitSchurPrecondition(PETSc.PC.SchurPreType.USER, pc_schur)
+                    pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
 
                 snes.setMonitor(monitor)
 
