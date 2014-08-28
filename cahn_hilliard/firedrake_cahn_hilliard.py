@@ -1,5 +1,7 @@
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
+from pybench import timed
 from firedrake import *
+from firedrake.utils import memoize
 from pyop2.profiling import get_timers
 
 parameters["coffee"]["licm"] = True
@@ -8,6 +10,11 @@ parameters["coffee"]["ap"] = True
 
 class FiredrakeCahnHilliard(CahnHilliard):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
+
+    @memoize
+    @timed
+    def make_mesh(self, x):
+        return UnitSquareMesh(x, x)
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
@@ -42,9 +49,8 @@ class FiredrakeCahnHilliard(CahnHilliard):
             params['snes_view'] = True
             params['snes_monitor'] = True
 
-        with self.timed_region('mesh'):
-            # Create mesh and define function spaces
-            mesh = UnitSquareMesh(size, size)
+        t_, mesh = self.make_mesh(size)
+        self.register_timing('mesh', t_)
 
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
@@ -149,10 +155,8 @@ class FiredrakeCahnHilliard(CahnHilliard):
                     nu = norm(u)
                     if op2.MPI.comm.rank == 0:
                         print t, 'L2(u):', nu
-        t = get_timers(reset=True)
-        task = 'Assemble cells'
-        for task in ['Assemble cells', 'Build mesh', 'Build sparsity', 'SNES solver execution']:
-            self.register_timing(task, t[task].total)
+        for task, timer in get_timers(reset=True).items():
+            self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')

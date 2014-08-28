@@ -2,6 +2,7 @@ from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 import sys
 import numpy as np
 from petsc4py import PETSc
+from pybench import timed
 from dolfin import *
 
 
@@ -47,8 +48,16 @@ parameters["form_compiler"]["representation"] = "quadrature"
 parameters["form_compiler"]["cpp_optimize_flags"] = "-O3 -ffast-math -march=native"
 
 
+@timed
+def make_mesh(x):
+    mesh = UnitSquareMesh(x, x)
+    mesh.init()
+    return mesh
+
+
 class DolfinCahnHilliard(CahnHilliard):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
+    meshes = {}
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
@@ -92,10 +101,12 @@ class DolfinCahnHilliard(CahnHilliard):
             PETScOptions.set('ok_snes_view')
             PETScOptions.set('ok_snes_monitor')
         PETScOptions.set("sub_pc_type", pc)
-        with self.timed_region('mesh'):
-            # Create mesh and define function spaces
-            mesh = UnitSquareMesh(size, size)
-            mesh.init()
+        if size in self.meshes:
+            t_, mesh = self.meshes[size]
+        else:
+            t_, mesh = make_mesh(size)
+            self.meshes[size] = t_, mesh
+        self.register_timing('mesh', t_)
 
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
