@@ -45,8 +45,8 @@ class DolfinPoisson(Poisson):
         PETScOptions.set('pc_hypre_boomeramg_max_levels', max_levels)
         if verbose:
             PETScOptions.set('pc_hypre_boomeramg_print_statistics', True)
-            PETScOptions.set('ksp_view', True)
-            PETScOptions.set('ksp_monitor', True)
+            PETScOptions.set('ksp_view')
+            PETScOptions.set('ksp_monitor')
 
         if (dim, size) in self.meshes:
             t_, mesh = self.meshes[dim, size]
