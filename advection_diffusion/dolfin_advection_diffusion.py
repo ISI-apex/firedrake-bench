@@ -43,9 +43,9 @@ class DolfinAdvectionDiffusion(AdvectionDiffusion):
         PETScOptions.set('pc_hypre_boomeramg_agg_nl', agg_nl)
         PETScOptions.set('pc_hypre_boomeramg_max_levels', max_levels)
         if verbose:
-            PETScOptions.set('pc_hypre_boomeramg_print_statistics', True)
-            PETScOptions.set('ksp_monitor', True)
-            parameters["krylov_solver"]["monitor_convergence"] = True
+            PETScOptions.set('pc_hypre_boomeramg_print_statistics')
+            PETScOptions.set('ksp_view')
+            PETScOptions.set('ksp_monitor')
 
         if (dim, size) in self.meshes:
             t_, mesh = self.meshes[dim, size]
