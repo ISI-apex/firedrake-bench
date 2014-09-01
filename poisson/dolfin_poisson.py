@@ -27,7 +27,7 @@ class DolfinPoisson(Poisson):
     meshes = {}
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,
-                print_norm=True, verbose=False, pc='amg',
+                print_norm=True, verbose=False, pc='hypre_amg',
                 strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
             size = int((size*MPI.size(mpi_comm_world()))**(1./dim))
