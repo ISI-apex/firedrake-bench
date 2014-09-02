@@ -1,5 +1,6 @@
 from poisson import Poisson
 from pybench import timed
+from common import get_petsc_version
 from dolfin import *
 
 initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
@@ -23,7 +24,8 @@ def make_mesh(dim, x):
 class DolfinPoisson(Poisson):
     series = {'np': MPI.size(mpi_comm_world()), 'variant': 'DOLFIN'}
     meta = {'dolfin_version': dolfin_version(),
-            'dolfin_commit': git_commit_hash()}
+            'dolfin_commit': git_commit_hash(),
+            'petsc_version': get_petsc_version()}
     meshes = {}
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,

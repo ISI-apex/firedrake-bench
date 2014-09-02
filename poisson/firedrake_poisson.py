@@ -1,5 +1,6 @@
 from poisson import Poisson
 from pybench import timed
+from common import get_petsc_version
 from firedrake import *
 from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
@@ -22,7 +23,8 @@ class FiredrakePoisson(Poisson):
     series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
     meta = {'coffee': parameters["coffee"],
             'firedrake': firedrake_version,
-            'pyop2': pyop2_version}
+            'pyop2': pyop2_version,
+            'petsc_version': get_petsc_version()}
 
     @memoize
     @timed
