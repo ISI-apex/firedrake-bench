@@ -14,7 +14,7 @@ namespace dolfin {
 class InitialConditions : public Expression {
 public:
   InitialConditions() : Expression(2) {
-    srandom(2 + MPI::process_number());
+    srandom(2 + MPI::rank(MPI_COMM_WORLD));
   }
 
   void eval(Array<double>& values, const Array<double>& x,
