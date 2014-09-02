@@ -148,8 +148,9 @@ class FiredrakeCahnHilliard(CahnHilliard):
 
         with self.timed_region('timestepping'):
             for step in range(steps):
-                u0.assign(u)
-                solver.solve()
+                with self.timed_region('timestep_%s' % step):
+                    u0.assign(u)
+                    solver.solve()
                 if save:
                     file << (u.split()[0], step)
                 if compute_norms:

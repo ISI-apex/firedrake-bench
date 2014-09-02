@@ -217,8 +217,9 @@ class DolfinCahnHilliard(CahnHilliard):
 
         with self.timed_region('timestepping'):
             for step in range(steps):
-                u0.vector()[:] = u.vector()
-                solver.solve(problem, u.vector())
+                with self.timed_region('timestep_%s' % step):
+                    u0.vector()[:] = u.vector()
+                    solver.solve(problem, u.vector())
                 if save:
                     file << (u.split()[0], step)
                 if compute_norms:
