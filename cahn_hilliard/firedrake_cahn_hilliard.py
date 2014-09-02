@@ -147,19 +147,15 @@ class FiredrakeCahnHilliard(CahnHilliard):
                 file = File("vtk/firedrake_cahn_hilliard_%d.pvd" % size)
 
         with self.timed_region('timestepping'):
-            # Step in time
-            t = 0.0
-            T = steps*dt
-            while (t < T):
-                t += dt
+            for step in range(steps):
                 u0.assign(u)
                 solver.solve()
                 if save:
-                    file << (u.split()[0], t)
+                    file << (u.split()[0], step)
                 if compute_norms:
                     nu = norm(u)
                     if op2.MPI.comm.rank == 0:
-                        print t, 'L2(u):', nu
+                        print step, 'L2(u):', nu
         for task, timer in get_timers(reset=True).items():
             self.register_timing(task, timer.total)
 

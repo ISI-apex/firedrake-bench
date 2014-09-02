@@ -216,19 +216,15 @@ class DolfinCahnHilliard(CahnHilliard):
                 file = File("vtk/dolfin_cahn_hilliard_%d.pvd" % size)
 
         with self.timed_region('timestepping'):
-            # Step in time
-            t = 0.0
-            T = steps*dt
-            while (t < T):
-                t += dt
+            for step in range(steps):
                 u0.vector()[:] = u.vector()
                 solver.solve(problem, u.vector())
                 if save:
-                    file << (u.split()[0], t)
+                    file << (u.split()[0], step)
                 if compute_norms:
                     nu = norm(u)
                     if MPI.rank(mpi_comm_world()) == 0:
-                        print t, 'L2(u):', nu
+                        print step, 'L2(u):', nu
         t = timings(True)
         for task in ['Assemble cells', 'Build sparsity', 'SNES solver execution']:
             self.register_timing(task, float(t.get(task, 'Total time')))
