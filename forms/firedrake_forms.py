@@ -63,7 +63,7 @@ class FiredrakeForms(Forms):
             'firedrake': firedrake_version,
             'pyop2': pyop2_version}
 
-    def forms(self, q=1, p=1, dim=3, max_nf=3, form='mass'):
+    def forms(self, q=1, p=1, dim=3, max_nf=3, form='mass', dump_kernel=False):
         mesh = meshes[dim]
         A = assemble(eval(form)(q, p, dim, mesh))
 
@@ -72,6 +72,10 @@ class FiredrakeForms(Forms):
             with self.timed_region('nf %d' % nf):
                 assemble(f, tensor=A)
                 A.M
+            if dump_kernel:
+                for i, k in enumerate(f._kernels):
+                    with open('kernels/f_%s%d_q%d_p%d_dim%d_nf%d.c' % (form, i, q, p, dim, nf), 'w') as fil:
+                        fil.write(k[-1].code)
         t = get_timers(reset=True)
         task = 'Assemble cells'
         self.register_timing(task, t[task].total)
