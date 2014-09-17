@@ -13,6 +13,7 @@ initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
 analytical = {2: "cos(4*pi*x[0])*sin(4*pi*x[1])",
               3: "cos(4*pi*x[0])*sin(4*pi*x[1])*cos(4*pi*x[2])"}
 
+parameters["assembly_cache"]["enabled"] = False
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
 # Vectorization appears to degrade performance for p2
