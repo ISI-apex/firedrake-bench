@@ -1,14 +1,11 @@
 from copy import copy
 
 from poisson import Poisson
-from pybench import timed
-from common import get_petsc_version
 from firedrake import *
-from firedrake import __version__ as firedrake_version
-from firedrake.utils import memoize
 # from pyop2.coffee.ast_plan import V_OP_UAJ
 from pyop2.profiling import get_timers, tic, toc
-from pyop2 import __version__ as pyop2_version
+
+from firedrake_common import FiredrakeBenchmark
 
 initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
            3: "48*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])*cos(4*pi*x[2])"}
@@ -22,18 +19,7 @@ parameters["coffee"]["ap"] = True
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 
-class FiredrakePoisson(Poisson):
-    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
-    meta = {'coffee': parameters["coffee"],
-            'firedrake': firedrake_version,
-            'pyop2': pyop2_version,
-            'petsc_version': get_petsc_version()}
-    profileregions = ['rhs assembly']
-
-    @memoize
-    @timed
-    def make_mesh(self, dim, x):
-        return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
+class FiredrakePoisson(Poisson, FiredrakeBenchmark):
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,
                 print_norm=True, verbose=False, measure_overhead=False,
