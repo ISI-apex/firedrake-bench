@@ -28,11 +28,12 @@ if __name__ == '__main__':
     p = parser(description="Plot results for CahnHilliard benchmark")
     p.add_argument('-m', '--size', type=int, nargs='+',
                    help='mesh sizes to plot')
-    p.add_argument('-v', '--variant', nargs='+',
-                   help='variants to plot')
+    p.add_argument('-r', '--region', nargs='+', help='regions to plot')
+    p.add_argument('-v', '--variant', nargs='+', help='variants to plot')
     p.add_argument('-b', '--base', type=int,
                    help='index of size to use as base for parallel efficiency')
     args = p.parse_args()
+    regions = args.region or regions
     variants = args.variant or ['Firedrake', 'DOLFIN']
     groups = ['variant'] if len(variants) > 1 else []
     if args.sequential:
