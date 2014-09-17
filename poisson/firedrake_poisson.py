@@ -1,3 +1,5 @@
+from copy import copy
+
 from poisson import Poisson
 from pybench import timed
 from common import get_petsc_version
@@ -77,16 +79,18 @@ class FiredrakePoisson(Poisson):
             # Compute solution
             u = Function(V)
         if measure_overhead:
+            # Need to create new copies of the forms, since kernels are cached
             tic('matrix assembly')
             for _ in range(1000):
-                assemble(a, bcs=bc).M
+                assemble(copy(a), bcs=bc).M
             print "Matrix assembly:", toc('matrix assembly')/1000
             tic('rhs assembly')
             for _ in range(1000):
-                b = assemble(L)
+                b = assemble(copy(L))
                 bc.apply(b)
                 b.dat._force_evaluation()
             print "RHS assembly:", toc('rhs assembly')/1000
+            return
         if preassemble:
             with self.timed_region('matrix assembly'):
                 A = assemble(a, bcs=bc)
