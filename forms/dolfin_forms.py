@@ -1,5 +1,12 @@
 from forms import Forms
 from dolfin import *
+from ffc import compile_form, default_parameters
+
+params = default_parameters()
+params["optimize"] = True
+params["cpp_optimize"] = True
+params["representation"] = "quadrature"
+params["output_dir"] = "kernels"
 
 # Form compiler options
 parameters["form_compiler"]["optimize"] = True
@@ -63,7 +70,7 @@ def mixed_poisson(q, p, dim, mesh, nf=0):
 class DolfinForms(Forms):
     series = {'variant': 'DOLFIN'}
 
-    def forms(self, q=1, p=1, dim=3, max_nf=3, form='mass'):
+    def forms(self, q=1, p=1, dim=3, max_nf=3, form='mass', dump_kernel=False):
         mesh = meshes[dim]
         A = assemble(eval(form)(q, p, dim, mesh))
 
@@ -71,6 +78,9 @@ class DolfinForms(Forms):
             f = eval(form)(q, p, dim, mesh, nf)
             with self.timed_region('nf %d' % nf):
                 assemble(f, tensor=A)
+            if dump_kernel:
+                prefix = 'd_%s_q%d_p%d_dim%d_nf%d' % (form, q, p, dim, nf)
+                compile_form(f, prefix=prefix, parameters=params)
         t = timings(True)
         task = 'Assemble cells'
         self.register_timing(task, float(t.get(task, 'Total time')))
