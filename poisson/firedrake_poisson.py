@@ -1,9 +1,7 @@
-from copy import copy
-
 from poisson import Poisson
 from firedrake import *
 # from pyop2.coffee.ast_plan import V_OP_UAJ
-from pyop2.profiling import get_timers, tic, toc
+from pyop2.profiling import get_timers
 
 from firedrake_common import FiredrakeBenchmark
 
@@ -65,17 +63,8 @@ class FiredrakePoisson(Poisson, FiredrakeBenchmark):
             # Compute solution
             u = Function(V)
         if measure_overhead:
-            # Need to create new copies of the forms, since kernels are cached
-            tic('matrix assembly')
-            for _ in range(1000):
-                assemble(copy(a), bcs=bc).M
-            print "Matrix assembly:", toc('matrix assembly')/1000
-            tic('rhs assembly')
-            for _ in range(1000):
-                b = assemble(copy(L))
-                bc.apply(b)
-                b.dat._force_evaluation()
-            print "RHS assembly:", toc('rhs assembly')/1000
+            print "Matrix assembly overhead:", self.lhs_overhead(a, bc)
+            print "RHS assembly overhead:", self.rhs_overhead(L, bc)
             return
         if preassemble:
             with self.timed_region('matrix assembly'):
