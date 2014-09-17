@@ -5,7 +5,7 @@ from firedrake import *
 from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
 # from pyop2.coffee.ast_plan import V_OP_UAJ
-from pyop2.profiling import get_timers
+from pyop2.profiling import get_timers, tic, toc
 from pyop2 import __version__ as pyop2_version
 
 initial = {2: "32*pi*pi*cos(4*pi*x[0])*sin(4*pi*x[1])",
@@ -26,6 +26,7 @@ class FiredrakePoisson(Poisson):
             'firedrake': firedrake_version,
             'pyop2': pyop2_version,
             'petsc_version': get_petsc_version()}
+    profileregions = ['rhs assembly']
 
     @memoize
     @timed
@@ -33,8 +34,8 @@ class FiredrakePoisson(Poisson):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,
-                print_norm=True, verbose=False, pc='hypre',
-                strong_threshold=0.75, agg_nl=2, max_levels=25):
+                print_norm=True, verbose=False, measure_overhead=False,
+                pc='hypre', strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
             size = int((size*op2.MPI.comm.size)**(1./dim))
             self.meta['size'] = size
@@ -75,11 +76,22 @@ class FiredrakePoisson(Poisson):
 
             # Compute solution
             u = Function(V)
+        if measure_overhead:
+            tic('matrix assembly')
+            for _ in range(1000):
+                assemble(a, bcs=bc).M
+            print "Matrix assembly:", toc('matrix assembly')/1000
+            tic('rhs assembly')
+            for _ in range(1000):
+                b = assemble(L)
+                bc.apply(b)
+                b.dat._force_evaluation()
+            print "RHS assembly:", toc('rhs assembly')/1000
         if preassemble:
             with self.timed_region('matrix assembly'):
                 A = assemble(a, bcs=bc)
                 A.M
-                self.meta['dofs'] = A.M.handle.sizes[0][1]
+            self.meta['dofs'] = A.M.handle.sizes[0][1]
             with self.timed_region('rhs assembly'):
                 b = assemble(L)
                 bc.apply(b)
