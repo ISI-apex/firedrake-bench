@@ -17,7 +17,7 @@ parameters["coffee"]["ap"] = True
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 
-class FiredrakePoisson(Poisson, FiredrakeBenchmark):
+class FiredrakePoisson(FiredrakeBenchmark, Poisson):
 
     def poisson(self, size=32, degree=1, dim=3, preassemble=True, weak=False,
                 print_norm=True, verbose=False, measure_overhead=False,
