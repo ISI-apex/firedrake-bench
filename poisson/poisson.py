@@ -50,13 +50,14 @@ if __name__ == '__main__':
                    title='Poisson (sequential, 3D)')
     if args.weak:
         base = args.weak.index(args.base or 1)
-        size = args.size[0] if args.size else 1e4
+        size = args.size[0] if args.size else 10000
         for degree in degrees:
             dofs = lambda n: (int((size*n)**(1./dim))*degree+1)**dim
             doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
             b = Poisson(benchmark='PoissonWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
-            b.combine_series([('np', args.weak), ('variant', variants),
-                              ('degree', [degree])], filename='Poisson')
+            b.combine_series([('np', args.weak), ('weak', [size]),
+                              ('variant', variants), ('degree', [degree])],
+                             filename='Poisson')
             dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
             xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
             xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]

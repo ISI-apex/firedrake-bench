@@ -23,6 +23,7 @@ class FiredrakePoisson(FiredrakeBenchmark, Poisson):
                 print_norm=True, verbose=False, measure_overhead=False,
                 pc='hypre', strong_threshold=0.75, agg_nl=2, max_levels=25):
         if weak:
+            self.series['weak'] = size
             size = int((size*op2.MPI.comm.size)**(1./dim))
             self.meta['size'] = size
         else:
