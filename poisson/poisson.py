@@ -59,18 +59,18 @@ if __name__ == '__main__':
                               ('variant', variants), ('degree', [degree])],
                              filename='Poisson')
             dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
-            xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
+            xlabel = 'Number of cores / DOFs (DOFs per core: %dk)' % dpp
             xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
             title = 'Poisson (weak scaling, polynomial degree %d, 3D)' % degree
             if args.base:
                 efficiency = lambda xvals, yvals: [yvals[0]/y for x, y in zip(xvals, yvals)]
                 subplotargs = {(0, 0): {'xvals': args.weak[:base+1],
-                                        'title': 'intra node: 1-%d processors' % args.base,
+                                        'title': 'intra node: 1-%d cores' % args.base,
                                         'xticklabels': xticklabels[:base+1],
                                         'xlabel': None,
                                         'legend': False},
                                (0, 1): {'xvals': args.weak[base:],
-                                        'title': 'inter node: %d-%d processors' % (args.base, args.weak[-1]),
+                                        'title': 'inter node: %d-%d cores' % (args.base, args.weak[-1]),
                                         'xticklabels': xticklabels[base:],
                                         'xlabel': None,
                                         'ylabel': None,
@@ -79,7 +79,7 @@ if __name__ == '__main__':
                                         'xticklabels': xticklabels[:base+1],
                                         'transform': efficiency,
                                         'ymin': 0.0,
-                                        'xlabel': 'Number of processors / DOFs',
+                                        'xlabel': 'Number of cores / DOFs',
                                         'ylabel': 'Parallel efficiency w.r.t. 1/%d cores' % args.weak[base],
                                         'legend': False},
                                (1, 1): {'xvals': args.weak[base:],
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                                         'transform': efficiency,
                                         'hidexticks': range(3),
                                         'ymin': 0.0,
-                                        'xlabel': 'DOFs per processor: %dk' % dpp,
+                                        'xlabel': 'DOFs per core: %dk' % dpp,
                                         'ylabel': None,
                                         'legend': False}}
                 b.plot(xaxis='np', regions=regions, kinds='plot', groups=groups,
@@ -120,7 +120,7 @@ if __name__ == '__main__':
                     return str(dofs/n)
                 title = 'Poisson (strong scaling, 3D, polynomial degree %d, %.2fM DOFs)' % (degree, dofs/1e6)
                 xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.parallel]
-                xlabel = 'Number of processors / DOFs per processor'
+                xlabel = 'Number of cores / DOFs per core'
                 b = Poisson(benchmark='PoissonStrong', resultsdir=args.resultsdir, plotdir=args.plotdir)
                 b.combine_series([('np', args.parallel), ('variant', variants),
                                   ('degree', [degree]), ('size', [size])],
