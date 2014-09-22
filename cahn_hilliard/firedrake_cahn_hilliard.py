@@ -25,6 +25,7 @@ class FiredrakeCahnHilliard(CahnHilliard):
                       inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
                       save=False, compute_norms=True, verbose=False):
         if weak:
+            self.series['weak'] = size
             size = int((size*op2.MPI.comm.size)**0.5)
             self.meta['size'] = size
         else:

@@ -48,7 +48,7 @@ if __name__ == '__main__':
         dofs = lambda n: (int((size*n)**0.5)+1)**2
         doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
         b = CahnHilliard(resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', args.weak), ('variant', variants)])
+        b.combine_series([('np', args.weak), ('weak', [size]), ('variant', variants)])
         dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
         xlabel = 'Number of cores / DOFs (DOFs per core: %dk)' % dpp
         xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
