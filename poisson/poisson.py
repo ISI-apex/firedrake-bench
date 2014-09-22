@@ -65,31 +65,35 @@ if __name__ == '__main__':
             if args.base:
                 efficiency = lambda xvals, yvals: [yvals[0]/y for x, y in zip(xvals, yvals)]
                 subplotargs = {(0, 0): {'xvals': args.weak[:base+1],
-                                        'hideyticks': range(2),
                                         'title': 'intra node: 1-%d processors' % args.base,
                                         'xticklabels': xticklabels[:base+1],
-                                        'xlabel': None},
+                                        'xlabel': None,
+                                        'legend': False},
                                (0, 1): {'xvals': args.weak[base:],
                                         'title': 'inter node: %d-%d processors' % (args.base, args.weak[-1]),
                                         'xticklabels': xticklabels[base:],
                                         'xlabel': None,
-                                        'ylabel': None},
+                                        'ylabel': None,
+                                        'legend': False},
                                (1, 0): {'xvals': args.weak[:base+1],
                                         'xticklabels': xticklabels[:base+1],
                                         'transform': efficiency,
-                                        'ymin': 0,
+                                        'ymin': 0.0,
                                         'xlabel': 'Number of processors / DOFs',
-                                        'ylabel': 'Parallel efficiency w.r.t. 1/%d cores' % args.weak[base]},
+                                        'ylabel': 'Parallel efficiency w.r.t. 1/%d cores' % args.weak[base],
+                                        'legend': False},
                                (1, 1): {'xvals': args.weak[base:],
                                         'xticklabels': xticklabels[base:],
                                         'transform': efficiency,
                                         'hidexticks': range(3),
-                                        'ymin': 0,
+                                        'ymin': 0.0,
                                         'xlabel': 'DOFs per processor: %dk' % dpp,
-                                        'ylabel': None}}
+                                        'ylabel': None,
+                                        'legend': False}}
                 b.plot(xaxis='np', regions=regions, kinds='plot', groups=groups,
                        title=title, subplots=(2, 2), sharex='col', sharey='row',
-                       hspace=0.02, wspace=0.02, subplotargs=subplotargs)
+                       hspace=0.02, wspace=0.02, subplotargs=subplotargs,
+                       legend={'loc': 'upper left', 'bbox_to_anchor': (0.1, 0.9)})
             else:
                 efficiency = lambda xvals, yvals: [yvals[base]/y for x, y in zip(xvals, yvals)]
                 b.plot(xaxis='np', regions=regions, hidexticks=range(6),
