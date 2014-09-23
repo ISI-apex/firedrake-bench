@@ -1,29 +1,19 @@
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
-from pybench import timed
 from firedrake import *
-from firedrake import __version__ as firedrake_version
-from firedrake.utils import memoize
-from pyop2.profiling import get_timers
-from pyop2 import __version__ as pyop2_version
+from pyop2.profiling import get_timers, timing
+
+from firedrake_common import FiredrakeBenchmark
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
 
 
-class FiredrakeCahnHilliard(CahnHilliard):
-    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
-    meta = {'coffee': parameters["coffee"],
-            'firedrake': firedrake_version,
-            'pyop2': pyop2_version}
-
-    @memoize
-    @timed
-    def make_mesh(self, x):
-        return UnitSquareMesh(x, x)
+class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
 
     def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
-                      save=False, compute_norms=True, verbose=False):
+                      measure_overhead=False, save=False, compute_norms=True,
+                      verbose=False):
         if weak:
             self.series['weak'] = size
             size = int((size*op2.MPI.comm.size)**0.5)
@@ -147,6 +137,13 @@ class FiredrakeCahnHilliard(CahnHilliard):
             if save:
                 file = File("vtk/firedrake_cahn_hilliard_%d.pvd" % size)
 
+        if measure_overhead:
+            for _ in range(100):
+                u0.assign(u)
+                solver.solve()
+            print "Assembly overhead:", timing("Assemble cells", total=False)
+            print "Solver overhead:", timing("SNES solver execution", total=False)
+            return
         with self.timed_region('timestepping'):
             for step in range(steps):
                 with self.timed_region('timestep_%s' % step):
