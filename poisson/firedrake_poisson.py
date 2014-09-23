@@ -43,7 +43,7 @@ class FiredrakePoisson(FiredrakeBenchmark, Poisson):
             params['pc_hypre_boomeramg_print_statistics'] = True
             params['ksp_view'] = True
             params['ksp_monitor'] = True
-        t_, mesh = self.make_mesh(dim, size)
+        t_, mesh = self.make_mesh(size, dim)
         self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, "Lagrange", degree)
