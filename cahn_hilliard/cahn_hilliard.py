@@ -22,7 +22,7 @@ class CahnHilliard(Benchmark):
                  'SNES solver execution': {'marker': 'o'}}
     profilegraph = {'format': 'svg,pdf',
                     'node_threshold': 2.0}
-    profileregions = regions
+    profileregions = ['setup', 'initial condition', 'timestepping']
 
 if __name__ == '__main__':
     p = parser(description="Plot results for CahnHilliard benchmark")
