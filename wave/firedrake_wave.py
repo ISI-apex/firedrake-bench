@@ -9,6 +9,7 @@ from pyop2.profiling import get_timers
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
+parameters["assembly_cache"]["enabled"] = False
 
 
 class FiredrakeWave(Wave):
