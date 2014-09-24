@@ -63,17 +63,21 @@ class FiredrakeWave(Wave):
                 outfile = File("vtk/firedrake_wave_%s.pvd" % scale)
                 outfile << phi
 
+        b = assemble(rhs)
+        dphi = 0.5 * dtc * p
+        dp = dtc * Ml * b
         with self.timed_region('timestepping'):
             while t < N*dt:
                 bcval.assign(sin(2*pi*5*t))
 
                 with self.timed_region('phi'):
-                    phi -= 0.5 * dtc * p
+                    phi -= dphi
                     phi.dat._force_evaluation()
 
                 with self.timed_region('p'):
                     if lump_mass:
-                        p += dtc * Ml * assemble(rhs)
+                        assemble(rhs, tensor=b)
+                        p += dp
                         bc.apply(p)
                         p.dat._force_evaluation()
                     else:
@@ -83,7 +87,7 @@ class FiredrakeWave(Wave):
                                                             'pc_sor_symmetric': True})
 
                 with self.timed_region('phi'):
-                    phi -= 0.5 * dtc * p
+                    phi -= dphi
                     phi.dat._force_evaluation()
 
                 t += dt
