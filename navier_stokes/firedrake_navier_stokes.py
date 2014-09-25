@@ -2,15 +2,12 @@ from navier_stokes import NavierStokes
 from pybench import timed
 from firedrake import *
 from firedrake.utils import memoize
-# from pyop2.ir.ast_plan import V_OP_UAJ
 from pyop2.profiling import get_timers
 
 from firedrake_common import FiredrakeBenchmark
 
 parameters["coffee"]["licm"] = True
-# Vectorization appears to degrade performance for p2
-# parameters["coffee"]["ap"] = True
-# parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
+parameters["coffee"]["ap"] = True
 
 
 class FiredrakeNavierStokes(FiredrakeBenchmark, NavierStokes):
