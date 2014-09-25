@@ -3,7 +3,7 @@ from wave import Wave, cells, vertices
 from pybench import timed
 from firedrake import *
 from firedrake.utils import memoize
-from pyop2.profiling import get_timers
+from pyop2.profiling import get_timers, tic, toc
 
 from firedrake_common import FiredrakeBenchmark
 
@@ -20,7 +20,7 @@ class FiredrakeWave(FiredrakeBenchmark, Wave):
         return Mesh("meshes/wave_tank_%s.msh" % scale)
 
     def wave(self, scale=1.0, lump_mass=True, N=100, save=False, weak=False,
-             verbose=False):
+             verbose=False, measure_overhead=False):
         if weak:
             self.series['weak'] = scale
             scale = round(scale/sqrt(op2.MPI.comm.size), 3)
@@ -29,8 +29,11 @@ class FiredrakeWave(FiredrakeBenchmark, Wave):
             self.series['scale'] = scale
         self.meta['cells'] = cells[scale]
         self.meta['vertices'] = vertices[scale]
-        t_, mesh = self.make_mesh(scale)
-        self.register_timing('mesh', t_)
+        if measure_overhead:
+            mesh = UnitSquareMesh(1, 1)
+        else:
+            t_, mesh = self.make_mesh(scale)
+            self.register_timing('mesh', t_)
         with self.timed_region('setup'):
             V = FunctionSpace(mesh, 'Lagrange', 1)
             total_dofs = np.zeros(1, dtype=int)
@@ -63,6 +66,23 @@ class FiredrakeWave(FiredrakeBenchmark, Wave):
         b = assemble(rhs)
         dphi = 0.5 * dtc * p
         dp = dtc * Ml * b
+        if measure_overhead:
+            repeats = 1000
+            tic('phi')
+            for _ in range(repeats):
+                phi -= dphi
+                phi.dat.data_ro
+            phi_overhead = N*toc('phi')/repeats
+            print "phi overhead:", phi_overhead
+            tic('p')
+            for _ in range(repeats):
+                assemble(rhs, tensor=b)
+                p += dp
+                bc.apply(p)
+                p.dat.data_ro
+            p_overhead = N*toc('p')/repeats
+            print "p overhead:", p_overhead
+            return phi_overhead, p_overhead
         with self.timed_region('timestepping'):
             while t < N*dt:
                 bcval.assign(sin(2*pi*5*t))
