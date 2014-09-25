@@ -21,8 +21,13 @@ class FiredrakeNavierStokes(FiredrakeBenchmark, NavierStokes):
         return Mesh("meshes/lshape_%s.msh" % scale)
 
     def navier_stokes(self, scale=1.0, T=0.1, preassemble=True, save=False,
-                      compute_norms=False):
-        self.series['scale'] = scale
+                      weak=False, compute_norms=False):
+        if weak:
+            self.series['weak'] = scale
+            scale = round(scale/sqrt(op2.MPI.comm.size), 3)
+            self.meta['scale'] = scale
+        else:
+            self.series['scale'] = scale
         t_, mesh = self.make_mesh(scale)
         self.register_timing('mesh', t_)
 
