@@ -24,6 +24,14 @@ class FiredrakeBenchmark(object):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
     def lhs_overhead(self, a, bcs=None):
+        A = assemble(a, bcs=bcs)
+        A.M
+        tic('matrix assembly')
+        for _ in range(1000):
+            assemble(a, tensor=A, bcs=bcs).M
+        return toc('matrix assembly')/1000
+
+    def lhs_ffc_overhead(self, a, bcs=None):
         tic('matrix assembly')
         for _ in range(1000):
             # Need to create new copies of the forms, since kernels are cached
@@ -31,6 +39,13 @@ class FiredrakeBenchmark(object):
         return toc('matrix assembly')/1000
 
     def rhs_overhead(self, L, bcs=None):
+        b = assemble(L, bcs=bcs)
+        tic('rhs assembly')
+        for _ in range(1000):
+            assemble(L, tensor=b, bcs=bcs).dat.data_ro
+        return toc('rhs assembly')/1000
+
+    def rhs_ffc_overhead(self, L, bcs=None):
         tic('rhs assembly')
         for _ in range(1000):
             # Need to create new copies of the forms, since kernels are cached

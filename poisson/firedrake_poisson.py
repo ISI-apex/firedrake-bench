@@ -64,8 +64,8 @@ class FiredrakePoisson(FiredrakeBenchmark, Poisson):
             # Compute solution
             u = Function(V)
         if measure_overhead:
-            print "Matrix assembly overhead:", self.lhs_overhead(a, bc)
-            print "RHS assembly overhead:", self.rhs_overhead(L, bc)
+            print "Matrix assembly overhead:", self.lhs_ffc_overhead(a, bc)
+            print "RHS assembly overhead:", self.rhs_ffc_overhead(L, bc)
             return
         if preassemble:
             with self.timed_region('matrix assembly'):
