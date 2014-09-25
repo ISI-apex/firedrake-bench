@@ -1,15 +1,41 @@
 from pybench import Benchmark
 from itertools import product
 
-scale = [0.8, 0.56, 0.4, 0.28, 0.2]
+scale = [1.0, 0.707, 0.5, 0.354, 0.25, 0.177, 0.125]
+cells = dict(zip(scale, [19810, 39736, 79034, 158960, 318030, 631774, 1271436]))
+vertices = dict(zip(scale, [9906, 19869, 39518, 79481, 159016, 315888, 635719]))
 r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
 r2 = ['RHS', 'solve']
+
+# Weak scaling sizes
+cells[0.577] = 59614
+cells[0.408] = 119812
+cells[0.316] = 198694
+cells[0.289] = 238048
+cells[0.204] = 478240
+cells[0.158] = 793468
+cells[0.144] = 957686
+cells[0.102] = 1905144
+cells[0.072] = 3828300
+cells[0.051] = 7621454
+cells[0.036] = 15302786
+cells[0.026] = 29377542
+vertices[0.577] = 29805
+vertices[0.408] = 59904
+vertices[0.316] = 99345
+vertices[0.289] = 119022
+vertices[0.204] = 239118
+vertices[0.158] = 396732
+vertices[0.144] = 478841
+vertices[0.102] = 952570
+vertices[0.072] = 1914148
+vertices[0.051] = 3810725
+vertices[0.036] = 7651391
+vertices[0.026] = 14688769
 
 
 class NavierStokes(Benchmark):
 
-    meta = {'cells': [30906, 63432, 124390, 253050, 496156],
-            'dofs': [15451, 31714, 62193, 126523, 248076]}
     method = 'navier_stokes'
     benchmark = 'NavierStokes'
     plotstyle = {'total': {'marker': '*'},
