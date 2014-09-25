@@ -72,18 +72,18 @@ if __name__ == '__main__':
         b.combine_series([('np', args.weak), ('weak', [scale]), ('variant', variants)],
                          filename='Wave')
         dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
-        xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
+        xlabel = 'Number of cores / DOFs (DOFs per core: %dk)' % dpp
         xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
         title = 'Explicit wave equation (weak scaling, 2D, mass lumping)'
         if args.base:
             efficiency = lambda xvals, yvals: [yvals[0]/y for x, y in zip(xvals, yvals)]
             subplotargs = {(0, 0): {'xvals': args.weak[:base+1],
                                     'hideyticks': range(2),
-                                    'title': 'intra node: 1-%d processors' % args.base,
+                                    'title': 'intra node: 1-%d cores' % args.base,
                                     'xticklabels': xticklabels[:base+1],
                                     'xlabel': None},
                            (0, 1): {'xvals': args.weak[base:],
-                                    'title': 'inter node: %d-%d processors' % (args.base, args.weak[-1]),
+                                    'title': 'inter node: %d-%d cores' % (args.base, args.weak[-1]),
                                     'xticklabels': xticklabels[base:],
                                     'xlabel': None,
                                     'ylabel': None},
@@ -91,14 +91,14 @@ if __name__ == '__main__':
                                     'xticklabels': xticklabels[:base+1],
                                     'transform': efficiency,
                                     'ymin': 0,
-                                    'xlabel': 'Number of processors / DOFs',
+                                    'xlabel': 'Number of cores / DOFs',
                                     'ylabel': 'Parallel efficiency w.r.t. 1/%d cores' % args.weak[base]},
                            (1, 1): {'xvals': args.weak[base:],
                                     'xticklabels': xticklabels[base:],
                                     'transform': efficiency,
                                     'hidexticks': range(2),
                                     'ymin': 0,
-                                    'xlabel': 'DOFs per processor: %dk' % dpp,
+                                    'xlabel': 'DOFs per core: %dk' % dpp,
                                     'ylabel': None}}
             b.plot(xaxis='np', regions=regions, kinds='plot', groups=groups,
                    title=title, subplots=(2, 2), sharex='col', sharey='row',
@@ -128,7 +128,7 @@ if __name__ == '__main__':
                 return str(dofs/n)
             title = 'Explicit wave equation (strong scaling, 2D, %.2fM cells, %.2fM DOFs)' % (cells[sc]/1e6, dofs/1e6)
             xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.parallel]
-            xlabel = 'Number of processors / DOFs per processor'
+            xlabel = 'Number of cores / DOFs per core'
             b = Wave(benchmark='WaveStrong', resultsdir=args.resultsdir, plotdir=args.plotdir)
             b.combine_series([('np', args.parallel), ('scale', [sc]),
                               ('variant', variants)], filename='Wave')
