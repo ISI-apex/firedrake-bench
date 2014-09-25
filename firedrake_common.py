@@ -23,31 +23,31 @@ class FiredrakeBenchmark(object):
     def make_mesh(self, x, dim=2):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
-    def lhs_overhead(self, a, bcs=None):
+    def lhs_overhead(self, a, bcs=None, N=1000):
         A = assemble(a, bcs=bcs)
         A.M
         tic('matrix assembly')
-        for _ in range(1000):
+        for _ in range(N):
             assemble(a, tensor=A, bcs=bcs).M
-        return toc('matrix assembly')/1000
+        return toc('matrix assembly')/N
 
-    def lhs_ffc_overhead(self, a, bcs=None):
+    def lhs_ffc_overhead(self, a, bcs=None, N=1000):
         tic('matrix assembly')
-        for _ in range(1000):
+        for _ in range(N):
             # Need to create new copies of the forms, since kernels are cached
             assemble(copy(a), bcs=bcs).M
-        return toc('matrix assembly')/1000
+        return toc('matrix assembly')/N
 
-    def rhs_overhead(self, L, bcs=None):
+    def rhs_overhead(self, L, bcs=None, N=1000):
         b = assemble(L, bcs=bcs)
         tic('rhs assembly')
-        for _ in range(1000):
+        for _ in range(N):
             assemble(L, tensor=b, bcs=bcs).dat.data_ro
-        return toc('rhs assembly')/1000
+        return toc('rhs assembly')/N
 
-    def rhs_ffc_overhead(self, L, bcs=None):
+    def rhs_ffc_overhead(self, L, bcs=None, N=1000):
         tic('rhs assembly')
-        for _ in range(1000):
+        for _ in range(N):
             # Need to create new copies of the forms, since kernels are cached
             assemble(copy(L), bcs=bcs).dat.data_ro
-        return toc('rhs assembly')/1000
+        return toc('rhs assembly')/N
