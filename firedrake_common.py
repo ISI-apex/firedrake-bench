@@ -34,5 +34,5 @@ class FiredrakeBenchmark(object):
         tic('rhs assembly')
         for _ in range(1000):
             # Need to create new copies of the forms, since kernels are cached
-            assemble(copy(L), bcs=bcs).dat._force_evaluation()
+            assemble(copy(L), bcs=bcs).dat.data_ro
         return toc('rhs assembly')/1000
