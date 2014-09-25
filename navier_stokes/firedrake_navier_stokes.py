@@ -106,14 +106,14 @@ class FiredrakeNavierStokes(NavierStokes):
                     with self.timed_region('tentative velocity RHS'):
                         b1 = assemble(L1)
                         [bc.apply(A1, b1) for bc in bcu]
-                        b1.dat._force_evaluation()
+                        b1.dat.data_ro
                     with self.timed_region('tentative velocity solve'):
                         solve(A1, u1, b1, solver_parameters=vparams)
-                        u1.dat._force_evaluation()
+                        u1.dat.data_ro
                 else:
                     with self.timed_region('tentative velocity solve'):
                         solve(a1 == L1, u1, bcs=bcu, solver_parameters=vparams)
-                        u1.dat._force_evaluation()
+                        u1.dat.data_ro
 
                 # Pressure correction
                 info("Computing pressure correction")
@@ -121,14 +121,14 @@ class FiredrakeNavierStokes(NavierStokes):
                     with self.timed_region('pressure correction RHS'):
                         b2 = assemble(L2)
                         [bc.apply(A2, b2) for bc in bcp]
-                        b2.dat._force_evaluation()
+                        b2.dat.data_ro
                     with self.timed_region('pressure correction solve'):
                         solve(A2, p1, b2, solver_parameters=pparams)
-                        p1.dat._force_evaluation()
+                        p1.dat.data_ro
                 else:
                     with self.timed_region('pressure correction solve'):
                         solve(a2 == L2, p1, bcs=bcp, solver_parameters=pparams)
-                        p1.dat._force_evaluation()
+                        p1.dat.data_ro
 
                 # Velocity correction
                 info("Computing velocity correction")
@@ -136,14 +136,14 @@ class FiredrakeNavierStokes(NavierStokes):
                     with self.timed_region('velocity correction RHS'):
                         b3 = assemble(L3)
                         [bc.apply(A3, b3) for bc in bcu]
-                        b3.dat._force_evaluation()
+                        b3.dat.data_ro
                     with self.timed_region('velocity correction solve'):
                         solve(A3, u1, b3, solver_parameters=vparams)
-                        u1.dat._force_evaluation()
+                        u1.dat.data_ro
                 else:
                     with self.timed_region('velocity correction solve'):
                         solve(a3 == L3, u1, bcs=bcu, solver_parameters=vparams)
-                        u1.dat._force_evaluation()
+                        u1.dat.data_ro
 
                 if save:
                     # Save to file
