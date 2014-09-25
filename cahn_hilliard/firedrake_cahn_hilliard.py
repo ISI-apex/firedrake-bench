@@ -78,7 +78,7 @@ class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
                                     user_code=user_code)
                 op2.par_loop(u_init, u.function_space().node_set[0],
                              u.dat[0](op2.WRITE))
-                u.dat._force_evaluation()
+                u.dat.data_ro
 
             # Compute the chemical potential df/dc
             c = variable(c)
