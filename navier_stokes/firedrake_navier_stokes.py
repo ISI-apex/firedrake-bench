@@ -1,7 +1,11 @@
 from navier_stokes import NavierStokes
+from pybench import timed
 from firedrake import *
+from firedrake.utils import memoize
 # from pyop2.ir.ast_plan import V_OP_UAJ
 from pyop2.profiling import get_timers
+
+from firedrake_common import FiredrakeBenchmark
 
 parameters["coffee"]["licm"] = True
 # Vectorization appears to degrade performance for p2
@@ -9,15 +13,18 @@ parameters["coffee"]["licm"] = True
 # parameters["coffee"]["vect"] = (V_OP_UAJ, 3)
 
 
-class FiredrakeNavierStokes(NavierStokes):
-    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
+class FiredrakeNavierStokes(FiredrakeBenchmark, NavierStokes):
+
+    @memoize
+    @timed
+    def make_mesh(self, scale):
+        return Mesh("meshes/lshape_%s.msh" % scale)
 
     def navier_stokes(self, scale=1.0, T=0.1, preassemble=True, save=False,
                       compute_norms=False):
         self.series['scale'] = scale
-        with self.timed_region('mesh'):
-            # Load mesh from file
-            mesh = Mesh("meshes/lshape_%s.msh" % scale)
+        t_, mesh = self.make_mesh(scale)
+        self.register_timing('mesh', t_)
 
         with self.timed_region('setup'):
             # Define function spaces (P2-P1)
