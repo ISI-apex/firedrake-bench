@@ -69,7 +69,8 @@ if __name__ == '__main__':
         dofs = lambda n: vertices[round(scale/n**.5, 3)]
         doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
         b = Wave(benchmark='WaveWeak', resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', args.weak), ('variant', variants)], filename='Wave')
+        b.combine_series([('np', args.weak), ('weak', [scale]), ('variant', variants)],
+                         filename='Wave')
         dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
         xlabel = 'Number of processors / DOFs (DOFs per processor: %dk)' % dpp
         xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
