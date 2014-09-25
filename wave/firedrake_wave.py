@@ -2,21 +2,17 @@ import numpy as np
 from wave import Wave, cells, vertices
 from pybench import timed
 from firedrake import *
-from firedrake import __version__ as firedrake_version
 from firedrake.utils import memoize
-from pyop2 import __version__ as pyop2_version
 from pyop2.profiling import get_timers
+
+from firedrake_common import FiredrakeBenchmark
 
 parameters["coffee"]["licm"] = True
 parameters["coffee"]["ap"] = True
 parameters["assembly_cache"]["enabled"] = False
 
 
-class FiredrakeWave(Wave):
-    series = {'np': op2.MPI.comm.size, 'variant': 'Firedrake'}
-    meta = {'coffee': parameters["coffee"],
-            'firedrake': firedrake_version,
-            'pyop2': pyop2_version}
+class FiredrakeWave(FiredrakeBenchmark, Wave):
 
     @memoize
     @timed
