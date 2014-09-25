@@ -57,7 +57,7 @@ class FiredrakePoisson(FiredrakeBenchmark, Poisson):
             u = TrialFunction(V)
             v = TestFunction(V)
             f = Function(V).interpolate(Expression(initial[dim]))
-            f.dat._force_evaluation()
+            f.dat.data_ro
             a = inner(grad(u), grad(v))*dx
             L = f*v*dx
 
@@ -75,14 +75,14 @@ class FiredrakePoisson(FiredrakeBenchmark, Poisson):
             with self.timed_region('rhs assembly'):
                 b = assemble(L)
                 bc.apply(b)
-                b.dat._force_evaluation()
+                b.dat.data_ro
             with self.timed_region('solve'):
                 solve(A, u, b, solver_parameters=params)
-                u.dat._force_evaluation()
+                u.dat.data_ro
         else:
             with self.timed_region('solve'):
                 solve(a == L, u, bcs=[bc], solver_parameters=params)
-                u.dat._force_evaluation()
+                u.dat.data_ro
 
         # Analytical solution
         a = Function(V).interpolate(Expression(analytical[dim]))
