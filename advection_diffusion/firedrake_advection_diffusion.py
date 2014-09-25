@@ -83,8 +83,8 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
             fexpr = "0.1 * (exp(-" + r2 + "/(0.4*%(T)f)) / (0.4*pi*%(T)f))"
             t.interpolate(Expression(fexpr % {'T': T}))
             u.interpolate(Expression((1.0, 0.0)))
-            t.dat._force_evaluation()
-            u.dat._force_evaluation()
+            t.dat.data_ro
+            u.dat.data_ro
 
         if preassemble:
             if advection:
@@ -104,7 +104,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                     if preassemble:
                         with self.timed_region('advection RHS'):
                             b = assemble(adv_rhs)
-                            b.dat._force_evaluation()
+                            b.dat.data_ro
                         with self.timed_region('advection solve'):
                             solve(A, t, b, solver_parameters=adv_params)
                     else:
@@ -115,7 +115,7 @@ class FiredrakeAdvectionDiffusion(AdvectionDiffusion):
                     if preassemble:
                         with self.timed_region('diffusion RHS'):
                             b = assemble(diff_rhs)
-                            b.dat._force_evaluation()
+                            b.dat.data_ro
                         with self.timed_region('diffusion solve'):
                             solve(D, t, b, solver_parameters=diff_params)
                     else:
