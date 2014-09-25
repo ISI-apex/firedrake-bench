@@ -72,14 +72,14 @@ class FiredrakeWave(Wave):
 
                 with self.timed_region('phi'):
                     phi -= dphi
-                    phi.dat._force_evaluation()
+                    phi.dat.data_ro
 
                 with self.timed_region('p'):
                     if lump_mass:
                         assemble(rhs, tensor=b)
                         p += dp
                         bc.apply(p)
-                        p.dat._force_evaluation()
+                        p.dat.data_ro
                     else:
                         solve(u * v * dx == v * p * dx + dtc * rhs,
                               p, bcs=bc, solver_parameters={'ksp_type': 'cg',
@@ -88,7 +88,7 @@ class FiredrakeWave(Wave):
 
                 with self.timed_region('phi'):
                     phi -= dphi
-                    phi.dat._force_evaluation()
+                    phi.dat.data_ro
 
                 t += dt
                 if save:
