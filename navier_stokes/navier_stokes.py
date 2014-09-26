@@ -8,6 +8,10 @@ r1 = ['tentative velocity', 'pressure correction', 'velocity correction']
 r2 = ['RHS', 'solve']
 
 # Weak scaling sizes
+cells[4.0] = 1240
+cells[2.828] = 2444
+cells[2.0] = 5046
+cells[1.414] = 9960
 cells[0.577] = 59614
 cells[0.408] = 119812
 cells[0.316] = 198694
@@ -20,6 +24,10 @@ cells[0.072] = 3828300
 cells[0.051] = 7621454
 cells[0.036] = 15302786
 cells[0.026] = 29377542
+vertices[4.0] = 618
+vertices[2.828] = 1220
+vertices[2.0] = 2521
+vertices[1.414] = 4978
 vertices[0.577] = 29805
 vertices[0.408] = 59904
 vertices[0.316] = 99345
