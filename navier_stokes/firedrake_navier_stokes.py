@@ -1,4 +1,4 @@
-from navier_stokes import NavierStokes
+from navier_stokes import NavierStokes, cells, vertices
 from pybench import timed
 from firedrake import *
 from firedrake.utils import memoize
@@ -25,6 +25,8 @@ class FiredrakeNavierStokes(FiredrakeBenchmark, NavierStokes):
             self.meta['scale'] = scale
         else:
             self.series['scale'] = scale
+        self.meta['cells'] = cells[scale]
+        self.meta['vertices'] = vertices[scale]
         t_, mesh = self.make_mesh(scale)
         self.register_timing('mesh', t_)
 
