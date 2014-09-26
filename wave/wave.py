@@ -47,7 +47,7 @@ vertices[0.026] = 31446948
 
 if __name__ == '__main__':
     p = parser(description="Plot results for explicit wave benchmark")
-    p.add_argument('-d', '--scale', type=float, nargs='+',
+    p.add_argument('-m', '--scale', type=float, nargs='+',
                    help='mesh scales to plot')
     p.add_argument('-v', '--variant', nargs='+',
                    help='variants to plot')
