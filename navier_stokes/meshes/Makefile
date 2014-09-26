@@ -1,3 +1,3 @@
 MESH = lshape
-SCALES = 0.8 0.56 0.4 0.28 0.2
+SCALES = 1.0 0.707 0.5 0.354 0.25 0.177 0.125
 include ../../common.mk
