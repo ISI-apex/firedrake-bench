@@ -228,7 +228,8 @@ class DolfinCahnHilliard(CahnHilliard):
                     if MPI.rank(mpi_comm_world()) == 0:
                         print step, 'L2(u):', nu
         t = timings(True)
-        for task in ['Assemble cells', 'Build sparsity', 'SNES solver execution']:
+        for task in ['Apply (PETScMatrix)', 'Apply (PETScVector)', 'Assemble cells',
+                     'Build sparsity', 'SNES solver execution']:
             self.register_timing(task, float(t.get(task, 'Total time')))
 
 if __name__ == '__main__':
