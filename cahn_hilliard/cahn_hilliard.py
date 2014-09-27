@@ -36,9 +36,11 @@ if __name__ == '__main__':
     regions = args.region or regions
     variants = args.variant or ['Firedrake', 'DOLFIN']
     groups = ['variant'] if len(variants) > 1 else []
+    aggregate = {'Assemble cells': ['Assemble cells', 'Apply (PETScVector)', 'Apply (PETScMatrix)']}
     if args.sequential:
         b = CahnHilliard(resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', [1]), ('variant', variants), ('size', args.size or sizes)])
+        b.combine_series([('np', [1]), ('variant', variants), ('size', args.size or sizes)],
+                         aggregate=aggregate)
         b.plot(xaxis='size', regions=regions, xlabel='mesh size (cells)',
                xvalues=cells, kinds='plot,loglog', groups=groups,
                title='Cahn-Hilliard (single core, 2D)')
@@ -48,7 +50,8 @@ if __name__ == '__main__':
         dofs = lambda n: (int((size*n)**0.5)+1)**2
         doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
         b = CahnHilliard(resultsdir=args.resultsdir, plotdir=args.plotdir)
-        b.combine_series([('np', args.weak), ('weak', [size]), ('variant', variants)])
+        b.combine_series([('np', args.weak), ('weak', [size]), ('variant', variants)],
+                         aggregate=aggregate)
         dpp = dofs(args.weak[-1])/(1000*args.weak[-1])
         xlabel = 'Number of cores / DOFs (DOFs per core: %dk)' % dpp
         xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.weak]
@@ -115,7 +118,8 @@ if __name__ == '__main__':
             xticklabels = ['%d\n%s' % (n, doflabel(n)) for n in args.parallel]
             xlabel = 'Number of cores / DOFs per core'
             b = CahnHilliard(resultsdir=args.resultsdir, plotdir=args.plotdir)
-            b.combine_series([('np', args.parallel), ('variant', variants), ('size', [size])])
+            b.combine_series([('np', args.parallel), ('variant', variants), ('size', [size])],
+                             aggregate=aggregate)
             b.plot(xaxis='np', regions=regions, figname='CahnHilliardStrong',
                    xlabel=xlabel, xticklabels=xticklabels, kinds='loglog',
                    groups=groups, title=title, trendline='perfect speedup')
