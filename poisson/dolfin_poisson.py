@@ -97,8 +97,8 @@ class DolfinPoisson(Poisson):
         if print_norm and MPI.rank(mpi_comm_world()) == 0:
             print 'L2 error norm:', l2
         t = timings(True)
-        for task in ['Assemble cells', 'Build sparsity', 'DirichletBC apply',
-                     'PETSc Krylov solver']:
+        for task in ['Apply (PETScMatrix)', 'Apply (PETScVector)', 'Assemble cells',
+                     'Build sparsity', 'DirichletBC apply', 'PETSc Krylov solver']:
             self.register_timing(task, float(t.get(task, 'Total time')))
 
 if __name__ == '__main__':
