@@ -45,7 +45,7 @@ if __name__ == '__main__':
                xvalues=cells, kinds='plot,loglog', groups=groups,
                title='Cahn-Hilliard (single core, 2D)')
     if args.weak:
-        base = args.weak.index(args.base or 1)
+        base = args.parallel.index(args.base) if args.base else 0
         size = args.size[0] if args.size else 1000
         dofs = lambda n: (int((size*n)**0.5)+1)**2
         doflabel = lambda n: '%.1fM' % (dofs(n)/1e6) if dofs(n) > 1e6 else '%dk' % (dofs(n)/1e3)
@@ -102,7 +102,7 @@ if __name__ == '__main__':
                    xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
                    groups=groups, title=title, transform=efficiency, ymin=0)
     if args.parallel:
-        base = args.parallel.index(args.base or 1)
+        base = args.parallel.index(args.base) if args.base else 0
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
                                            for x, y in zip(xvals, yvals)]
         for size in args.size or sizes:
