@@ -76,6 +76,7 @@ class FiredrakeWave(FiredrakeBenchmark, Wave):
             print "phi overhead:", phi_overhead
             tic('p')
             for _ in range(repeats):
+                bcval.assign(sin(2*pi*5*_*dt))
                 assemble(rhs, tensor=b)
                 p += dp
                 bc.apply(p)
