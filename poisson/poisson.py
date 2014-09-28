@@ -49,7 +49,7 @@ if __name__ == '__main__':
                    ylabel='Speedup relative to DOLFIN', speedup=('DOLFIN',),
                    title='Poisson (sequential, 3D)')
     if args.weak:
-        base = args.weak.index(args.base or 1)
+        base = args.weak.index(args.base) if args.base else 0
         size = args.size[0] if args.size else 10000
         for degree in degrees:
             dofs = lambda n: (int((size*n)**(1./dim))*degree+1)**dim
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                        xlabel=xlabel, xticklabels=xticklabels, kinds='plot',
                        groups=groups, title=title, transform=efficiency, ymin=0)
     if args.parallel:
-        base = args.parallel.index(args.base or 1)
+        base = args.parallel.index(args.base) if args.base else 0
         efficiency = lambda xvals, yvals: [xvals[base]*yvals[base]/(x*y)
                                            for x, y in zip(xvals, yvals)]
         for degree in degrees:
