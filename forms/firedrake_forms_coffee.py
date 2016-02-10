@@ -20,9 +20,6 @@ class FiredrakeFormsCoffee(FiredrakeForms):
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
-    from ffc.log import set_level
-    set_level('ERROR')
-
     # Benchmark
     b = FiredrakeFormsCoffee()
     b.main(load=None)
