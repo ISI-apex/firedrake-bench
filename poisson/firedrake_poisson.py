@@ -94,7 +94,4 @@ class FiredrakePoisson(FiredrakeBenchmark, Poisson):
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
-    from ffc.log import set_level
-    set_level('ERROR')
-
     FiredrakePoisson().main()
