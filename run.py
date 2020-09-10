@@ -9,13 +9,14 @@ def run(benchmark, np, socket=None, core=0):
     for n in np:
         cmd = ['mpirun']
         for p in range(core, n + core):
-            pin = 'N:%d' % p if socket is None else 'S%d:%d' % (socket, p)
-            cmd += ['-np', '1', 'likwid-pin', '-c', pin, 'python'] + benchmark
-            cmd += [':']
-        print datetime.now(), benchmark, 'started'
-        print ' '.join(cmd)
+            #pin = 'N:%d' % p if socket is None else 'S%d:%d' % (socket, p)
+            #cmd += ['-np', '1', 'likwid-pin', '-c', pin, 'python'] + benchmark
+            cmd += ['-np', '1', 'python'] + benchmark
+            #cmd += [':']
+        print(datetime.now(), benchmark, 'started')
+        print(' '.join(cmd))
         check_call(cmd)
-        print datetime.now(), benchmark, 'finished'
+        print(datetime.now(), benchmark, 'finished')
 
 if __name__ == '__main__':
     p = ArgumentParser(description="Run a benchmark pinned to CPU cores")
