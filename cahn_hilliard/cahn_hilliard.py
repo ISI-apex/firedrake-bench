@@ -20,7 +20,7 @@ class CahnHilliard(Benchmark):
                  'initial condition': {'marker': 'D'},
                  'Assemble cells': {'marker': '^'},
                  'SNES solver execution': {'marker': 'o'}}
-    profilegraph = {'format': 'svg,pdf',
+    profilegraph = {'format': 'svg,eps',
                     'node_threshold': 2.0}
     profileregions = ['setup', 'initial condition', 'timestepping']
 
