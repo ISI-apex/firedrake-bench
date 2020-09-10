@@ -1,6 +1,6 @@
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 from firedrake import *
-from pyop2.profiling import get_timers, timing
+#from pyop2.profiling import get_timers, timing
 
 from firedrake_common import FiredrakeBenchmark
 
@@ -136,8 +136,10 @@ class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
             for _ in range(100):
                 u0.assign(u)
                 solver.solve()
-            print "Assembly overhead:", timing("Assemble cells", total=False)
-            print "Solver overhead:", timing("SNES solver execution", total=False)
+            #print("Assembly overhead:", timing("Assemble cells", total=False))
+            #prin("Solver overhead:", timing("SNES solver execution", total=False))
+            print("Assembly overhead: TODO")
+            print("Solver overhead: TODO")
             return
         with self.timed_region('timestepping'):
             for step in range(steps):
@@ -148,10 +150,10 @@ class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
                     file << (u.split()[0], step)
                 if compute_norms:
                     nu = norm(u)
-                    if op2.MPI.comm.rank == 0:
-                        print step, 'L2(u):', nu
-        for task, timer in get_timers(reset=True).items():
-            self.register_timing(task, timer.total)
+                    #if op2.MPI.comm.rank == 0:
+                    #    print(step, 'L2(u):', nu)
+        #for task, timer in get_timers(reset=True).items():
+        #    self.register_timing(task, timer.total)
 
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
