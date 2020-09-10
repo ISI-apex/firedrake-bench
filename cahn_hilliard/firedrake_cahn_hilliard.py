@@ -161,7 +161,13 @@ class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
 if __name__ == '__main__':
     op2.init(log_level='WARNING')
     # Benchmark
-    FiredrakeCahnHilliard().main()
+    #FiredrakeCahnHilliard().main(run=True)
+    b = FiredrakeCahnHilliard()
+    b.main(benchmark=True)
+    print(b.result)
+    for func, t in b.result['timings'].items():
+        print("%24s: %.6f" % (func, t))
+    #FiredrakeCahnHilliard().main(profile=True)
 
     # Output VTU files
     # FiredrakeCahnHilliard().cahn_hilliard(save=True)
