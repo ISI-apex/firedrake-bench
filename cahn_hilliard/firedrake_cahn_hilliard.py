@@ -4,6 +4,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Needed only for UCX (UCX does not support threaded mode in OpenMPI)
+#from mpi4py import rc
+#rc.thread_level = "single"
+
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 from firedrake import *
 #from pyop2.profiling import get_timers, timing
