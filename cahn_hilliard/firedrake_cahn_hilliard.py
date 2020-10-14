@@ -43,13 +43,34 @@ class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
         self.meta['vertices'] = (size+1)**2
         params = {'pc_type': pc,
                   'ksp_type': ksp,
-                  'snes_rtol': 1e-9,
-                  'snes_atol': 1e-10,
-                  'snes_stol': 1e-16,
+                  #'ksp_monitor': True,
+                  'snes_monitor': None,
+
+                  #'snes_rtol': 1e-9,
+                  #'snes_atol': 1e-10,
+                  #'snes_stol': 1e-14,
+
+                  'snes_rtol': 1e-5,
+                  'snes_atol': 1e-6,
+                  'snes_stol': 1e-7,
+
+                  #'snes_rtol': 1e-4,
+                  #'snes_atol': 1e-6,
+                  #'snes_stol': 1e-8,
+
+                  #'snes_rtol': 1e-2,
+                  #'snes_atol': 1e-4,
+                  #'snes_stol': 1e-6,
                   'snes_linesearch_type': 'basic',
                   'snes_linesearch_max_it': 1,
-                  'ksp_rtol': 1e-6,
-                  'ksp_atol': 1e-15,
+                  #'ksp_rtol': 1e-6,
+                  #'ksp_atol': 1e-15,
+
+                  #'ksp_rtol': 1e-5,
+                  #'ksp_atol': 1e-9,
+
+                  'ksp_rtol': 1e-4,
+                  'ksp_atol': 1e-8,
                   'pc_fieldsplit_type': 'schur',
                   'pc_fieldsplit_schur_factorization_type': 'lower',
                   'pc_fieldsplit_schur_precondition': 'user',
