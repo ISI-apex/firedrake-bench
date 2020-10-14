@@ -28,10 +28,11 @@ class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
     warmups = 0
     repeats = 1
 
-    def cahn_hilliard(self, size=96, steps=10, degree=1, pc='fieldsplit',
+    def cahn_hilliard(self, size=96, steps=1, degree=1, pc='fieldsplit',
                       inner_ksp='preonly', ksp='gmres', maxit=1, weak=False,
                       measure_overhead=False, save=False, compute_norms=True,
                       verbose=False):
+
         if weak:
             self.series['weak'] = size
             size = int((size*op2.MPI.comm.size)**0.5)
