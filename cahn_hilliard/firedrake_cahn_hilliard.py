@@ -1,3 +1,9 @@
+# Can't use relative imports outside of a package,
+# but don't want to have to set PYTHONPATH all the time
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 from firedrake import *
 #from pyop2.profiling import get_timers, timing
