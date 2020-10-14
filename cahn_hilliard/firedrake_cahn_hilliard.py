@@ -12,6 +12,11 @@ from cahn_hilliard import CahnHilliard, lmbda, dt, theta
 from firedrake import *
 #from pyop2.profiling import get_timers, timing
 
+#import time
+#from mpi4py import MPI
+#comm = MPI.COMM_WORLD
+#print("RANK: ", comm.rank)
+
 from firedrake_common import FiredrakeBenchmark
 
 parameters["coffee"]["licm"] = True
