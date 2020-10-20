@@ -66,7 +66,7 @@ CahnHilliardProblem.do_solve(u, u0, solver, args.steps,
         compute_norms=args.compute_norms, out_file=file)
 time_solve_end = time.time()
 
-if comm.rank == 0:
+if comm.rank == 0 and args.elapsed_out is not None:
     from collections import OrderedDict
     times = OrderedDict()
     times["mesh"] = args.mesh_size
