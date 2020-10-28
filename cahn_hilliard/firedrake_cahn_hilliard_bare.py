@@ -11,6 +11,11 @@ parser = argparse.ArgumentParser(
         description="Invoke Cahn-Hilliard CFD problem")
 parser.add_argument("mesh_size", type=int,
         help="Size of the unit square mesh along one dimension")
+parser.add_argument("ranks", type=int,
+        help="Number of total ranks (recorded along with timing measurements)")
+parser.add_argument("ranks_per_node", type=int,
+        help="Number of total ranks per node " + \
+		"(recorded along with timing measurements)")
 parser.add_argument("--solution-out",
         help="Output filename where to save solution (PVD)")
 parser.add_argument("--elapsed-out",
@@ -70,6 +75,8 @@ if comm.rank == 0 and args.elapsed_out is not None:
     from collections import OrderedDict
     times = OrderedDict()
     times["mesh"] = args.mesh_size
+    times["ranks"] = args.ranks
+    times["ranks_per_node"] = args.ranks_per_node
     times["mesh_s"]  = time_mesh_end - time_mesh_begin
     times["setup_s"] = time_setup_end - time_setup_begin
     times["solve_s"] = time_solve_end - time_solve_begin
