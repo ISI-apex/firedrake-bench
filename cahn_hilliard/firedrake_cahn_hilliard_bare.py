@@ -73,6 +73,7 @@ if comm.rank == 0 and args.elapsed_out is not None:
     times["mesh_s"]  = time_mesh_end - time_mesh_begin
     times["setup_s"] = time_setup_end - time_setup_begin
     times["solve_s"] = time_solve_end - time_solve_begin
+    times["total_s"] = times['mesh_s'] + times['setup_s'] + times['solve_s']
 
     # note: if you open this earlier, the FD breaks somehow (???)
     fout = open(args.elapsed_out, "w")
