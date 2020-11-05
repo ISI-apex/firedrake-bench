@@ -101,19 +101,18 @@ class CahnHilliardProblem:
         problem = NonlinearVariationalProblem(F, u, J=J)
         solver = NonlinearVariationalSolver(problem, solver_parameters=params)
 
-        if pc in ['fieldsplit', 'ilu']:
-            sigma = 100
-            # PC for the Schur complement solve
-            trial = TrialFunction(V)
-            test = TestFunction(V)
+        sigma = 100
+        # PC for the Schur complement solve
+        trial = TrialFunction(V)
+        test = TestFunction(V)
 
-            mass_loops = assemble(inner(trial, test)*dx,
-                    collect_loops=True, allocate_only=False)
+        mass_loops = assemble(inner(trial, test)*dx,
+                collect_loops=True, allocate_only=False)
 
-            a = 1
-            c = (dt * lmbda)/(1+dt * sigma)
+        a = 1
+        c = (dt * lmbda)/(1+dt * sigma)
 
-            hats_loops = assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c)*inner(grad(trial), grad(test))*dx, collect_loops=True, allocate_only=False)
+        hats_loops = assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c)*inner(grad(trial), grad(test))*dx, collect_loops=True, allocate_only=False)
         return init_loop, mass_loops, hats_loops, u, u0, solver
 
     def do_measure_overhead(u0, solver):
@@ -122,44 +121,42 @@ class CahnHilliardProblem:
             solver.solve()
 
     def do_solve(init_loop, mass_loops, hats_loops, u, u0, solver, steps,
-            pc, maxit, inner_ksp,
-            compute_norms=False, out_file=None):
+            maxit, inner_ksp, compute_norms=False, out_file=None):
 
         init_loop.compute()
 
-        if pc in ['fieldsplit', 'ilu']:
-            for l in mass_loops:
-                mass_m = l()
-            mass = mass_m.M.handle
+        for l in mass_loops:
+            mass_m = l()
+        mass = mass_m.M.handle
 
-            for l in hats_loops:
-                hats_m = l()
-            hats = hats_m.M.handle
+        for l in hats_loops:
+            hats_m = l()
+        hats = hats_m.M.handle
 
-            from firedrake.petsc import PETSc
-            ksp_hats = PETSc.KSP()
-            ksp_hats.create()
-            ksp_hats.setOperators(hats)
-            opts = PETSc.Options()
+        from firedrake.petsc import PETSc
+        ksp_hats = PETSc.KSP()
+        ksp_hats.create()
+        ksp_hats.setOperators(hats)
+        opts = PETSc.Options()
 
-            opts['ksp_type'] = inner_ksp
-            opts['ksp_max_it'] = maxit
-            opts['pc_type'] = 'hypre'
-            ksp_hats.setFromOptions()
+        opts['ksp_type'] = inner_ksp
+        opts['ksp_max_it'] = maxit
+        opts['pc_type'] = 'hypre'
+        ksp_hats.setFromOptions()
 
-            class SchurInv(object):
-                def mult(self, mat, x, y):
-                    tmp1 = y.duplicate()
-                    tmp2 = y.duplicate()
-                    ksp_hats.solve(x, tmp1)
-                    mass.mult(tmp1, tmp2)
-                    ksp_hats.solve(tmp2, y)
+        class SchurInv(object):
+            def mult(self, mat, x, y):
+                tmp1 = y.duplicate()
+                tmp2 = y.duplicate()
+                ksp_hats.solve(x, tmp1)
+                mass.mult(tmp1, tmp2)
+                ksp_hats.solve(tmp2, y)
 
-            pc_schur = PETSc.Mat()
-            pc_schur.createPython(mass.getSizes(), SchurInv())
-            pc_schur.setUp()
-            pc = solver.snes.ksp.pc
-            pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
+        pc_schur = PETSc.Mat()
+        pc_schur.createPython(mass.getSizes(), SchurInv())
+        pc_schur.setUp()
+        pc = solver.snes.ksp.pc
+        pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
 
         for step in range(steps):
             u0.assign(u)
