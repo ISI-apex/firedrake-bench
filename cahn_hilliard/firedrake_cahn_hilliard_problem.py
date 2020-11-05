@@ -78,8 +78,9 @@ class CahnHilliardProblem:
         user_code = """int __rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &__rank);
         srandom(2 + __rank);"""
-        par_loop(init_code, direct, {'A': (u[0], WRITE)},
-                 headers=["#include <stdlib.h>"], user_code=user_code)
+        init_loop = par_loop(init_code, direct, {'A': (u[0], WRITE)},
+                 headers=["#include <stdlib.h>"], user_code=user_code,
+                 compute=False)
         u.dat.data_ro
 
         # Compute the chemical potential df/dc
@@ -135,14 +136,15 @@ class CahnHilliardProblem:
             pc = solver.snes.ksp.pc
             pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
 
-        return u, u0, solver
+        return init_loop, u, u0, solver
 
     def do_measure_overhead(u0, solver):
         for _ in range(100):
             u0.assign(u)
             solver.solve()
 
-    def do_solve(u, u0, solver, steps, compute_norms=False, out_file=None):
+    def do_solve(init_loop, u, u0, solver, steps, compute_norms=False, out_file=None):
+        init_loop.compute()
         for step in range(steps):
             u0.assign(u)
             solver.solve()
