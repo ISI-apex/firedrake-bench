@@ -120,7 +120,17 @@ class CahnHilliardProblem:
 
         assign_loops = u0.assign(u, compute=False)
 
-        # TODO: jacobian (etc) callables
+        # trigger compilation for ParLoop futures
+        loops = [init_loop] + [l for l in assign_loops] + \
+                [l for l in mass_loops] + [l for l in hats_loops] + \
+                [l for l in solver._ctx._assemble_jac] + \
+                [l for l in solver._ctx._assemble_residual]
+        if solver._ctx.Jp is not None:
+            loops += [l for l in solver._ctx._assemble_pjac]
+        for loop in loops:
+            if hasattr(loop, "compute"): # some are funcs
+                loop._jitmodule
+
         return init_loop, mass_loops, hats_loops, assign_loops, \
                 u, u0, solver
 
@@ -136,11 +146,17 @@ class CahnHilliardProblem:
         init_loop.compute()
 
         for l in mass_loops:
-            mass_m = l()
+            if hasattr(l, "compute"): # some are funcs
+                mass_m = l.compute()
+            else:
+                mass_m = l()
         mass = mass_m.M.handle
 
         for l in hats_loops:
-            hats_m = l()
+            if hasattr(l, "compute"): # some are funcs
+                hats_m = l.compute()
+            else:
+                hats_m = l()
         hats = hats_m.M.handle
 
         from firedrake.petsc import PETSc
