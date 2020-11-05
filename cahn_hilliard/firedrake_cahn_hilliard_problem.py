@@ -117,14 +117,20 @@ class CahnHilliardProblem:
         c = (dt * lmbda)/(1+dt * sigma)
 
         hats_loops = assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c)*inner(grad(trial), grad(test))*dx, collect_loops=True, allocate_only=False)
-        return init_loop, mass_loops, hats_loops, u, u0, solver
+
+        assign_loops = u0.assign(u, compute=False)
+
+        # TODO: jacobian (etc) callables
+        return init_loop, mass_loops, hats_loops, assign_loops, \
+                u, u0, solver
 
     def do_measure_overhead(u0, solver):
         for _ in range(100):
             u0.assign(u)
             solver.solve()
 
-    def do_solve(init_loop, mass_loops, hats_loops, u, u0, solver, steps,
+    def do_solve(init_loop, mass_loops, hats_loops, assign_loops,
+            u, u0, solver, steps,
             maxit, inner_ksp, compute_norms=False, out_file=None):
 
         init_loop.compute()
@@ -163,7 +169,8 @@ class CahnHilliardProblem:
         pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
 
         for step in range(steps):
-            u0.assign(u)
+            for l in assign_loops:
+                l.compute()
             solver.solve()
             if out_file is not None:
                 out_file << (u.split()[0], step)
