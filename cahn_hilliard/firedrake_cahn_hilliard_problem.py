@@ -8,8 +8,10 @@ class CahnHilliardProblem:
     def make_mesh(x, dim=2):
         return UnitSquareMesh(x, x) if dim == 2 else UnitCubeMesh(x, x, x)
 
-    def get_solve_params(verbose=False, maxit=1, ksp='gmres',
-            inner_ksp='preonly', pc='fieldsplit'):
+    def do_setup(mesh, pc='fieldsplit', degree=1, theta=0.5, dt=5.0e-06,
+                lmbda=1.0e-02, maxit=1,
+                ksp='gmres', inner_ksp='preonly',
+                verbose=False):
         params = {'pc_type': pc,
                   'ksp_type': ksp,
                   #'ksp_monitor': True,
@@ -55,10 +57,6 @@ class CahnHilliardProblem:
             params['ksp_monitor'] = True
             params['snes_view'] = True
             params['snes_monitor'] = True
-        return params
-
-    def do_setup(mesh, pc, degree=1, theta=0.5, dt=5.0e-06,
-                lmbda=1.0e-02, inner_ksp='preonly', maxit=1, params={}):
         V = FunctionSpace(mesh, "Lagrange", degree)
         ME = V*V
 

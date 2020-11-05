@@ -46,18 +46,16 @@ args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
 
-params = CahnHilliardProblem.get_solve_params(
-        pc=args.preconditioner, ksp=args.ksp, inner_ksp=args.inner_ksp,
-        maxit=args.max_iterations, verbose=args.verbose)
-
 time_mesh_begin = time.time()
 mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
 time_mesh_end = time.time()
 
 time_setup_begin = time.time()
-u, u0, solver = CahnHilliardProblem.do_setup(mesh, args.preconditioner,
+u, u0, solver = CahnHilliardProblem.do_setup(mesh, pc=args.preconditioner,
         degree=args.degree, dt=args.dt, theta=args.theta,
-        lmbda=args.lmbda, params=params)
+        lmbda=args.lmbda,
+        ksp=args.ksp, inner_ksp=args.inner_ksp,
+        maxit=args.max_iterations, verbose=args.verbose)
 time_setup_end = time.time()
 
 # Output file

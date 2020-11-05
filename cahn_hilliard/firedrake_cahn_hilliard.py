@@ -43,16 +43,14 @@ class FiredrakeCahnHilliard(FiredrakeBenchmark, CahnHilliard):
         self.meta['cells'] = 2*size**2
         self.meta['vertices'] = (size+1)**2
 
-        params = CahnHilliardProblem.get_solve_params(verbose=verbose,
-                pc=pc, ksp=ksp, inner_ksp=inner_ksp, maxit=maxit)
-
         t_, mesh = self.make_mesh(size)
         self.register_timing('mesh', t_)
 
         with self.timed_region('setup'):
             u, u0, solver = CahnHilliardProblem.do_setup(mesh, pc=pc,
                     degree=degree, inner_ksp=inner_ksp, maxit=maxit,
-                    theta=theta, dt=dt, lmbda=lmbda, params=params)
+                    theta=theta, dt=dt, lmbda=lmbda,
+                    ksp=ksp, inner_ksp=inner_ksp, verbose=verbose)
 
         # Output file
         if save:
