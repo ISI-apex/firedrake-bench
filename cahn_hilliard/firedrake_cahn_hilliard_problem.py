@@ -143,20 +143,20 @@ class CahnHilliardProblem:
             u, u0, solver, steps,
             maxit, inner_ksp, compute_norms=False, out_file=None):
 
-        init_loop.compute()
+        def invoke_loops(loops):
+            for l in loops:
+                if hasattr(l, "compute"): # some are funcs
+                    r = l.compute()
+                else:
+                    r = l()
+            return r
 
-        for l in mass_loops:
-            if hasattr(l, "compute"): # some are funcs
-                mass_m = l.compute()
-            else:
-                mass_m = l()
+        invoke_loops([init_loop])
+
+        mass_m = invoke_loops(mass_loops)
         mass = mass_m.M.handle
 
-        for l in hats_loops:
-            if hasattr(l, "compute"): # some are funcs
-                hats_m = l.compute()
-            else:
-                hats_m = l()
+        hats_m = invoke_loops(hats_loops)
         hats = hats_m.M.handle
 
         from firedrake.petsc import PETSc
