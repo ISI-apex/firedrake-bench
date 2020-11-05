@@ -106,10 +106,35 @@ class CahnHilliardProblem:
             # PC for the Schur complement solve
             trial = TrialFunction(V)
             test = TestFunction(V)
-            mass = assemble(inner(trial, test)*dx).M.handle
+
+            mass_loops = assemble(inner(trial, test)*dx,
+                    collect_loops=True, allocate_only=False)
+
             a = 1
             c = (dt * lmbda)/(1+dt * sigma)
-            hats = assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c)*inner(grad(trial), grad(test))*dx).M.handle
+
+            hats_loops = assemble(sqrt(a) * inner(trial, test)*dx + sqrt(c)*inner(grad(trial), grad(test))*dx, collect_loops=True, allocate_only=False)
+        return init_loop, mass_loops, hats_loops, u, u0, solver
+
+    def do_measure_overhead(u0, solver):
+        for _ in range(100):
+            u0.assign(u)
+            solver.solve()
+
+    def do_solve(init_loop, mass_loops, hats_loops, u, u0, solver, steps,
+            pc, maxit, inner_ksp,
+            compute_norms=False, out_file=None):
+
+        init_loop.compute()
+
+        if pc in ['fieldsplit', 'ilu']:
+            for l in mass_loops:
+                mass_m = l()
+            mass = mass_m.M.handle
+
+            for l in hats_loops:
+                hats_m = l()
+            hats = hats_m.M.handle
 
             from firedrake.petsc import PETSc
             ksp_hats = PETSc.KSP()
@@ -136,15 +161,6 @@ class CahnHilliardProblem:
             pc = solver.snes.ksp.pc
             pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
 
-        return init_loop, u, u0, solver
-
-    def do_measure_overhead(u0, solver):
-        for _ in range(100):
-            u0.assign(u)
-            solver.solve()
-
-    def do_solve(init_loop, u, u0, solver, steps, compute_norms=False, out_file=None):
-        init_loop.compute()
         for step in range(steps):
             u0.assign(u)
             solver.solve()

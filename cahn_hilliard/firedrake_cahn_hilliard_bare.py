@@ -51,7 +51,8 @@ mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
 time_mesh_end = time.time()
 
 time_setup_begin = time.time()
-init_loop, u, u0, solver = CahnHilliardProblem.do_setup(mesh, pc=args.preconditioner,
+init_loop, mass_loops, hats_loops, u, u0, solver = \
+        CahnHilliardProblem.do_setup(mesh, pc=args.preconditioner,
         degree=args.degree, dt=args.dt, theta=args.theta,
         lmbda=args.lmbda,
         ksp=args.ksp, inner_ksp=args.inner_ksp,
@@ -65,7 +66,9 @@ else:
     file = None
 
 time_solve_begin = time.time()
-CahnHilliardProblem.do_solve(init_loop, u, u0, solver, args.steps,
+CahnHilliardProblem.do_solve(init_loop, mass_loops, hats_loops,
+        u, u0, solver, args.steps, pc=args.preconditioner,
+        inner_ksp=args.inner_ksp, maxit=args.max_iterations,
         compute_norms=args.compute_norms, out_file=file)
 time_solve_end = time.time()
 
