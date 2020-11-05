@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import argparse
@@ -56,7 +57,8 @@ init_loop, mass_loops, hats_loops, u, u0, solver = \
         degree=args.degree, dt=args.dt, theta=args.theta,
         lmbda=args.lmbda,
         ksp=args.ksp, inner_ksp=args.inner_ksp,
-        maxit=args.max_iterations, verbose=args.verbose)
+        maxit=args.max_iterations, verbose=args.verbose,
+        out_lib_dir=os.path.join(os.getcwd(), 'ch_build'))
 time_setup_end = time.time()
 
 # Output file

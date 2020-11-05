@@ -1,4 +1,5 @@
 from firedrake import *
+from pyop2.configuration import configuration
 
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
@@ -11,7 +12,10 @@ class CahnHilliardProblem:
     def do_setup(mesh, pc='fieldsplit', degree=1, theta=0.5, dt=5.0e-06,
                 lmbda=1.0e-02, maxit=1,
                 ksp='gmres', inner_ksp='preonly',
-                verbose=False):
+                verbose=False, out_lib_dir=None):
+        if out_lib_dir:
+            configuration['cache_dir'] = out_lib_dir
+
         params = {'pc_type': pc,
                   'ksp_type': ksp,
                   #'ksp_monitor': True,
