@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import argparse
+import numpy as np
 
 from mpi4py import MPI
 from firedrake import *
@@ -17,6 +18,8 @@ parser.add_argument("ranks", type=int,
 parser.add_argument("ranks_per_node", type=int,
         help="Number of total ranks per node " + \
 		"(recorded along with timing measurements)")
+parser.add_argument("--tasks", default='mesh,setup,solve',
+        help="Comma-separated list of steps to perform (mesh,setup,solve)")
 parser.add_argument("--solution-out",
         help="Output filename where to save solution (PVD)")
 parser.add_argument("--elapsed-out",
@@ -47,32 +50,41 @@ args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
 
-time_mesh_begin = time.time()
-mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
-time_mesh_end = time.time()
+tasks = args.tasks.split(",")
+if 'setup' in tasks:
+    assert 'mesh' in tasks
+if 'solve' in tasks:
+    assert 'setup' in tasks
 
-time_setup_begin = time.time()
-init_loop, mass_loops, hats_loops, assign_loops, u, u0, solver = \
-        CahnHilliardProblem.do_setup(mesh, pc=args.preconditioner,
-        degree=args.degree, dt=args.dt, theta=args.theta,
-        lmbda=args.lmbda,
-        ksp=args.ksp, inner_ksp=args.inner_ksp,
-        maxit=args.max_iterations, verbose=args.verbose,
-        out_lib_dir=os.path.join(os.getcwd(), 'ch_build'))
-time_setup_end = time.time()
+if 'mesh' in tasks:
+    time_mesh_begin = time.time()
+    mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
+    time_mesh_end = time.time()
 
-# Output file
-if args.solution_out is not None:
-    file = File(args.solution_out)
-else:
-    file = None
+if 'setup' in tasks:
+    time_setup_begin = time.time()
+    init_loop, mass_loops, hats_loops, assign_loops, u, u0, solver = \
+            CahnHilliardProblem.do_setup(mesh, pc=args.preconditioner,
+            degree=args.degree, dt=args.dt, theta=args.theta,
+            lmbda=args.lmbda,
+            ksp=args.ksp, inner_ksp=args.inner_ksp,
+            maxit=args.max_iterations, verbose=args.verbose,
+            out_lib_dir=os.path.join(os.getcwd(), 'ch_build'))
+    time_setup_end = time.time()
 
-time_solve_begin = time.time()
-CahnHilliardProblem.do_solve(init_loop, mass_loops, hats_loops,
-        assign_loops, u, u0, solver, args.steps,
-        inner_ksp=args.inner_ksp, maxit=args.max_iterations,
-        compute_norms=args.compute_norms, out_file=file)
-time_solve_end = time.time()
+if 'solve' in tasks:
+    # Output file
+    if args.solution_out is not None:
+        file = File(args.solution_out)
+    else:
+        file = None
+
+    time_solve_begin = time.time()
+    CahnHilliardProblem.do_solve(init_loop, mass_loops, hats_loops,
+            assign_loops, u, u0, solver, args.steps,
+            inner_ksp=args.inner_ksp, maxit=args.max_iterations,
+            compute_norms=args.compute_norms, out_file=file)
+    time_solve_end = time.time()
 
 if comm.rank == 0 and args.elapsed_out is not None:
     from collections import OrderedDict
@@ -80,10 +92,15 @@ if comm.rank == 0 and args.elapsed_out is not None:
     times["mesh"] = args.mesh_size
     times["ranks"] = args.ranks
     times["ranks_per_node"] = args.ranks_per_node
-    times["mesh_s"]  = time_mesh_end - time_mesh_begin
-    times["setup_s"] = time_setup_end - time_setup_begin
-    times["solve_s"] = time_solve_end - time_solve_begin
-    times["total_s"] = times['mesh_s'] + times['setup_s'] + times['solve_s']
+    times["mesh_s"]  = time_mesh_end - time_mesh_begin \
+            if 'mesh' in tasks else np.nan
+    times["setup_s"] = time_setup_end - time_setup_begin \
+            if 'setup' in tasks else np.nan
+    times["solve_s"] = time_solve_end - time_solve_begin \
+            if 'solve' in tasks else np.nan
+    times["total_s"] = times['mesh_s'] + times['setup_s'] + times['solve_s'] \
+            if 'mesh' in tasks and 'setup' in tasks and 'solve' in tasks \
+            else np.nan
 
     # note: if you open this earlier, the FD breaks somehow (???)
     fout = open(args.elapsed_out, "w")
