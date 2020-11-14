@@ -60,6 +60,8 @@ if 'mesh' in tasks:
     time_mesh_begin = time.time()
     mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
     time_mesh_end = time.time()
+    if comm.rank == 0:
+        print("step mesh took: %.2f s" % (time_mesh_end - time_mesh_begin))
 
 if 'setup' in tasks:
     time_setup_begin = time.time()
@@ -71,6 +73,8 @@ if 'setup' in tasks:
             maxit=args.max_iterations, verbose=args.verbose,
             out_lib_dir=os.path.join(os.getcwd(), 'ch_build'))
     time_setup_end = time.time()
+    if comm.rank == 0:
+        print("step setup took: %.2f s" % (time_setup_end - time_setup_begin))
 
 if 'solve' in tasks:
     # Output file
@@ -85,6 +89,8 @@ if 'solve' in tasks:
             inner_ksp=args.inner_ksp, maxit=args.max_iterations,
             compute_norms=args.compute_norms, out_file=file)
     time_solve_end = time.time()
+    if comm.rank == 0:
+        print("step solve took: %.2f s" % (time_solve_end - time_solve_begin))
 
 if comm.rank == 0 and args.elapsed_out is not None:
     from collections import OrderedDict
