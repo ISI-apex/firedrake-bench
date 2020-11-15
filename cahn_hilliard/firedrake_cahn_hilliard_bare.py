@@ -50,6 +50,10 @@ args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
 
+if comm.rank == 0:
+    import platform
+    print("rank 0 node: ", platform.node())
+
 tasks = args.tasks.split(",")
 if 'setup' in tasks:
     assert 'mesh' in tasks
