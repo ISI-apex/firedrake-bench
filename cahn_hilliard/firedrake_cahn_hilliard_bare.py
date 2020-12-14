@@ -9,6 +9,21 @@ from firedrake import *
 
 from firedrake_cahn_hilliard_problem import CahnHilliardProblem
 
+def size_from_string(s):
+    s = s.strip()
+    if s.endswith('G'):
+        p = 3
+    elif s.endswith('M'):
+        p = 2
+    elif s.endswith('K'):
+        p = 1
+    else:
+        p = 0
+    suffix_len = 1 if p > 0 else 0
+    base = s[0:(len(s) - suffix_len)]
+    return int(base) * 1024**p
+
+
 parser = argparse.ArgumentParser(
         description="Invoke Cahn-Hilliard CFD problem")
 parser.add_argument("mesh_size", type=int,
@@ -44,6 +59,11 @@ parser.add_argument("--theta", type=float, default=0.5,
         help="Time stepping family, e.g. theta=1 -> backward Euler, theta=0.5 -> Crank-Nicolson")
 parser.add_argument("--compute-norms", action='store_true',
         help="Compute and print norms")
+parser.add_argument("--mem-per-node", type=size_from_string,
+        help="Limit the total memory usage of all ranks on each node (MB)")
+parser.add_argument("--dedicated-node-for-rank0", action='store_true',
+        help="A whole node was dedicated to rank 0 by MPI launcher " +
+            "(affects memory limits)")
 parser.add_argument("--verbose", action='store_true',
         help="Enable extra logging")
 args = parser.parse_args()
@@ -56,6 +76,25 @@ if comm.rank == 0:
             "(", comm.size, ")", \
             "ranks_per_node", args.ranks_per_node, \
             "mesh", args.mesh_size)
+
+if args.mem_per_node is not None:
+    import resource
+    mem_res = resource.RLIMIT_AS
+    mem_per_node = args.mem_per_node
+    def_soft_lim, def_hard_lim = resource.getrlimit(mem_res)
+    if args.dedicated_node_for_rank0 and comm.rank == 0:
+        # Assumes a rankfile that dedicates a whole node to rank 0
+        soft_lim = mem_per_node
+    else:
+        soft_lim = mem_per_node // args.ranks_per_node
+    resource.setrlimit(mem_res, (soft_lim, def_hard_lim))
+    if comm.rank == 0 or comm.rank == 1:
+        print("rank", comm.rank, "Node Mem =", mem_per_node // 1024**2, "MB",
+                "Per Rank:",
+                "Soft Lim:", def_soft_lim // 1024**2, "->",
+                soft_lim // 1024**2, "MB",
+                "Hard Lim", def_hard_lim // 1024**2, "->",
+                def_hard_lim // 1024**2, "MB")
 
 tasks = args.tasks.split(",")
 if 'setup' in tasks:
