@@ -72,8 +72,8 @@ comm = MPI.COMM_WORLD
 
 if comm.rank == 0:
     import platform
-    print("rank 0 node: ", platform.node(), "ranks", args.ranks, \
-            "(", comm.size, ")", \
+    print("rank 0 node: ", platform.node(), "pid", os.getpid(),
+            "ranks", args.ranks, "(", comm.size, ")", \
             "ranks_per_node", args.ranks_per_node, \
             "mesh", args.mesh_size)
 
