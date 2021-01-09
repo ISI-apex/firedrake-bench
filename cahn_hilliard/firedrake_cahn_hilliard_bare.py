@@ -2,7 +2,9 @@ import os
 import sys
 import time
 import argparse
+import resource
 import numpy as np
+from collections import OrderedDict
 
 from mpi4py import MPI
 from firedrake import *
@@ -68,6 +70,9 @@ parser.add_argument("--verbose", action='store_true',
         help="Enable extra logging")
 args = parser.parse_args()
 
+def get_mem_mb():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+
 comm = MPI.COMM_WORLD
 
 if comm.rank == 0:
@@ -78,7 +83,6 @@ if comm.rank == 0:
             "mesh", args.mesh_size)
 
 if args.mem_per_node is not None:
-    import resource
     mem_res = resource.RLIMIT_AS
     mem_per_node = args.mem_per_node
     def_soft_lim, def_hard_lim = resource.getrlimit(mem_res)
@@ -96,6 +100,11 @@ if args.mem_per_node is not None:
                 "Hard Lim", def_hard_lim // 1024**2, "->",
                 def_hard_lim // 1024**2, "MB")
 
+peak_mem = OrderedDict()
+peak_mem['init'] = get_mem_mb()
+if comm.rank == 0 or comm.rank == 1:
+    print("rank %u: init: peak mem %.0f MB" % (comm.rank, peak_mem['init']))
+
 tasks = args.tasks.split(",")
 if 'setup' in tasks:
     assert 'mesh' in tasks
@@ -106,8 +115,10 @@ if 'mesh' in tasks:
     time_mesh_begin = time.time()
     mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
     time_mesh_end = time.time()
-    if comm.rank == 0:
-        print("step mesh took: %.2f s" % (time_mesh_end - time_mesh_begin))
+    peak_mem['mesh'] = get_mem_mb()
+    if comm.rank == 0 or comm.rank == 1:
+        print("rank %u: step mesh took: %.2f s, peak mem %.0f MB" % \
+                (comm.rank, time_mesh_end - time_mesh_begin, peak_mem['mesh']))
 
 if 'setup' in tasks:
     time_setup_begin = time.time()
@@ -119,8 +130,10 @@ if 'setup' in tasks:
             maxit=args.max_iterations, verbose=args.verbose,
             out_lib_dir=os.path.join(os.getcwd(), 'ch_build'))
     time_setup_end = time.time()
-    if comm.rank == 0:
-        print("step setup took: %.2f s" % (time_setup_end - time_setup_begin))
+    peak_mem['setup'] = get_mem_mb()
+    if comm.rank == 0 or comm.rank == 1:
+        print("rank %u: step setup took: %.2f s, peak mem %.0f MB" % \
+                (comm.rank, time_setup_end - time_setup_begin, peak_mem['setup']))
 
 if 'solve' in tasks:
     # Output file
@@ -135,30 +148,49 @@ if 'solve' in tasks:
             inner_ksp=args.inner_ksp, maxit=args.max_iterations,
             compute_norms=args.compute_norms, out_file=file)
     time_solve_end = time.time()
-    if comm.rank == 0:
-        print("step solve took: %.2f s" % (time_solve_end - time_solve_begin))
+    peak_mem['solve'] = get_mem_mb()
+    if comm.rank == 0 or comm.rank == 1:
+        print("rank %u: step solve took: %.2f s, peak mem %.0f MB" % \
+                (comm.rank, time_solve_end - time_solve_begin, peak_mem['solve']))
 
-if comm.rank == 0 and args.elapsed_out is not None:
-    from collections import OrderedDict
-    times = OrderedDict()
-    times["mesh"] = args.mesh_size
-    times["ranks"] = args.ranks
-    times["ranks_per_node"] = args.ranks_per_node
-    times["mesh_s"]  = time_mesh_end - time_mesh_begin \
+if args.elapsed_out is not None:
+    measurements = OrderedDict()
+    measurements["mesh"] = args.mesh_size
+    measurements["ranks"] = args.ranks
+    measurements["ranks_per_node"] = args.ranks_per_node
+    measurements["mesh_s"]  = time_mesh_end - time_mesh_begin \
             if 'mesh' in tasks else np.nan
-    times["setup_s"] = time_setup_end - time_setup_begin \
+    measurements['mesh_peakmem_mb'] = peak_mem['mesh']
+    measurements["setup_s"] = time_setup_end - time_setup_begin \
             if 'setup' in tasks else np.nan
-    times["solve_s"] = time_solve_end - time_solve_begin \
+    measurements['setup_peakmem_mb'] = peak_mem['setup']
+    measurements["solve_s"] = time_solve_end - time_solve_begin \
             if 'solve' in tasks else np.nan
-    times["total_s"] = times['mesh_s'] + times['setup_s'] + times['solve_s'] \
+    measurements['solve_peakmem_mb'] = peak_mem['solve']
+    measurements["total_s"] = measurements['mesh_s'] + \
+            measurements['setup_s'] + measurements['solve_s'] \
             if 'mesh' in tasks and 'setup' in tasks and 'solve' in tasks \
             else np.nan
 
-    # note: if you open this earlier, the FD breaks somehow (???)
-    fout = open(args.elapsed_out, "w")
-    print(",".join(times.keys()), file=fout)
-    print(",".join([str(v) for v in times.values()]), file=fout)
-    fout.close()
+    if comm.rank == 0 or comm.rank == 1:
+        for m, v in measurements.items():
+            print("rank %u: %20s: %8.2f" % (comm.rank, m, v))
 
-    for step, t in times.items():
-        print("%20s: %8.2f" % (step, t))
+    if comm.rank == 0:
+        # note: if you open this earlier, the FD breaks somehow (???)
+        fout = open(args.elapsed_out, "w")
+        print("rank," + ",".join(measurements.keys()), file=fout)
+
+        def save_measurements_row(rank, measurements):
+            print(f"{rank}," + ",".join([str(v) for v in measurements.values()]), file=fout)
+
+    if comm.rank != 0:
+        comm.send(measurements, dest=0)
+    else:
+        save_measurements_row(comm.rank, measurements)
+        for rank in range(1, comm.size):
+            measurements_other = comm.recv(source=rank)
+            save_measurements_row(rank, measurements_other)
+
+    if comm.rank == 0:
+        fout.close()
