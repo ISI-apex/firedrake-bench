@@ -117,6 +117,10 @@ if 'setup' in tasks:
 if 'solve' in tasks:
     assert 'setup' in tasks
 
+# We want to print progress as we go for purposes of debugging failed jobs,
+# but we also want all output collected by rank at the end for easy viewing.
+log_lines = []
+
 peak_mem_pre_alloc = get_mem_mb()
 print("rank", comm.rank, "node ", platform.node(),
     "mesh", args.mesh_size,
@@ -137,8 +141,12 @@ if 'mesh' in tasks:
     time_mesh_end = time.time()
     peak_mem['mesh'] = get_mem_mb()
     if comm.rank == 0 or comm.rank == 1:
-        print("rank %u: step mesh took: %.2f s, peak mem %.0f MB" % \
-                (comm.rank, time_mesh_end - time_mesh_begin, peak_mem['mesh']))
+        log_line = \
+            "rank %u: step mesh took: %.2f s, peak mem %.0f MB: %s" % \
+            (comm.rank, time_mesh_end - time_mesh_begin,
+                peak_mem['mesh'])
+        log_lines.append(log_line)
+        print(log_line)
 
 if 'setup' in tasks:
     time_setup_begin = time.time()
@@ -152,8 +160,12 @@ if 'setup' in tasks:
     time_setup_end = time.time()
     peak_mem['setup'] = get_mem_mb()
     if comm.rank == 0 or comm.rank == 1:
-        print("rank %u: step setup took: %.2f s, peak mem %.0f MB" % \
-                (comm.rank, time_setup_end - time_setup_begin, peak_mem['setup']))
+        log_line = \
+                "rank %u: step setup took: %.2f s, peak mem %.0f MB" % \
+                (comm.rank, time_setup_end - time_setup_begin,
+                peak_mem['setup'])
+        log_lines.append(log_line)
+        print(log_line)
 
 if 'solve' in tasks:
     # Output file
@@ -170,8 +182,12 @@ if 'solve' in tasks:
     time_solve_end = time.time()
     peak_mem['solve'] = get_mem_mb()
     if comm.rank == 0 or comm.rank == 1:
-        print("rank %u: step solve took: %.2f s, peak mem %.0f MB" % \
-                (comm.rank, time_solve_end - time_solve_begin, peak_mem['solve']))
+        log_line = \
+                "rank %u: step solve took: %.2f s, peak mem %.0f MB" % \
+                (comm.rank, time_solve_end - time_solve_begin,
+                peak_mem['solve'])
+        log_lines.append(log_line)
+        print(log_line)
 
 if args.elapsed_out is not None:
     measurements = OrderedDict()
@@ -193,6 +209,8 @@ if args.elapsed_out is not None:
             else np.nan
 
     if comm.rank == 0 or comm.rank == 1:
+        for l in log_lines:
+            print(l)
         for m, v in measurements.items():
             print("rank %u: %20s: %8.2f" % (comm.rank, m, v))
 
