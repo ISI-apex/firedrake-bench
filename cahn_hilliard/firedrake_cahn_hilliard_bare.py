@@ -7,6 +7,8 @@ import platform
 import numpy as np
 from collections import OrderedDict
 
+import timings
+
 from mpi4py import MPI
 from firedrake import *
 
@@ -141,10 +143,12 @@ if 'mesh' in tasks:
     time_mesh_end = time.time()
     peak_mem['mesh'] = get_mem_mb()
     if comm.rank == 0 or comm.rank == 1:
+        breakdown = ";".join(["%s=%.2f s/MB" % (m, v) \
+                for m, v in timings.items()])
         log_line = \
             "rank %u: step mesh took: %.2f s, peak mem %.0f MB: %s" % \
             (comm.rank, time_mesh_end - time_mesh_begin,
-                peak_mem['mesh'])
+                peak_mem['mesh'], breakdown)
         log_lines.append(log_line)
         print(log_line)
 
@@ -209,6 +213,8 @@ if args.elapsed_out is not None:
             else np.nan
 
     if comm.rank == 0 or comm.rank == 1:
+        for m, v in timings.items():
+            measurements[m] = v
         for l in log_lines:
             print(l)
         for m, v in measurements.items():
