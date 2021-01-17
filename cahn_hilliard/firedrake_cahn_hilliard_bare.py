@@ -218,7 +218,7 @@ if args.elapsed_out is not None:
         for l in log_lines:
             print(l)
         for m, v in measurements.items():
-            print("rank %u: %20s: %8.2f" % (comm.rank, m, v))
+            print("rank %u: %40s: %8.2f" % (comm.rank, m, v))
 
     if comm.rank == 0:
         # note: if you open this earlier, the FD breaks somehow (???)
