@@ -93,7 +93,13 @@ if args.mem_per_node is not None:
         soft_lim = mem_per_node // args.ranks_per_node
     resource.setrlimit(mem_res, (soft_lim, def_hard_lim))
     if comm.rank == 0 or comm.rank == 1:
-        print("rank", comm.rank, "Node Mem =", mem_per_node // 1024**2, "MB",
+            soft_lim = mem_per_node // min(args.ranks_per_node, comm.size - 1)
+    else:
+        soft_lim = mem_per_node // min(args.ranks_per_node, comm.size)
+    resource.setrlimit(mem_res, (soft_lim, def_hard_lim))
+    if comm.rank == 0 or comm.rank == 1:
+        print("rank", comm.rank, "node ", platform.node(),
+                "Node Mem =", mem_per_node // 1024**2, "MB",
                 "Per Rank:",
                 "Soft Lim:", def_soft_lim // 1024**2, "->",
                 soft_lim // 1024**2, "MB",
