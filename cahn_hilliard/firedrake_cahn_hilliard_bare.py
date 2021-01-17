@@ -212,6 +212,10 @@ if args.elapsed_out is not None:
             if 'mesh' in tasks and 'setup' in tasks and 'solve' in tasks \
             else np.nan
 
+    # Prevent interleaving of printed lines among ranks: make ranks > 0 wait
+    if comm.rank != 0:
+        comm.barrier()
+
     if comm.rank == 0 or comm.rank == 1:
         for m, v in timings.items():
             measurements[m] = v
@@ -219,6 +223,9 @@ if args.elapsed_out is not None:
             print(l)
         for m, v in measurements.items():
             print("rank %u: %40s: %8.2f" % (comm.rank, m, v))
+
+    if comm.rank == 0:
+        comm.barrier()
 
     if comm.rank == 0:
         # note: if you open this earlier, the FD breaks somehow (???)
