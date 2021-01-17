@@ -69,6 +69,8 @@ parser.add_argument("--mem-per-node", type=size_from_string,
 parser.add_argument("--dedicated-node-for-rank0", action='store_true',
         help="A whole node was dedicated to rank 0 by MPI launcher " +
             "(affects memory limits)")
+parser.add_argument("--monitor-mem", type=float,
+        help="Print peak memory usage every N seconds.")
 parser.add_argument("--verbose", action='store_true',
         help="Enable extra logging")
 args = parser.parse_args()
@@ -107,6 +109,36 @@ if args.mem_per_node is not None:
                 soft_lim // 1024**2, "MB",
                 "Hard Lim", def_hard_lim // 1024**2, "->",
                 def_hard_lim // 1024**2, "MB")
+
+if args.monitor_mem is not None and (comm.rank == 0 or comm.rank == 1):
+    # Note: neither threading.Timer nor signal is perfect: apparently neither
+    # can't preempt execution of C code, so the output may stop, but it appears
+    # to be working just barely enough.
+    import threading
+    class MemMon:
+        def __init__(self, interval):
+            self.interval = interval
+            self.active = True
+            self.print_peak_mem()
+
+        def print_peak_mem(self):
+            res = resource.getrusage(resource.RUSAGE_SELF)
+            peak_mem_mb = res.ru_maxrss / 1024
+            print("rank", comm.rank, "node ", platform.node(),
+                "mesh", args.mesh_size,
+                "ranks", comm.size, "ranks_per_node", args.ranks_per_node,
+                "peak mem", peak_mem_mb, "MB")
+            self.mem_mon_timer = threading.Timer(self.interval, \
+                    self.print_peak_mem)
+            if self.active:
+                self.mem_mon_timer.start()
+
+        def stop(self):
+            self.active = False
+            self.mem_mon_timer.cancel()
+            self.mem_mon_timer = None
+
+    mem_mon = MemMon(args.monitor_mem)
 
 peak_mem = OrderedDict()
 peak_mem['init'] = get_mem_mb()
@@ -245,3 +277,6 @@ if args.elapsed_out is not None:
 
     if comm.rank == 0:
         fout.close()
+
+if mem_mon is not None:
+    mem_mon.stop()
