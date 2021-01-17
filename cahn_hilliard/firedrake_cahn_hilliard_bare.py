@@ -180,15 +180,15 @@ if args.elapsed_out is not None:
     measurements["ranks_per_node"] = args.ranks_per_node
     measurements["mesh_s"]  = time_mesh_end - time_mesh_begin \
             if 'mesh' in tasks else np.nan
-    measurements['mesh_peakmem_mb'] = peak_mem['mesh']
+    measurements['mesh_peakmem_mb'] = peak_mem.get('mesh', np.nan)
     measurements["setup_s"] = time_setup_end - time_setup_begin \
             if 'setup' in tasks else np.nan
-    measurements['setup_peakmem_mb'] = peak_mem['setup']
+    measurements['setup_peakmem_mb'] = peak_mem.get('setup', np.nan)
     measurements["solve_s"] = time_solve_end - time_solve_begin \
             if 'solve' in tasks else np.nan
-    measurements['solve_peakmem_mb'] = peak_mem['solve']
+    measurements['solve_peakmem_mb'] = peak_mem.get('solve', np.nan)
     measurements["total_s"] = measurements['mesh_s'] + \
-            measurements['setup_s'] + measurements['solve_s'] \
+            measurements['setup_s'] + measurements.get('solve_s', np.nan) \
             if 'mesh' in tasks and 'setup' in tasks and 'solve' in tasks \
             else np.nan
 
