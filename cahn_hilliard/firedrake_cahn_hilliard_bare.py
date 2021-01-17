@@ -117,9 +117,23 @@ if 'setup' in tasks:
 if 'solve' in tasks:
     assert 'setup' in tasks
 
+peak_mem_pre_alloc = get_mem_mb()
+print("rank", comm.rank, "node ", platform.node(),
+    "mesh", args.mesh_size,
+    "ranks", comm.size, "ranks_per_node", args.ranks_per_node,
+    "mem prior to allocation", peak_mem_pre_alloc, "MB")
+
 if 'mesh' in tasks:
     time_mesh_begin = time.time()
-    mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
+    try:
+        mesh = CahnHilliardProblem.make_mesh(args.mesh_size)
+    except MemoryError:
+        peak_mem_at_failure = get_mem_mb()
+        print("rank", comm.rank, "node ", platform.node(),
+            "mesh", args.mesh_size,
+            "ranks", comm.size, "ranks_per_node", args.ranks_per_node,
+            "mem at failure", peak_mem_at_failure, "MB")
+        raise
     time_mesh_end = time.time()
     peak_mem['mesh'] = get_mem_mb()
     if comm.rank == 0 or comm.rank == 1:
