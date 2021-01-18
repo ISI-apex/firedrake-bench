@@ -90,13 +90,10 @@ if args.mem_per_node is not None:
     mem_res = resource.RLIMIT_AS
     mem_per_node = args.mem_per_node
     def_soft_lim, def_hard_lim = resource.getrlimit(mem_res)
-    if args.dedicated_node_for_rank0 and comm.rank == 0:
-        # Assumes a rankfile that dedicates a whole node to rank 0
-        soft_lim = mem_per_node
-    else:
-        soft_lim = mem_per_node // args.ranks_per_node
-    resource.setrlimit(mem_res, (soft_lim, def_hard_lim))
-    if comm.rank == 0 or comm.rank == 1:
+    if args.dedicated_node_for_rank0:
+        if comm.rank == 0:
+            soft_lim = mem_per_node
+        else:
             soft_lim = mem_per_node // min(args.ranks_per_node, comm.size - 1)
     else:
         soft_lim = mem_per_node // min(args.ranks_per_node, comm.size)
@@ -154,6 +151,12 @@ if 'solve' in tasks:
 # We want to print progress as we go for purposes of debugging failed jobs,
 # but we also want all output collected by rank at the end for easy viewing.
 log_lines = []
+
+# TODO: TEMPORARY: halt ranks 2+ to prevent them allocating any mem,
+# in order to measure the mem consumption of rank 1 on debug queue,
+# with very high rank counts (oversubscribed)
+#if comm.rank > 1:
+#    comm.barrier()
 
 peak_mem_pre_alloc = get_mem_mb()
 print("rank", comm.rank, "node ", platform.node(),
