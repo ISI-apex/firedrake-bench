@@ -247,13 +247,14 @@ if args.elapsed_out is not None:
             if 'mesh' in tasks and 'setup' in tasks and 'solve' in tasks \
             else np.nan
 
+    for m, v in timings.items():
+        measurements[m] = v
+
     # Prevent interleaving of printed lines among ranks: make ranks > 0 wait
     if comm.rank != 0:
         comm.barrier()
 
     if comm.rank == 0 or comm.rank == 1:
-        for m, v in timings.items():
-            measurements[m] = v
         for l in log_lines:
             print(l)
         for m, v in measurements.items():
