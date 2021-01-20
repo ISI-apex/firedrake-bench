@@ -282,5 +282,6 @@ if args.elapsed_out is not None:
     if comm.rank == 0:
         fout.close()
 
-if mem_mon is not None:
-    mem_mon.stop()
+if comm.rank == 0 or comm.rank == 1:
+    if mem_mon is not None:
+        mem_mon.stop()
