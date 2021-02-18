@@ -136,6 +136,8 @@ if args.monitor_mem is not None and (comm.rank == 0 or comm.rank == 1):
             self.mem_mon_timer = None
 
     mem_mon = MemMon(args.monitor_mem)
+else:
+    mem_mon = None
 
 peak_mem = OrderedDict()
 peak_mem['init'] = get_mem_mb()
