@@ -189,7 +189,7 @@ class CahnHilliardProblem:
                 l.compute()
             solver.solve()
             if out_file is not None:
-                out_file << (u.split()[0], step)
+                out_file.write(u.split()[0], time=step)
             if compute_norms:
                 nu = norm(u)
                 if comm.rank == 0:
