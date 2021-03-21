@@ -147,11 +147,15 @@ class CahnHilliardProblem:
             maxit, inner_ksp, compute_norms=False, out_file=None):
 
         def invoke_loops(loops):
-            for l in loops:
+            for i, l in enumerate(loops):
+                loop_start = time.perf_counter()
                 if hasattr(l, "compute"): # some are funcs
                     r = l.compute()
                 else:
                     r = l()
+                loop_end = time.perf_counter()
+                loop_elapsed = loop_end - loop_start
+                timings.save(f"kern_{i}", loop_elapsed, comm.rank)
             return r
 
         invoke_loops([init_loop])
