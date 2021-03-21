@@ -84,7 +84,9 @@ if comm.rank == 0:
     print("rank 0 node: ", platform.node(), "pid", os.getpid(),
             "ranks", args.ranks, "(", comm.size, ")", \
             "ranks_per_node", args.ranks_per_node, \
-            "mesh", args.mesh_size)
+            "mesh", args.mesh_size, \
+            "timesteps", args.steps, "max_iters", args.max_iterations, \
+            "dt", args.dt)
 
 if args.mem_per_node is not None:
     mem_res = resource.RLIMIT_AS
@@ -235,6 +237,9 @@ if args.elapsed_out is not None:
     measurements["mesh"] = args.mesh_size
     measurements["ranks"] = args.ranks
     measurements["ranks_per_node"] = args.ranks_per_node
+    measurements["timesteps"] = args.steps
+    measurements["dt"] = args.dt
+    measurements["max_iters"] = args.max_iterations
     measurements["mesh_s"]  = time_mesh_end - time_mesh_begin \
             if 'mesh' in tasks else np.nan
     measurements['mesh_peakmem_mb'] = peak_mem.get('mesh', np.nan)
