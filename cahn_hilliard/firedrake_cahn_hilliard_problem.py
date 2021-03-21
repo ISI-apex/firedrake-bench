@@ -4,6 +4,9 @@ from pyop2.configuration import configuration
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
 
+import time
+import timings
+
 class CahnHilliardProblem:
 
     def make_mesh(x, dim=2):
@@ -171,15 +174,22 @@ class CahnHilliardProblem:
         ksp_hats.setFromOptions()
 
         class SchurInv(object):
+            kern_total = 0.0
             def mult(self, mat, x, y):
+                kern_start = time.perf_counter()
+
                 tmp1 = y.duplicate()
                 tmp2 = y.duplicate()
                 ksp_hats.solve(x, tmp1)
                 mass.mult(tmp1, tmp2)
                 ksp_hats.solve(tmp2, y)
 
+                kern_end = time.perf_counter()
+                self.kern_total += kern_end - kern_start
+
         pc_schur = PETSc.Mat()
-        pc_schur.createPython(mass.getSizes(), SchurInv())
+        schur_inv = SchurInv()
+        pc_schur.createPython(mass.getSizes(), schur_inv)
         pc_schur.setUp()
         pc = solver.snes.ksp.pc
         pc.setFieldSplitSchurPreType(PETSc.PC.SchurPreType.USER, pc_schur)
@@ -194,3 +204,5 @@ class CahnHilliardProblem:
                 nu = norm(u)
                 if comm.rank == 0:
                     print(step, 'L2(u):', nu)
+
+        timings.save("SchurInv_kern", schur_inv.kern_total, comm.rank)
