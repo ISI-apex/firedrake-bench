@@ -18,7 +18,7 @@ class CahnHilliardProblem:
 
         params = {'pc_type': pc,
                   'ksp_type': ksp,
-                  #'ksp_monitor': True,
+                  #'ksp_monitor': None,
 
                   # TODO: suddenly broken on Theta (debug queue)???
                   #'snes_monitor': None,
