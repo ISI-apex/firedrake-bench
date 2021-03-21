@@ -46,7 +46,7 @@ parser.add_argument("--elapsed-out",
         help="Output filename where to save measured times (CSV)")
 parser.add_argument("--degree", type=int, default=1,
         help="Degree of the problem")
-parser.add_argument("--steps", type=int, default=1,
+parser.add_argument("--steps", type=int, default=25,
         help="Number of timesteps to solve")
 parser.add_argument("--preconditioner", default='fieldsplit',
         help="Preconditioner to use")
@@ -54,7 +54,7 @@ parser.add_argument("--ksp", default='gmres',
         help="Solver to use")
 parser.add_argument("--inner-ksp", default='preonly',
         help="Inner solver to use")
-parser.add_argument("--max-iterations", type=int, default=1,
+parser.add_argument("--max-iterations", type=int, default=100,
         help="Inner solver to use")
 parser.add_argument("--lmbda", type=float, default=1.0e-02,
         help="Surface parameter")
