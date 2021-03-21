@@ -23,31 +23,31 @@ class CahnHilliardProblem:
                   # TODO: suddenly broken on Theta (debug queue)???
                   #'snes_monitor': None,
 
-                  #'snes_rtol': 1e-9,
-                  #'snes_atol': 1e-10,
-                  #'snes_stol': 1e-14,
+                  # HIGH QUALITY
+                  'snes_rtol': 1e-10,
+                  'snes_atol': 1e-11,
+                  'snes_stol': 1e-15,
 
-                  'snes_rtol': 1e-5,
-                  'snes_atol': 1e-6,
-                  'snes_stol': 1e-7,
-
-                  #'snes_rtol': 1e-4,
+                  # LOW QUALITY
+                  #'snes_rtol': 1e-5,
                   #'snes_atol': 1e-6,
-                  #'snes_stol': 1e-8,
+                  #'snes_stol': 1e-7,
 
-                  #'snes_rtol': 1e-2,
-                  #'snes_atol': 1e-4,
-                  #'snes_stol': 1e-6,
                   'snes_linesearch_type': 'basic',
-                  'snes_linesearch_max_it': 1,
-                  #'ksp_rtol': 1e-6,
-                  #'ksp_atol': 1e-15,
 
-                  #'ksp_rtol': 1e-5,
-                  #'ksp_atol': 1e-9,
+                  # LOW QUALITY
+                  #'snes_linesearch_max_it': 1,
+                  # HIGH QUALITY
+                  'snes_linesearch_max_it': 100,
 
-                  'ksp_rtol': 1e-4,
-                  'ksp_atol': 1e-8,
+                  # HIGH QUALITY
+                  'ksp_rtol': 1e-9,
+                  'ksp_atol': 1e-15,
+
+                  # LOW QUALITY
+                  #'ksp_rtol': 1e-4,
+                  #'ksp_atol': 1e-8,
+
                   'pc_fieldsplit_type': 'schur',
                   'pc_fieldsplit_schur_factorization_type': 'lower',
                   'pc_fieldsplit_schur_precondition': 'user',
