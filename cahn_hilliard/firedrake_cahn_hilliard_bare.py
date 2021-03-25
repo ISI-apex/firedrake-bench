@@ -44,6 +44,8 @@ parser.add_argument("--solution-out",
         help="Output filename where to save solution (PVD)")
 parser.add_argument("--elapsed-out",
         help="Output filename where to save measured times (CSV)")
+parser.add_argument("--obj-dir", default="ch_build",
+        help="Directory where to store compiled kernels")
 parser.add_argument("--degree", type=int, default=1,
         help="Degree of the problem")
 parser.add_argument("--steps", type=int, default=25,
@@ -199,7 +201,7 @@ if 'setup' in tasks:
             lmbda=args.lmbda,
             ksp=args.ksp, inner_ksp=args.inner_ksp,
             maxit=args.max_iterations, verbose=args.verbose,
-            out_lib_dir=os.path.join(os.getcwd(), 'ch_build'))
+            out_lib_dir=args.obj_dir)
     time_setup_end = time.time()
     peak_mem['setup'] = get_mem_mb()
     if comm.rank == 0 or comm.rank == 1:
