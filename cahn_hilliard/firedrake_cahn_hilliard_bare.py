@@ -165,10 +165,11 @@ log_lines = []
 #    comm.barrier()
 
 peak_mem_pre_alloc = get_mem_mb()
-print("rank", comm.rank, "node ", platform.node(),
-    "mesh", args.mesh_size,
-    "ranks", comm.size, "ranks_per_node", args.ranks_per_node,
-    "mem prior to allocation", peak_mem_pre_alloc, "MB")
+if comm.rank <= 1:
+    print("rank", comm.rank, "node ", platform.node(),
+        "mesh", args.mesh_size,
+        "ranks", comm.size, "ranks_per_node", args.ranks_per_node,
+        "mem prior to allocation", peak_mem_pre_alloc, "MB")
 
 if 'mesh' in tasks:
     time_mesh_begin = time.time()
