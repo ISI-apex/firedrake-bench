@@ -268,7 +268,17 @@ if args.elapsed_out is not None:
         for l in log_lines:
             print(l)
         for m, v in measurements.items():
-            print("rank %u: %40s: %8.2f" % (comm.rank, m, v))
+            if m == "dt":
+                v = "{:e}".format(v)
+            if isinstance(v, int):
+                v_fmt = "%8d"
+            elif isinstance(v, str):
+                v_fmt = "%8s"
+            elif isinstance(v, float):
+                v_fmt = "%8.2f"
+            else:
+                v_fmt = '%r'
+            print(("rank %u: %40s: " + v_fmt) % (comm.rank, m, v))
 
     if comm.rank == 0:
         comm.barrier()
