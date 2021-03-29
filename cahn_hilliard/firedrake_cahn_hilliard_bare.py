@@ -66,6 +66,8 @@ parser.add_argument("--theta", type=float, default=0.5,
         help="Time stepping family, e.g. theta=1 -> backward Euler, theta=0.5 -> Crank-Nicolson")
 parser.add_argument("--compute-norms", action='store_true',
         help="Compute and print norms")
+parser.add_argument("--omp-threads", type=int,
+        help="Number of OpenMP threads that have been used (for reporting only)")
 parser.add_argument("--mem-per-node", type=size_from_string,
         help="Limit the total memory usage of all ranks on each node (MB)")
 parser.add_argument("--dedicated-node-for-rank0", action='store_true',
@@ -85,6 +87,7 @@ comm = MPI.COMM_WORLD
 if comm.rank == 0:
     print("rank 0 node: ", platform.node(), "pid", os.getpid(),
             "ranks", args.ranks, "(", comm.size, ")", \
+            "omp threads", args.omp_threads, \
             "ranks_per_node", args.ranks_per_node, \
             "mesh", args.mesh_size, \
             "timesteps", args.steps, "max_iters", args.max_iterations, \
@@ -239,6 +242,7 @@ if args.elapsed_out is not None:
     measurements = OrderedDict()
     measurements["mesh"] = args.mesh_size
     measurements["ranks"] = args.ranks
+    measurements["omp_threads"] = args.omp_threads
     measurements["ranks_per_node"] = args.ranks_per_node
     measurements["timesteps"] = args.steps
     measurements["dt"] = args.dt
