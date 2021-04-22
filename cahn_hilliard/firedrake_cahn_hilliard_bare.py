@@ -48,6 +48,8 @@ parser.add_argument("--obj-dir", default="ch_build",
         help="Directory where to store compiled kernels")
 parser.add_argument("--trial", type=int, default=0,
         help="Number of exerimental trial (for recording only)")
+parser.add_argument("--platform",
+        help="Idenfier for the platform (for recording only)")
 parser.add_argument("--degree", type=int, default=1,
         help="Degree of the problem")
 parser.add_argument("--steps", type=int, default=25,
@@ -93,7 +95,7 @@ if comm.rank == 0:
             "ranks_per_node", args.ranks_per_node, \
             "mesh", args.mesh_size, \
             "timesteps", args.steps, "max_iters", args.max_iterations, \
-            "dt", args.dt, "trial", args.trial)
+            "dt", args.dt, "trial", args.trial, "plat", args.plat)
 
 if args.mem_per_node is not None:
     mem_res = resource.RLIMIT_AS
@@ -250,6 +252,7 @@ if args.elapsed_out is not None:
     measurements["dt"] = args.dt
     measurements["max_iters"] = args.max_iterations
     measurements["trial"] = args.trial
+    measurements["platform"] = args.platform
     measurements["mesh_s"]  = time_mesh_end - time_mesh_begin \
             if 'mesh' in tasks else np.nan
     measurements['mesh_peakmem_mb'] = peak_mem.get('mesh', np.nan)
