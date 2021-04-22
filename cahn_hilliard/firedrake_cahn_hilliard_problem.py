@@ -21,10 +21,6 @@ class CahnHilliardProblem:
 
         params = {'pc_type': pc,
                   'ksp_type': ksp,
-                  #'ksp_monitor': None,
-
-                  # TODO: suddenly broken on Theta (debug queue)???
-                  #'snes_monitor': None,
 
                   # HIGH QUALITY
                   'snes_rtol': 1e-10,
@@ -61,9 +57,12 @@ class CahnHilliardProblem:
                   'fieldsplit_1_ksp_max_it': maxit,
                   'fieldsplit_1_pc_type': 'mat'}
         if verbose:
-            params['ksp_monitor'] = True
-            params['snes_view'] = True
-            params['snes_monitor'] = True
+            # Not sure if all of these work but some definitely do
+            params['info']: None,
+            params['log_view']: None,
+            params['ksp_monitor'] = None
+            params['snes_monitor'] = None
+            params['snes_view'] = None
         V = FunctionSpace(mesh, "Lagrange", degree)
         ME = V*V
 
