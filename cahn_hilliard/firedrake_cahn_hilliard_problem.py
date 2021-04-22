@@ -50,9 +50,14 @@ class CahnHilliardProblem:
                   'pc_fieldsplit_type': 'schur',
                   'pc_fieldsplit_schur_factorization_type': 'lower',
                   'pc_fieldsplit_schur_precondition': 'user',
+
                   'fieldsplit_0_ksp_type': inner_ksp,
                   'fieldsplit_0_ksp_max_it': maxit,
                   'fieldsplit_0_pc_type': 'hypre',
+                  'fieldsplit_0_pc_hypre_type': 'boomeramg',
+                  'fieldsplit_0_pc_hypre_boomeramg_interp_type': 'direct',
+                  'fieldsplit_0_pc_hypre_boomeramg_coarsen_type': 'PMIS',
+
                   'fieldsplit_1_ksp_type': inner_ksp,
                   'fieldsplit_1_ksp_max_it': maxit,
                   'fieldsplit_1_pc_type': 'mat'}
