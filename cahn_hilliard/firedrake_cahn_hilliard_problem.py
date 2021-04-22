@@ -63,8 +63,8 @@ class CahnHilliardProblem:
                   'fieldsplit_1_pc_type': 'mat'}
         if verbose:
             # Not sure if all of these work but some definitely do
-            params['info']: None,
-            params['log_view']: None,
+            params['info'] = None
+            params['log_view'] = None
             params['ksp_monitor'] = None
             params['snes_monitor'] = None
             params['snes_view'] = None
