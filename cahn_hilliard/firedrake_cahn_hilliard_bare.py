@@ -95,7 +95,7 @@ if comm.rank == 0:
             "ranks_per_node", args.ranks_per_node, \
             "mesh", args.mesh_size, \
             "timesteps", args.steps, "max_iters", args.max_iterations, \
-            "dt", args.dt, "trial", args.trial, "plat", args.plat)
+            "dt", args.dt, "trial", args.trial, "platform", args.platform)
 
 if args.mem_per_node is not None:
     mem_res = resource.RLIMIT_AS
